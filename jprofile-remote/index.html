@@ -1,0 +1,632 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  <meta name="description" content="前言JProfile 是 Java 常用的性能分析工具，常被用来查看内存占用，CPU 时间消耗等数据。本地配置 JProfile 较为简单，可以参考此 博客。在一些情况下，监控的 Java 服务跑在服务器上，因此不能使用本地的 JProfile 来监控。不过 JProfile 能够支持远程连接监控，只不过需要一些额外的配置。此博客的内容就是介绍如何使用 JProfile 监控远程的 Java 应用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JProfile 远程配置">
+<meta property="og:url" content="https://tanxinyu.work/jprofile-remote/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="前言JProfile 是 Java 常用的性能分析工具，常被用来查看内存占用，CPU 时间消耗等数据。本地配置 JProfile 较为简单，可以参考此 博客。在一些情况下，监控的 Java 服务跑在服务器上，因此不能使用本地的 JProfile 来监控。不过 JProfile 能够支持远程连接监控，只不过需要一些额外的配置。此博客的内容就是介绍如何使用 JProfile 监控远程的 Java 应用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_0.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_1.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_2.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_3.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_4.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_5.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_6.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_7.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_8.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_9.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_10.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_11.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_12.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_13.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_14.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_0.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_1.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_2.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_15.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_7.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_8.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_9.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_10.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_11.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_12.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_13.png">
+<meta property="og:image" content="https://tanxinyu.work/jprofile-remote/jprofile_14.png">
+<meta property="article:published_time" content="2020-10-05T09:48:00.000Z">
+<meta property="article:modified_time" content="2022-01-30T03:42:18.000Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="IoTDB">
+<meta property="article:tag" content="开发工具配置">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tanxinyu.work/jprofile-remote/jprofile_0.png">
+  
+  <title>JProfile 远程配置 - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/blog-background.jpeg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="JProfile 远程配置">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-10-05 17:48" pubdate>
+        2020年10月5日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.8k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      6 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">JProfile 远程配置</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：6 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>JProfile 是 Java 常用的性能分析工具，常被用来查看内存占用，CPU 时间消耗等数据。本地配置 JProfile 较为简单，可以参考此 <a href="https://www.javatt.com/p/48237" target="_blank" rel="noopener">博客</a>。在一些情况下，监控的 Java 服务跑在服务器上，因此不能使用本地的 JProfile 来监控。不过 JProfile 能够支持远程连接监控，只不过需要一些额外的配置。此博客的内容就是介绍如何使用 JProfile 监控远程的 Java 应用。</p>
+<h2 id="配置方案一：ssh-免密连接"><a href="#配置方案一：ssh-免密连接" class="headerlink" title="配置方案一：ssh 免密连接"></a>配置方案一：ssh 免密连接</h2><ol>
+<li>配置与服务器的免密登陆，可参考此 <a href="https://blog.csdn.net/jeikerxiao/article/details/84105529" target="_blank" rel="noopener">博客</a>。</li>
+<li>从 <a href="https://www.ej-technologies.com/download/jprofiler/files" target="_blank" rel="noopener">官方网站</a> 上根据操作系统下载对应本地和服务器的 JProfile（需要确保两者版本一致）。注意服务端选择下载 <code>Setup Executable</code> 的可执行脚本。</li>
+<li>客户端安装配置好本地的 JProfile， 然后将服务器的 JProfile 利用 scp 等工具传到服务器上去（也可在上述网页中直接复制链接在服务器上 wget 或者 curl -O 下载）。</li>
+<li>服务端执行 <code>sh ./jprofiler_linux_11_1_4.sh</code> 来安装 JProfile，无脑同意 OK 和 Enter 就能够让其正确安装并且后台运行起来。</li>
+<li>服务端启动要监控的应用程序，如 IoTDB。</li>
+<li>客户端打开 JProfile，点击 <code>Profile a demo session or a saved session</code>，选择 <code>New Session</code> 栏的 <code>New Session</code> 手动创建一个远程连接。<br><img src="/jprofile-remote/jprofile_0.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_1.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_2.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>填好 <code>Session name</code>，<code>Attach type</code> 选择 <code>Attach to remote JVM</code>，连接方式选择 <code>SSH tunnel</code>，然后点击 <code>Edit</code> 开始配置服务器 ip, host, ssh 秘钥等信息。<br><img src="/jprofile-remote/jprofile_3.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_4.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_5.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_6.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>配置完后点击 finish 再点击 ok 即可连接到远程的 JProfile，接着选择对应要监控的 Java 应用程序。<br><img src="/jprofile-remote/jprofile_7.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>配置监控模式，一般选择 <code>Async sampling</code>，该模式对性能影响最小。<br><img src="/jprofile-remote/jprofile_8.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>配置调用树的过滤器，该参数一般用来指示 jprofile 来记录 cpu view 时的函数耗时统计。加上要统计的包的前缀即可，比如 <code>org.apache.iotdb</code>。<br><img src="/jprofile-remote/jprofile_9.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_10.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_11.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_12.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>可以开始监控分析了！<br><img src="/jprofile-remote/jprofile_13.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>之后每次远程连接都可以直接到 <code>Open Session</code> 栏选择这次建好的 session 即可，不用再进行配置了。<br><img src="/jprofile-remote/jprofile_14.png" srcset="/img/loading.gif" lazyload alt></li>
+</ol>
+<h2 id="配置方案二：http-端口连接"><a href="#配置方案二：http-端口连接" class="headerlink" title="配置方案二：http 端口连接"></a>配置方案二：http 端口连接</h2><ol>
+<li>从 <a href="https://www.ej-technologies.com/download/jprofiler/files" target="_blank" rel="noopener">官方网站</a> 上根据操作系统下载对应本地和服务器的 JProfile（需要确保两者版本一致）。注意服务端选择下载 <code>TAR.GZ Archive</code> 的压缩包。</li>
+<li>客户端安装配置好本地的 JProfile， 然后将服务器的 JProfile 利用 scp 等工具传到服务器上去（也可在上述网页中直接复制链接在服务器上 wget 或者 curl -O 下载）。</li>
+<li>服务端启动要监控的应用程序，如 IoTDB。</li>
+<li>服务端执行<code>tar -zxvf jprofiler_linux_11_1_4.tar.gz</code>解压压缩包，然后执行 <code>jprofiler11.1.4/bin/jpenable -p 10000</code> 手动指定 10000 端口来启动 JProfile。（注，必须有运行的 JVM 才可以启动，并且程序一旦关闭重启服务端的 jprofile 也需要重新启动。）</li>
+<li>客户端打开 JProfile，点击 <code>Profile a demo session or a saved session</code>，选择 <code>New Session</code> 栏的 <code>New Session</code> 手动创建一个远程连接。<br><img src="/jprofile-remote/jprofile_0.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_1.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_2.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>填好 <code>Session name</code>，<code>Attach type</code> 选择 <code>Attach to remote JVM</code>，连接方式选择 <code>Directly connection to</code>，配置好 host 并指定 <code>Profiling port</code> 为服务端手动指定的端口 10000。<br><img src="/jprofile-remote/jprofile_15.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>配置完后点击 ok 即可连接到远程的 JProfile，接着选择对应要监控的 Java 应用程序。<br><img src="/jprofile-remote/jprofile_7.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>配置监控模式，一般选择 <code>Async sampling</code>，该模式对性能影响最小。<br><img src="/jprofile-remote/jprofile_8.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>配置调用树的过滤器，该参数一般用来指示 jprofile 来记录 cpu view 时的函数耗时统计。加上要统计的包的前缀即可，比如 <code>org.apache.iotdb</code>。<br><img src="/jprofile-remote/jprofile_9.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_10.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_11.png" srcset="/img/loading.gif" lazyload alt><br><img src="/jprofile-remote/jprofile_12.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>可以开始监控分析了！<br><img src="/jprofile-remote/jprofile_13.png" srcset="/img/loading.gif" lazyload alt></li>
+<li>之后每次远程连接都可以直接到 <code>Open Session</code> 栏选择这次建好的 session 即可，不用再进行配置了。<br><img src="/jprofile-remote/jprofile_14.png" srcset="/img/loading.gif" lazyload alt></li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本博客傻瓜式介绍了使用 JProfile 来对远程服务器上运行的 Java 服务进行监控分析的两种方式。其中 ssh 免密连接方式更方便，其启动时不需要有启动的 JVM 且能够自动检测随后启动的 JVM 让客户端在连接时再挑选。 http 连接方式在监控的 JVM 关闭重启后服务端的 jprofile 也需要手动重启，较为麻烦。因此建议大家都使用第一种连接方式。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/IoTDB/">IoTDB</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E9%85%8D%E7%BD%AE/">开发工具配置</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/maxcompute-yugong-thesis/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MaxCompute 跨域流量优化论文阅读</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/base-theory/">
+                        <span class="hidden-mobile">BASE 定理介绍</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>

@@ -1,0 +1,609 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  <meta name="description" content="前言FLP 不可能定理与 CAP，BASE 定理等一样，都是分布式系统的基本理论，因此我们有必要了解该理论。 本博客摘抄了此 博客 中对 FLP 不可能定理的部分描述。 定义1985 年，Fisher、Lynch、Paterson 三位科学家就发表了关于分布式一致性问题的不可能定理：在完全异步的分布式网络中，故障容错问题无法被解决。（ We have shown that a natural an">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FLP 不可能定理介绍">
+<meta property="og:url" content="https://tanxinyu.work/flp-theory/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="前言FLP 不可能定理与 CAP，BASE 定理等一样，都是分布式系统的基本理论，因此我们有必要了解该理论。 本博客摘抄了此 博客 中对 FLP 不可能定理的部分描述。 定义1985 年，Fisher、Lynch、Paterson 三位科学家就发表了关于分布式一致性问题的不可能定理：在完全异步的分布式网络中，故障容错问题无法被解决。（ We have shown that a natural an">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tanxinyu.work/flp-theory/flp.png">
+<meta property="article:published_time" content="2021-03-28T03:44:16.000Z">
+<meta property="article:modified_time" content="2022-01-30T03:41:41.000Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="分布式系统理论">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tanxinyu.work/flp-theory/flp.png">
+  
+  <title>FLP 不可能定理介绍 - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/blog-background.jpeg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="FLP 不可能定理介绍">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-03-28 11:44" pubdate>
+        2021年3月28日 中午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.8k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      9 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">FLP 不可能定理介绍</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：6 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>FLP 不可能定理与 CAP，BASE 定理等一样，都是分布式系统的基本理论，因此我们有必要了解该理论。</p>
+<p>本博客摘抄了此 <a href="https://mp.weixin.qq.com/s/LOUDWn7evcePCPGWar8vEA" target="_blank" rel="noopener">博客</a> 中对 FLP 不可能定理的部分描述。</p>
+<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>1985 年，Fisher、Lynch、Paterson 三位科学家就发表了关于分布式一致性问题的不可能定理：在完全异步的分布式网络中，故障容错问题无法被解决。（ <code>We have shown that a natural and important problem of fault-tolerant cooperative computing cannot be solved in a totally asynchronous model of computation</code>）</p>
+<p>说得更直白点：在异步网络中，不可能存在能够容忍节点故障的一致性算法，哪怕只有一个节点故障。并且这里并没有考虑拜占庭错误，而是假设网络非常稳定、所有的消息都能被正确传递、并且仅被传递一次，即便如此都不可能找到能容忍哪怕只有一个节点失效的一致性协议，可见该结论有多强。（ <code>In this paper, we show the surprising result that no completely asynchronous consensus protocol can tolerate even a single unannounced process death. We do not consider Byzantine failures, and we assume that the message system is reliableit delivers all messages correctly and exactly once</code>）</p>
+<p>现实生活中的系统往往都是异步系统。因为系统中各个节点之间的延时，是否宕机等等都是不确定的。那么，在最小化异步模型系统中，是否存在一个可以解决一致性问题的确定性共识算法？</p>
+<p>FLP 不可能定理的最大适用前提是异步网络模型。何为同步、异步模型呢？</p>
+<ul>
+<li>所谓异步模型，是说从一个节点到另一个节点的消息延迟是有限的，但可能是无界的（finite but can be unbounded）。这就意味着如果一个节点没有收到消息，它无法判断消息到底是丢失了，还是只是延迟了。也就是说，我们无法通过超时时间来判断某个节点是否故障。</li>
+<li>所谓同步模型，是说消息传递的延迟是有限的，且是有界的。这就意味着我们可以通过经验或采样精确估算消息的最大可能延迟，从而可以通过超时时间来确定消息是否丢失、节点是否故障。</li>
+</ul>
+<p>所幸的是，我们所处于的真实的网络世界更接近同步模型，在很多场景上，我们都可以通过经验或采样确定最大超时时间。举个通俗点的例子：你给朋友快递了一本书，朋友过了 3 天还没收到，此时朋友很难判断到底是快递延迟了，还是快递出问题送丢了。但是如果过了一个月，朋友仍没收到书，基本就可以断定快递送丢了。而背后的推论就是基于经验或统计：通常快递都能在 1-2 周内送达。显然，异步模型其实是反映了节点间通讯的最差情况、极端情况，异步模型包含了同步模型，即能在异步模型上有效的一致性协议，在同步模型上也同样有效。而同步模型是对异步模型做了修正和约束，从而使得更接近真实世界，也使得在实践中一致性问题有可能得到有效解。</p>
+<p>另外，即便是在异步网络模型下，FLP 也并不意味着一致性永远无法达成，只是说无法保证在有界的时间（in bounded time）内达成。在实践上，如果放宽对 bounded time 的限制，仍然是有可能找到实践中的解法的。</p>
+<p>根据 DLS 的 <a href="http://groups.csail.mit.edu/tds/papers/Lynch/jacm88.pdf" target="_blank" rel="noopener">研究</a>，一致性算法按照网络模型可以分为三大类：</p>
+<ul>
+<li>部分同步网络模型（partially synchronous model）中的一致性协议可以容忍最多 1/3 的任意错误。这里的部分同步模型是指网络延迟是有界的，但是我们无法提前得知。这里的容错也包含了拜占庭类错误。</li>
+<li>异步网络模型（asynchronous model）中的确定性协议无法容忍错误。这里的异步模型即是前文所说的网络延迟是无界的。该结论其实就是 FLP 不可能定理的含义，在完全异步网络中的确定性协议不能容忍哪怕只有一个节点的错误。</li>
+<li>同步网络模型（synchronous model）可以达到惊人的 100% 容错，虽然对错误节点超过 1/2 时的节点行为有限制。这里的同步模型是指网络延迟一定是有界的，即小于某个已知的常数。</li>
+</ul>
+<p>从另一个角度来理解，FLP 实际上考虑了分布式系统的 3 个属性：安全 (safety)、活性（liveness)、容错：</p>
+<ul>
+<li>安全是说系统内各个节点达成的值是一致的、有效的。safety 其实是保证系统一致性运行的最低要求，其核心是 cannot do something bad，即不能干坏事、不能做错事。</li>
+<li>活性是说系统内各个节点最终（在有限时间内）必须能够达成一致，即系统必须能够向前推进，不能永远处于达不成一致的状态。liveness 其实是更高要求，意味着不能只是不干坏事，也不能一直不干事，you must do something good，即必须使得整个系统能良好运转下去。</li>
+<li>容错是说该协议在有节点故障的情况下也必须能有效。</li>
+</ul>
+<p>FLP 不可能定理其实意味着在异步网络中，不可能存在同时满足这三者的分布式一致性协议。因为分布式环境中，节点故障几乎是必然的，因此容错是必须要考虑的因素，所以 FLP 不可能定理就意味着一致性协议在能做到容错的情况下，没办法同时做到安全性与系统活性。通常在实践中，我们可以做出部分牺牲，比如牺牲一部分安全性，意味着系统总能很快达成结论，但结论的可靠性不足；或者牺牲一部分系统活性，意味着系统达成的结论非常可靠，但可能长时间、甚至永远都在争论中，无法达成结论。所幸的是，很多时候现实世界的鲁棒性很强，使一致性协议失效的倒霉事件发生的概率也很可能极低。例如分布式共识协议 Paxos 和 Raft 都是保证了容错性和 safety，然后通过随机超时时间来规避 liveness 的问题。</p>
+<p><img src="/flp-theory/flp.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>FLP 不可能定理的推导和应用可以参考此 <a href="https://www.daimajiaoliu.com/daima/479430766100400" target="_blank" rel="noopener">博客</a>。</p>
+<p>此外，有关论文 <a href="https://groups.csail.mit.edu/tds/papers/Lynch/jacm85.pdf" target="_blank" rel="noopener">Impossibility of Distributed Consensus with One Faulty Process</a> 的阅读博客可以参考 <a href="https://www.inlighting.org/archives/understand-flp-impossibility/" target="_blank" rel="noopener">理解 FLP-Impossibility 论文</a>。</p>
+<h2 id="与-CAP-定理的区别"><a href="#与-CAP-定理的区别" class="headerlink" title="与 CAP 定理的区别"></a>与 CAP 定理的区别</h2><p>CAP 与 FLP 看起来有相似之处，其实二者并不尽相同，二者是从不同的维度思考问题，另外即使是很相似的概念，内涵也并不完全一样。比如：</p>
+<ul>
+<li>FLP 面对的是分布式一致性问题，而 CAP 面对的是分布式网络中的数据同步与复制。</li>
+<li>FLP 是说在异步网络模型中，三者不可能同时实现；而 CAP 是说在所有场景下，三者都不可能同时实现。</li>
+<li>FLP 中的 liveness 强调的是一致性算法的内在属性；而 CAP 中的 availability 强调的是一致性算法对外呈现的外在属性。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇博客摘抄了部分优质博客对 FLP 不可能定理的介绍，以做学习记录和索引。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/consistency-and-consensus/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一致性模型与共识算法</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/time-clock-order-in-distributed-system-thesis/">
+                        <span class="hidden-mobile">Time, Clocks, and the Ordering of Events in a Distributed System 论文阅读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>

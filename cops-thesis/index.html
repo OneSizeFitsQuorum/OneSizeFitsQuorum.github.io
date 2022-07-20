@@ -1,0 +1,632 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  <meta name="description" content="背景考虑这么一个问题：对于大型网站的异地复制，公司存在多个数据中心，每个数据中心拥有全量数据，读均为本地读。那么写应该怎么实现？一致性应该如何取舍？ 对于以上背景，Spanner 和 Facebook&#x2F;Memcached 已经给出了他们自己的解决方案：  Spanner：  线性一致性。 通过 Paxos 和 2PC 实现分布式写事务。 写入需要等待 quorum 的数据中心返回 ack，性能较低">
+<meta property="og:type" content="article">
+<meta property="og:title" content="COPS 论文阅读">
+<meta property="og:url" content="https://tanxinyu.work/cops-thesis/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="背景考虑这么一个问题：对于大型网站的异地复制，公司存在多个数据中心，每个数据中心拥有全量数据，读均为本地读。那么写应该怎么实现？一致性应该如何取舍？ 对于以上背景，Spanner 和 Facebook&#x2F;Memcached 已经给出了他们自己的解决方案：  Spanner：  线性一致性。 通过 Paxos 和 2PC 实现分布式写事务。 写入需要等待 quorum 的数据中心返回 ack，性能较低">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tanxinyu.work/cops-thesis/causal.png">
+<meta property="article:published_time" content="2021-06-09T12:41:23.000Z">
+<meta property="article:modified_time" content="2022-01-30T03:41:27.000Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="分布式系统理论">
+<meta property="article:tag" content="论文阅读">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tanxinyu.work/cops-thesis/causal.png">
+  
+  <title>COPS 论文阅读 - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/blog-background.jpeg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="COPS 论文阅读">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-06-09 20:41" pubdate>
+        2021年6月9日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.3k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      7 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">COPS 论文阅读</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：6 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>考虑这么一个问题：对于大型网站的异地复制，公司存在多个数据中心，每个数据中心拥有全量数据，读均为本地读。那么写应该怎么实现？一致性应该如何取舍？</p>
+<p>对于以上背景，Spanner 和 Facebook/Memcached 已经给出了他们自己的解决方案：</p>
+<ul>
+<li>Spanner： <ul>
+<li>线性一致性。</li>
+<li>通过 Paxos 和 2PC 实现分布式写事务。</li>
+<li>写入需要等待 quorum 的数据中心返回 ack，性能较低。</li>
+<li>读取从本地数据中心读，可能需要等待，性能较高。</li>
+</ul>
+</li>
+<li>Facebook/Memcached：<ul>
+<li>最终一致性。</li>
+<li>写入需要主数据中心返回 ack，性能一般。</li>
+<li>读取从本地数据中心的缓存中读，性能极快。</li>
+</ul>
+</li>
+</ul>
+<p>基于以上背景，本论文在性能和一致性之间找出了一个 trade-off，给出了一种中间状态的一致性：因果一致性，其相比线性一致性更弱但相比最终一致性更强。因此，其性能也会处于中间的状态。</p>
+<p>有关因果一致性的定义，建议先阅读此 <a href="https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&amp;mid=2657261809&amp;idx=1&amp;sn=cff64fe049a8a04ae719b34e7bf57dd1&amp;chksm=84479128b330183e55e911bacd611c22541f734a8df0c22a7bbe73323baedf6e506a12e8d2ac&amp;scene=178&amp;cur_album_id=1550842358601187329#rd" target="_blank" rel="noopener">博客</a>。</p>
+<p>以下简单介绍其实现。</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>COPS（订单保留服务器集群）是一种地理复制的键值存储系统，可保证因果一致性。它包含两个软件组件：客户端库和键值存储。</p>
+<p>涉及的每个数据中心都有一个本地 COPS 集群，该集群维护其整个数据集的副本。COPS 客户端是使用客户端库与键值存储交互的应用程序。客户端仅与在同一数据中心运行的本地 COPS 集群交互。</p>
+<p>COPS 跨集群中的节点对存储的数据进行分片，每个键属于每个集群中的一个主节点。此主节点接收键的写入。写入完成后，本地集群中的主节点将其复制到其他集群中的主节点。</p>
+<p>每个键也有版本，代表该键的不同值。COPS 保证一旦副本返回了密钥的版本，副本将只返回该版本或后续请求中的因果更新版本。</p>
+<h3 id="定义因果关系"><a href="#定义因果关系" class="headerlink" title="定义因果关系"></a>定义因果关系</h3><p>更正式地，该论文提到了作者用来定义操作之间潜在因果关系的三个规则，表示为-&gt;：</p>
+<ul>
+<li>执行线程：如果 a 和 b 是单个执行线程中的两个操作，则 a -&gt; b 如果操作 a 在操作 b 之前发生。</li>
+<li>从获取：如果 a 是 put 操作，b 是 get 操作，返回 a 写入的值，则 a -&gt; b。</li>
+<li>传递性：对于操作 a、b 和 c，如果 a -&gt;b 和 b -&gt; c，则 a -&gt; c</li>
+</ul>
+<p>图 2 中的执行说明了这些规则。</p>
+<p><img src="/cops-thesis/causal.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>此外，因果一致性不排序并发操作。如果我们不能判断一个操作在另一个之前发生，我们就说两个操作是并发的。一个系统可以以任何顺序复制两个不相关的 put 操作，但是当 put 对同一个键有并发操作时，我们说它们是冲突的。</p>
+<p>对于某些并发场景，<code>最后写入者胜</code>的规则能够保证集群对某一个值最终达成共识。然而应对某些<code>冲突写入</code>的场景，类似于 append 函数，原子计数器等场景，都需要更细致的考虑。</p>
+<h3 id="上下文"><a href="#上下文" class="headerlink" title="上下文"></a>上下文</h3><p>每个客户端维护一个上下文来表示其操作的顺序。将此上下文视为包含项目的列表。每次操作后，客户端都会向其上下文中添加一个项目。这些项目在列表中的顺序捕获了版本之间的依赖关系。使用此上下文，客户端可以计算版本的依赖关系。</p>
+<h3 id="LP-提供全局顺序"><a href="#LP-提供全局顺序" class="headerlink" title="LP 提供全局顺序"></a>LP 提供全局顺序</h3><p>使用 <code>Lamport Timestamp in higher bits + unique ID For Data Center in lower bits</code> 来支持所有操作的全序顺序。</p>
+<p>通过结合逻辑时钟和 Wall Clock，即使不同数据中心的时间有较大误差，我们依然可以为所有操作给出一个全序排序。</p>
+<p>时钟实现如下所示：</p>
+<figure class="highlight pf"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pf">T<span class="hljs-keyword">max</span> = highest version seen (<span class="hljs-keyword">from</span> <span class="hljs-literal">self</span> and others)<br>T = <span class="hljs-keyword">max</span>(T<span class="hljs-keyword">max</span> + <span class="hljs-number">1</span>, wall-clock time)<br></code></pre></div></td></tr></table></figure>
+<h3 id="写入"><a href="#写入" class="headerlink" title="写入"></a>写入</h3><p>当客户端调用 put key 时，库会根据其上下文计算该 key 的依赖关系，并将该信息发送到本地主存储节点。在 COPS 集群写入所有计算的依赖项之前，此存储节点不会提交密钥的值。提交该值后，主存储节点使用 Lamport 时间戳为其分配一个唯一的版本号，并立即将该编号返回给客户端。通过不等待复制完成，COPS 消除了具有更强一致性保证的系统产生的大部分延迟。</p>
+<p>主存储节点在本地提交写入后，将写入异步复制到其他集群。节点在复制它时包含有关写入依赖项的信息。当另一个集群中的节点收到此写入时，该节点会检查其集群中的本地节点是否满足所有依赖项。接收节点通过向负责这些依赖关系的本地节点发出依赖关系检查请求来做到这一点。如果本地节点没有写入依赖值，它会阻塞请求，直到写入该值。否则，它会立即响应。</p>
+<p>总之，COPS 通过计算写入的依赖关系来保证因果一致性，并且在集群提交所有依赖关系之前不会在集群中提交写入。</p>
+<h3 id="读取"><a href="#读取" class="headerlink" title="读取"></a>读取</h3><p>COPS 也满足本地集群中的读取。COPS 客户端可以指定他们是要读取密钥的最新版本还是特定的旧版本。当客户端库接收的读取响应，它增加了操作的情况下捕捉到潜在的因果关系。</p>
+<h2 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h2><p>虽然因果一致性是一个流行的研究思想，但它有一些局限性。两个主要是：</p>
+<ul>
+<li>它无法捕获外部因果依赖性。一个典型的例子是一个电话：如果我做动作 A，打电话给我在另一个大陆的朋友告诉她关于 A 的事情，然后她做了动作 B，系统将无法捕捉到 A 和 B 之间的因果关系。针对此问题，Lamport 早已经给出了答案：只能通过强同步的物理时钟来实现，具体可以参考本人另一篇 <a href="https://tanxinyu.work/time-clock-order-in-distributed-system-thesis/">博客</a>。</li>
+<li>管理冲突可能很困难，尤其是当<code>最后写入者胜</code>规则不够用时。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>简单学习一下因果一致性，虽然讲义中提到它在实际系统中应用不多，但个人感觉这是一个很有意义的方向。在未来，对于不追求数据线性一致性的场景，很可能跨数据中心的同步范式都会参考因果一致性而不是最终一致性。虽然牺牲了一点性能，但前者相比后者保证了一定程度的 safety，这是非常可贵的。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://nil.csail.mit.edu/6.824/2020/notes/l-cops.txt" target="_blank" rel="noopener">6.824 讲义</a></li>
+<li><a href="http://nil.csail.mit.edu/6.824/2020/video/17.html" target="_blank" rel="noopener">6.824 视频</a></li>
+<li><a href="http://nil.csail.mit.edu/6.824/2020/papers/cops.pdf" target="_blank" rel="noopener">论文</a></li>
+<li><a href="https://timilearning.com/posts/mit-6.824/lecture-17-cops/#lamport-timestamps-provide-a-global-order" target="_blank" rel="noopener">MIT 6.824: Lecture 17 - Causal Consistency, COPS</a></li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/6-824/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">6.824 分布式系统课程学习总结</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/scaling-memcached-thesis/">
+                        <span class="hidden-mobile">Facebook 的 Memcached 系统扩展论文阅读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>

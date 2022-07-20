@@ -1,0 +1,663 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  <meta name="description" content="前言2021 年即将结束，这一年忙忙碌碌收获许多，也认识到了定期总结定期反省的重要性。今年回家后意识到自己应该养成写年终总结的习惯了，于是断断续续用近一周的时间写了第一次年终总结，算给自己的一整年一个交代。希望我的经历和感悟能给大家一些启发。 首先进行一个简单的自我介绍，我叫谭新宇，清华本硕，现在清华大学软件学院 Apache IoTDB 组就读研二，师从王建民&#x2F;黄向东老师，我对分布式系统，时序数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2021 年终总结：记我在清华 Apache IoTDB 组的成长">
+<meta property="og:url" content="https://tanxinyu.work/2021-annual-summary/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="前言2021 年即将结束，这一年忙忙碌碌收获许多，也认识到了定期总结定期反省的重要性。今年回家后意识到自己应该养成写年终总结的习惯了，于是断断续续用近一周的时间写了第一次年终总结，算给自己的一整年一个交代。希望我的经历和感悟能给大家一些启发。 首先进行一个简单的自我介绍，我叫谭新宇，清华本硕，现在清华大学软件学院 Apache IoTDB 组就读研二，师从王建民&#x2F;黄向东老师，我对分布式系统，时序数">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-01-24T15:37:53.000Z">
+<meta property="article:modified_time" content="2022-02-06T01:56:35.000Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="IoTDB">
+<meta property="article:tag" content="年终总结">
+<meta name="twitter:card" content="summary_large_image">
+  
+  <title>2021 年终总结：记我在清华 Apache IoTDB 组的成长 - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/blog-background.jpeg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="2021 年终总结：记我在清华 Apache IoTDB 组的成长">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-01-24 23:37" pubdate>
+        2022年1月24日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      15k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      45 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">2021 年终总结：记我在清华 Apache IoTDB 组的成长</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：5 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>2021 年即将结束，这一年忙忙碌碌收获许多，也认识到了定期总结定期反省的重要性。今年回家后意识到自己应该养成写年终总结的习惯了，于是断断续续用近一周的时间写了第一次年终总结，算给自己的一整年一个交代。希望我的经历和感悟能给大家一些启发。</p>
+<p>首先进行一个简单的自我介绍，我叫谭新宇，清华本硕，现在清华大学软件学院 Apache IoTDB 组就读研二，师从王建民/黄向东老师，我对分布式系统，时序数据库和共识算法较感兴趣。</p>
+<p>接着简单介绍一下我们组的工作：Apache IoTDB（物联网数据库）是一体化收集、存储、管理与分析物联网时序数据的软件系统。 Apache IoTDB 采用轻量式架构，具有高性能和丰富的功能，并与 Apache Hadoop、Spark 和 Flink 等进行了深度集成，可以满足工业物联网领域的海量数据存储、高速数据读取和复杂数据分析需求。截止 2021 年底，Apache IoTDB 是国内高校唯一在 Apache TLP 中的开源软件，目前已经被建设成了百余贡献者的开源社区。 </p>
+<h2 id="本科经历"><a href="#本科经历" class="headerlink" title="本科经历"></a>本科经历</h2><p>既然是第一次年终总结，在此简单提提自己的本科经历。</p>
+<p>2016 年，高考完填清华志愿的我并不知道自己的专业兴趣是什么，也并不知道不同的专业有什么区别，于是随便报了个机械大类便入学了。</p>
+<p>在大一下的时候，一方面是成绩尚可（前 10%），另一方面是大一下接触编程课的印象还不错。对游戏一直很感兴趣的我便萌生了转专业的想法，最终也顺利的平转到了对编程萌新相对友好的软件学院。</p>
+<p>在大二刚转过来的时候，我感受到的课程压力是非常大的，当然主要原因还是自己的编程基础太差。因为大学之前从未接触过编程，而且大一只学了一门针对机械学院同学开的比较水的编程课，所以大二学数据结构操作系统的时候非常吃力。幸运的是，软件学院的大佬同学们（教主，杰神，方舟，冯老板，伟哥等等）和辅导员们（岳导，李导）帮助了我很多，再结合自己的努力，我的成绩也慢慢能够跟上来了。</p>
+<p>在大三的时候，得益于学院这个大平台和自己的努力，我分别在旷视和微软进行了短期实习。在旷视，我主要在 Data 组打杂，也是在这个时候开始了解分布式系统领域，学习了 Google 的三篇马车（GFS/MapReduce/BigTable）和 Facebook 的小文件冷热存储解决方案（HayStack/F4）并逐渐对这个领域产生了浓厚的兴趣。此外，我在旷视的 mentor 庄大师（外号纯纯）也给我留下了非常深刻的印象，现在他已经是成功人士了（手动狗头）。在微软，我们跟着邹欣老师（现在已经跳槽到 CSDN 当副总裁了）组队完成了一个 NLP 领域的 CodeSearch 项目，主要功能是实现一个 VSCode 插件，能够输入自然语言输出对应的代码，这个工作还拿到微软内部 Hackathon 比赛的奖。不过我的任务主要是爬虫数据清理之类的工作，一方面是自己对 AI 不是很感兴趣，另一方面也是自己炼丹的能力不足。这段经历到现在留给我的印象就是微软内部和谐友好的氛围了，是真的很 WLB 啊。</p>
+<p>到了大四做保研还是工作的决定时，有很厉害的学长劝我早点到工业界，说很多研究生的工作都是在虚度年华，贵清也不例外。我的父母则是坚持要求我接着读书。在平衡各方面利弊后，我最终决定继续读个硕士，给自己一些缓冲的时间，并希望能够找到一个不虚度年华的实验室。</p>
+<p>最开始我找到了李振华老师的实验室，主要原因是振华老师在上本科课程《网络系统》时实在是太过于风趣幽默，吸引了一大批小学弟。在振华组里最开始我是希望能够做一段有意义的科研的，然而呆了半年后我逐渐感觉到，我所感兴趣的分布式系统方面振华老师做的工作不多，我自己也很难独立的搞出一份科研工作出来。此外，振华老师喜欢的学生特质是英文写作能力强，基础扎实，对计算机网络/操作系统感兴趣，而当时的我与这三个特质都不太搭边，因此我的离开便不是很意外了。不过 u1s1，振华老师写论文的功底真的非常强，MobiCom，NSDI 年年发，21 年他们组还中了软院第一篇 SIGCOMM，可谓是风光无限了。尽管会比较 push，但好歹 push 的结果对大家都好，满足上述三个特征的同学也可以去跟振华老师联系。</p>
+<p>当时，我和同在振华组里的苏总相约好了一起润，我们几乎打听了学院的所有实验室，在过滤掉不感兴趣的搞前后端和 AI 的实验室后，我们最后面临了两个选择，一个是散养的实验室，去了之后可以在企业自由的实习三年。一个是学院里在做的时序数据库 Apache IoTDB（当时还是孵化器项目），尽管去了之后会比较忙，但由于主力是学生，相比在外实习可能能得到更多的锻炼，而且硕士期间也能够拥有三年的数据库内核开发经验，对找工作比较友好。最终经过深思熟虑，我们相约一起润去了 Apache IoTDB 实验室。</p>
+<p>进组后，我当时给自己的目标便是利用研究生三年时间提升自己的理论知识水平和工程能力。因而我一进去就开始了解开源，学习数据库知识并加入了分布式模块进行实践。做了不到一年，2020 年底我便被社区接纳为了 committer，这里也很感谢组里分布式模块的实力大哥江天学长的举荐。</p>
+<p>如果让我在 2020 年底反思读研是否值得，我可能还很难给出明确的答案。但如果让我现在反思读研是否值得的话，我的答案一定是值得。这与我进实验室后的经历有关，我不确定当时直接工作的话在企业是否也能得到这样的成长，但至少 2021 年在实验室的成长已经让我觉得读研不虚此行了。其实仅仅深度参与一个开源基础软件从雏形不断发展壮大再到可能的商业化，感受项目管理，产品功能，人员心态，宣传运营，社区交流等方面的进化就已经是非常难得的一段经历了，更不要谈在这期间借助这个平台我们自己的成长了。</p>
+<p>当然，读研到底是不是正收益。家庭情况，实验室情况，个人兴趣，时代发展，专业方向，人脉关系这些都是影响很大的因素，不可一概而论。</p>
+<h2 id="2021"><a href="#2021" class="headerlink" title="2021"></a>2021</h2><p>讲完了之前的经历，在这里谈谈 2021 年的经历。如果要给 2021 年的自己一个关键字的话，我觉得应该是<strong>成长</strong>。</p>
+<p>卷了一整个本科的我在研究生选课时遵循了兴趣导向的原则。即对于自己不感兴趣的课水水即可，对于自己感兴趣的课付出大量精力。前半年，我了解到了贵系陈康老师的《分布式导论》课程，这门课基本 Follow 了 MIT 6.824 的课纲，大作业也是完成 6.824 的 lab。尽管听起来就很硬核，但我毅然决然的选了它。在上这门课的时候，我一方面同步听了线下陈康老师和线上 MIT Robert Morris 老师的课程，另一方面花费了大量的精力去完成大作业，尽管大作业不要求完成 challenge 的内容，但我还是完成了 lab1-4 和 challenge 1-2 的全部内容，最终我如愿以偿的拿到了 A+ 的成绩，这门课也成为了我在贵清收获最大的课。现在想想，这一门课上下来，我阅读了近 20 篇经典论文，学习了很多分布式经典理论，包括各种一致性级别，CAP，BASE，FLP，共识算法，偏序/全序关系，若干系统架构等等，基本重铸了分布式系统的知识体系。此外，我也将我的大作业文档在 Github 上进行了开源，短短半年已经收获近 300 个 star，新增 160+ follower。而且我在知乎上也给自己的文档打了广告，半年收获了 13 万+ 阅读，500+ 赞，1200+ 收藏，成为了”如何的才能更好地学习 MIT6.824 分布式系统课程？”排名第三的答案（第一是 PingCAP 的黄东旭老师）。通过这些关注，我在这半年里也认识了很多志同道合的朋友，这是一生的财富。</p>
+<p>7 月，刷完 6.824 收获很大的我又开始关注另一门课 CMU 15-445，想要就此机会认真学习一下数据库理论。用时一个多月，我利用晚上和周末的时间学习完了 15-445 的线上课程并被 Andy 老师的个人魅力深深吸引。无论是上课时的 DJ drop table，还是 Andy 老师对数据库知识的热情都让我印象深刻。通过这门课程，我基本了解了如何实现一个支持 ACID 的单机关系型数据库。略感遗憾的是，其大作业 bustub 的 codebase 是 C++，我一方面对 C++ 没有技术积累，另一方面也对自己的代码有一定的洁癖，如果我不足够了解 C++ 的话，我也不想写出一堆很丑陋的 lab 代码出来。主要是基于这个原因，我放弃了刷 bustub，换为 MIT 6.830 数据库课程的 lab （codebase 是 Java）刷了刷，但后来刷到 lab2 便由于时间原因被搁置了，之后有机会的话希望能重捡起来。</p>
+<p>8 月，经过一年多的开发，我们终于迎来了 Apache IoTDB 分布式版本的第一个线上用户，针对于 20TB 每天的入库流量，我们用 3 节点的分布式 IoTDB 集群替代了 20 节点的 HBase 集群， 经过初步统计，预约未来 5 年能为企业节省上百万的硬件成本。尽管在上线前的内测期间我们遇到了不少问题，但我们顶住了压力并都进行了修复，最终也顺利上线。通过这次经历，我不仅进一步认可了自己在做的工作，也理解了能为用户创造实际价值才是项目存亡的关键。</p>
+<p>8 月底，对 TiDB 架构一直感兴趣的我发现 PingCAP 提供了免费的 PCTA （TiDB 系统管理基础能力认证）考试机会，于是看了看文档考了一个 PCTA 证书玩玩。</p>
+<p>在暑假，我参加了中科院组织的开源之夏活动，题目为 《Apache IoTDB 分布式混沌测试框架》。这份工作基于阿里的 ChaosBlade 搭建了一个混沌测试平台并对 Apache IoTDB 进行了若干种异常 case 的混沌测试。通过测试，我们发现了 Apache IoTDB 当前分布式版本在异常环境下存在的一些问题，有一些容易解决的问题已经得到了修复，然而也有一些较复杂的问题到今天依然存在，这也多多少少间接引起了我们的一次大规模重构，勉强算是一件有意义的工作吧。令人略感遗憾的是，尽管该混沌测试框架在部署好之后可以用 Dashboard 的方式方便地注入特定的异常，然而该框架依然是基于物理节点来实现的，很难做到自动化。如果没有测试人员去维护并定期手动测试，如果没有开发人员愿意抽出时间来完全解决其中发现的问题，如果整个团队没有足够重视异常场景下系统的对外表现并愿意为之付出大量的精力，该框架就很难形成正向反馈，最终只能被遗忘在历史的角落里。作为一点反省，我现在觉得混沌测试还是应该尽可能的通过持续集成的方式自动化起来（参照 ChaosMesh），这样释放人力的方式是大家都喜爱的，也只有这样，混沌测试才能对项目产生持续的正向收益。</p>
+<p>9 月，打算硕士开题的我阅读了 Raft 相关的近 20 篇论文，感觉近几年与 Raft 相关的论文主要还是在区块链，新硬件和一些特定场景的优化上，没有太多本质的变化。</p>
+<p>10 月，抱着学习的心态，我和家贝一唱报名参加了第一届九坤并行程序优化大赛，这个比赛主要考验选手最大化压榨 CPU 和 IO 性能的能力。由于赛题是 C/C++ 的 codebase，然而我们基本都对 C/C++ 不太熟悉，于是我们起名叫做了”只会 JAVA 队”。作为三个在体系结构几乎一窍不通的小白，在一个多月断断续续的不到 10 次线下沟通中，我们逐渐对体系结构入了门，在 192 个队伍脱颖而出，并在决赛取得了第 4 名的成绩（离苹果周边只差一步）。个人认为，数据库做到极致就是硬件性能的一种体现。因此，一个优秀的数据库工程师应该对体系结构具有一定的了解，这样才有可能进一步压榨硬件性能，从而达到更好的数据库性能。一直以来，我希望分布式数据库能够成为自己的一个标签。通过这次比赛，我意识到高性能计算也是一个很有趣且硬核的方向，其不仅能够给企业迅速带来真金白银的收益（节约成本），而且也是很多领域做到极致的一种出路。</p>
+<p>11 月，PingCAP 举办了第一届 Talent Plan KV 学习营。我和汉乙组队参与了这次比赛，由于我们俩之前都刷过 MIT 6.824，已经对教学级别的 raft 有一定的了解，所以参加此次比赛的目的就是去感受一下生产级别分布式 KV 的代码实现，学习实践一下 lsm, etcd, raftstore 和 percolator 的理论知识和 codebase。u1s1，刷 lab 的过程十分曲折，我们俩所在的实验室到年底的时候都非常忙，前几周基本每周都只能抽出顶多一两天的时间来写代码，而理解 lab2b/lab3b raftstore 的难度是非常大的，我们用了一周多的时间才勉强看懂 raftstore 的代码。这使得到还剩两周时间的时候，我们才刷到 lab2c。最后两周我们利用中午午休时间和晚上睡觉时间疯狂加班，在 lab 上花了更多的时间，最后才堪堪刷完。出人意料的是，我们得了第二名的好成绩。事后反省一下，在 safety 上我们遇到的问题都解决了；在 liveness 上我们没投入太多精力；在文档上，我们简单介绍了代码实现，但将重点放在了我们对相关知识的理解和思考上；在性能上，我们重点做了最容易做的 batching 优化，其本质上是使用 raft 的优化而不是 raft 自身的优化，但对性能的提升却异常关键，比如 tidb 对于一个事务打包的一堆写请求，到 tikv 的 region 之后，这些写请求同步成一条还是多条 raftlog 对于性能的影响是巨大的。</p>
+<p>年底，我和祥威思屹其骏受到实验室的支持，前去参加了海口的 2021 VLDB summer school，今年的 topic 是分布式事务。于向遥，吴英骏和魏星达老师清晰地介绍了分布式事务的方方面面，李飞飞和黄东旭老师则是分享了很多工业界的思考。虽然 KeyNote 请了 Andy 过来我也很喜欢 Andy 老师，但 u1s1 topic 和分布式事务不搭边，感觉基本是 Andy 老师在狂荡不羁的给 ottertune 打广告哈哈哈。这次 VLDB 第一次采用了理论 + 实践 + 随机组队的方式，我们除了每天早上要去感受学术界的熏陶外，下午还会去学习 PingCAP 工程师有关实践 lab 的 talk。我们的 lab 要实现 tinykv + tinysql 中有关分布式事务的所有部分。由于我之前已经了解过 tinykv 的 codebase，所以我的 lab 完成的很顺利，我也尽我所能在下午的实践课程中帮助了很多不了解 codebase 的其他组同学，这也使得我最终拿到了积极参与奖的荣誉。此外我们组由于做了 3 份独立的作业而且最后汇报的表现也还不错，最终成为了排名第一的组，我也幸运的拿到了优秀学员的荣誉并领了一堆 PingCAP 周边。当然对于我来说收获最大的还是跟大佬们的交流。我有幸代表学员跟周傲英老师简单分享了这次 VLDB summer school 的学习方式。我也在吴英骏老师课后跟其请教了应该怎么看待 serializable 和 linearizable，实际上前者是在说事务之间的隔离性，并不需要具备满足时序的偏序关系，而后者是在说单个对象读写操作间的可见性，需要严格满足时序的偏序关系。如果将事务看成单个对象来理解，事务之间又有隔离性又能够满足时序的偏序关系，则就可以被称为 strict serializable（也被 Google Spanner 称为 external consistency）。黄东旭老师在 KeyNote 上很直白的分享了很多工业界分布式事务的真实挑战，比如超大事务（100GB+），Online DDL （有 Google F1 Online DDL 可能还不够）等，在课下交流时，东旭老师则觉得将复制和共识解耦很可能是一件有意义的工作。我们是不是一直以来用错了共识算法？即共识只应该是共识索引而不是共识数据，比如对于 100GB 的数据，是不是在架构上将其写到一个共享存储/内存池上，然后将轻量的索引共识即可。此外我还跟 PingCAP 的童牧老哥请教了不少问题，主要问题集中在 SEDA 模型和 TPC 模型的优劣上。TiKV 利用 rust 在应用态做了非公平业务感知的 CPU scheduler，使得大数据的聚合查询和小数据量的单点查询在高并发时后者的延时依然稳定，感觉是非常有意义的工作。除了技术方面的交流外，王岩广老师介绍的 Talent Plan 社区也让我印象深刻。就我所看到的情况而言，PingCAP 在国产数据库人才培养方面付出了大量的努力并且成果斐然，在这里真诚感谢一下 PingCAP 社区。</p>
+<p>除了参加一些活动学习一些课程，这一年我在 Apache IoTDB 社区 Review 了近 140 个 PR，提交并被合并了 47 个 PR，但大多都是一些维护性重构性的工作。说来也惭愧，进组一年了直到今年后半年我才开始认真研究时序数据库并逐渐意识到了它的挑战。最后一个季度，我和思屹调研了若干个国产时序数据库的分布式架构并进行了多次分享，从中发现了许多优点和大家依然没有解决的痛点。这些优点和痛点的解决方案我们已经进行了大量的讨论和分析，这期间东哥，乔老师，田原学长，金锐学长，江天学长，荣钊学弟，洪胤学弟等也都结合一些论文和自己的思考提出了不少很有特点的想法。这些工作目前正在被逐步吸收进 Apache IoTDB 的分布式版本里面去。尽管短期内还没有成效，但我对 2022 年充满信心。</p>
+<p>后半年，我们实验室引入了在管理方面很有经验的刘海老师，对我们实验室的管理模式进行了一系列改造，包括但不限于分组管理和汇报，利用 sprint 管理进度，利用 confluence 管理文档，目标驱动等等。整个实验室的管理模式发生了翻天覆地的变化，我也有幸成为了一个 3 人小组的小组长，负责分布式模块的维护和推进工作。实际上我们实验室由于一直在搞开源基础软件，所以学生的工程能力一般都还不错。今年引入成熟的管理模式之后，每个人都感受到了管理的力量，也能够在毕业之前提前学习到一些有关管理的知识。长远来看，这对于学生的成长是非常有帮助的。在企业里，调动积极性还可以通过期权，职级等手段来实现。在学校里，调动积极性就只能靠个人魅力和让大家都得到成长的能力了。在我个人看来，这是更富有挑战的。</p>
+<p>之前我觉得在实验室里追求个人的发展和完成组里的工作一定程度上是冲突的，我也就此事跟刘海老师沟通过。渐渐的，我意识到这两者并不一定冲突，它反而促进了我对于高效率的追求。今年我参加的课外比赛和线上学习的课程基本都是利用晚上和周末的时间完成的，并没有影响实验室的工作，在上午和下午的工作时间我依然会专心的进行实验室的工作。由于时间紧张，我会更加专注于手头上的工作，减少摸鱼时间，并不断反思总结如何更高效的工作和交流。从结果来看，思路的转变使我在相同的时间内得到了更多的成长。当然，代价就是牺牲了一些休息时间。</p>
+<p>今年我写了大约 25 篇技术博客，开始阶段性地记录自己的学习过程，字数合计在十万以上。我觉得分享的本质是让大家变得更好，所以我会尽可能的写一些技术总结或者思想感悟，希望读者看了后有所收获。通过博客，我也认识了不少新朋友，希望自己之后能继续坚持下去。</p>
+<p>今年我抽了一些休息时间断断续续看了一些比较感兴趣的电视剧《朱元璋》，《走向共和》和《天道》，也阅读了《邓小平时代》，《原则》和《人生的智慧》等书籍。尽管感悟不少，但它们的主题都比较深沉，我也常常会陷入悲观历史主义中去。我特别感谢我的女朋友小杨同学能够纠正我一些过于悲观的思想，能够让我始终燃着对生活的热爱。如果自己能多抽出一些时间陪陪她就好了。</p>
+<p>当然，以上都是有好结果的经历，今年我也有很多失败的经历，包括但不限于没刷完 6.830 lab，没好好参加 OceanBase 数据库比赛，没去成字节跳动暑期夏令营，没有坚持刷 leetcode，没有完全解决对 IoTDB 进行混沌测试后发现的问题等等。</p>
+<p>除了自己的成长外，这一年 Apache IoTDB 也在我们团队的努力下成长了很多，不论从功能还是性能上都有了很大的提升。当然最重要的还是社区的良性成长：从 2020 年的 396 人增长到 1532 人，国内社群用户数量较 2020 年增长超 287 % ！目前已经有 162 位贡献者为 IoTDB 主仓库贡献了代码，从 2020 年的 94 增长到 162，相比 2020 年初增长了近 70 人！目前已经有多家公司深度参与到 IoTDB 的开发中，如东方国信、阿里、云智慧、360、用友、华为、中冶赛迪等等。学生群体方面，去年一年新增了来自清华、北大、北航、西北工业大学、复旦大学、南京大学、厦门大学、威斯康星大学、新加坡国立大学等国内外高校学生的身影，更有同学选择 IoTDB 作为他们的毕业设计方向。在 IoTDB，我们不仅在个人能力上得到了锻炼，也通过社区认识了很多很厉害很友善的新朋友。</p>
+<h2 id="一些感悟"><a href="#一些感悟" class="headerlink" title="一些感悟"></a>一些感悟</h2><p>谈完了这么多经历，也想谈谈自己的感悟，这些感悟不一定适用于每个人，但都是我个人在今年得到成长的诀窍，一年前的我要是能明白这些道理也许就能少踩很多坑了。</p>
+<h3 id="从要我干什么到我能干什么"><a href="#从要我干什么到我能干什么" class="headerlink" title="从要我干什么到我能干什么"></a>从要我干什么到我能干什么</h3><p>今年感觉自己认知转变最大的一点就是从”要我干什么”过渡到了”我能干什么”。认知的变化彻底改变了我思考问题的方式。</p>
+<p>我不再荒废太多时间在娱乐上，而是思考自己当前能做什么有意义的事情。我不再将一些工作视为是锅，而是将其视为成长的机会。我不再低头闷声学习，而是开始热衷于交流，反思，请教和提问。我不再认为自己当前仅仅专注技术就够了，而是开始学习一些有关管理，表达，领导力的技巧。</p>
+<p>读研三年，仅仅拿个学位在我看来还是有些虚度年华的。在未来我希望自己能够继续跳出自己的舒适圈，继续折腾和挑战自己。</p>
+<h3 id="人与人最大的区别是认知"><a href="#人与人最大的区别是认知" class="headerlink" title="人与人最大的区别是认知"></a>人与人最大的区别是认知</h3><p>这个感悟也是今年体会特别深的一点。人与人最大的区别不是出身，不是社会地位，而是认知。同样的一件事，认知不同的人会有不同的看法，有的人视之为机会，有的人视之为灾祸，最后当然会有不同的结果。</p>
+<p>今年有幸跟很多大佬都请教过，他们对这个世界和行业的认知都让我印象深刻。我的大导师清华大学软件学院院长王建民教授就常会来我们组跟我们讲一些做研究做工程的方法论。在这样的熏陶下，我们组同学们对行业的认知也在不断的提高。</p>
+<p>就我个人的想法而言，多跟大佬们请教，怀着开放的心态去学习，把批评当做进步的机会就是提升自己认知的绝好方式。</p>
+<h3 id="找准自己的兴趣点并持之以恒的专注"><a href="#找准自己的兴趣点并持之以恒的专注" class="headerlink" title="找准自己的兴趣点并持之以恒的专注"></a>找准自己的兴趣点并持之以恒的专注</h3><p>今年的 VLDB summer school 有一个数据库人才培养论坛，交流的大牛有北大的崔斌老师，人大的陈红老师，浙大的陈刚老师，华东师大的钱卫宁老师，阿里的李飞飞老师和 PingCAP 的黄东旭老师，期间有这样一个问题”作为新一代的数据库人，现在应该怎么做才有可能在未来成为一个在数据库界有影响力的人？”。各位老师都分享了自己的看法，包括但不限于努力，专注，思考，交流等等，但所有老师均认为保持长期专注是很重要的一个特性：只有长期的专注才有可能做到顶尖，这一点上没有捷径。</p>
+<p>这个回答也引起了我强烈的共鸣，不论是在学术界还是在工业界，很重要的一点就是找准自己的兴趣点。一定要找到一个自己感兴趣的方向，通俗点来说，就是找到那种自己在休息时间也愿意去学习去钻研的兴趣点。这样，我们不仅在工作学习时更有热情，而且自己的价值也会随着长期地专注而得到不断增长。</p>
+<h3 id="拒绝无效内卷"><a href="#拒绝无效内卷" class="headerlink" title="拒绝无效内卷"></a>拒绝无效内卷</h3><p>尽管长期地专注很重要，但无效内卷是不可取的。从长远来看，无效内卷会影响我们的工作热情并破坏团队氛围，最终一定是得不偿失的。不同人对”无效内卷”的评判标准不同，但我觉得每个人都应该有意识的去反思自己到底是不是在无效内卷。如果是，那一定要想到缓解甚至拒绝它的方法，包括但不限于和 leader one-one，润等。世界这么大，要相信自己一定能够找到立足之地，没必要恶心自己。</p>
+<p>这两天有一个比较火的新闻是腾讯企业微信的应届生怒怼领导恶意内卷。说实话看新闻看得我热血沸腾，我也很佩服这位老哥，要是我自己可能就默默润了，然而他却敢于发声，这是非常难能可贵的。祝愿他未来一切顺利。</p>
+<h3 id="脑袋决定屁股，屁股驱动行为"><a href="#脑袋决定屁股，屁股驱动行为" class="headerlink" title="脑袋决定屁股，屁股驱动行为"></a>脑袋决定屁股，屁股驱动行为</h3><p>在其位谋其职，任何组织都有光明的一面和黑暗的一面。屁股在哪就要努力让它变得更好，而不是见到黑暗面后就只知道诋毁和抱怨。从长远来看，后者最终只会损坏自己的名誉浪费自己的时间，得不到什么好处。</p>
+<p>当然，如果经过自己的努力依然无法改变任何东西，那就用脑袋挑选一个更符合自己价值观的位置去坐吧。</p>
+<h3 id="营造团队氛围，每个人都有责任"><a href="#营造团队氛围，每个人都有责任" class="headerlink" title="营造团队氛围，每个人都有责任"></a>营造团队氛围，每个人都有责任</h3><p>今年阅读了桥水基金创始人瑞·达利欧的《原则》这本书，我被其中描述的创意择优像家一样的工作氛围所深深吸引，幻想着自己未来能到这样的公司工作。</p>
+<p>然而，我和很多读者一样都进入了相同的思维误区，那就是等着别人来营造这种氛围而我们坐享其成。既然每个人都喜欢这样的氛围，那么为什么不能在自己力所能及的范围内行动呢？</p>
+<p>在我们实验室的三人分布式小组里，我作为小组长和两位学弟就努力在组内营造了这种氛围。大家有不错的学习资料就相互分享，有棘手的脏活就平分来干，功能按照兴趣去推动，bug 按照难易尽量平均分配，有人周中有事的话其他人可以暂时帮忙顶住工程压力，而他在忙完之后往往周末也会主动加班赶上落下的进度。在这期间，我也与学弟们建立了良好的私人关系，这样的氛围让我觉得开心，也让我进一步确信每个人都可以去营造团队氛围。</p>
+<p>尽管营造团队氛围每个人都有责任，但我还是觉得考虑自己职业规划时一定要优先考虑关注员工成长的公司，否则推进这种氛围可能会非常难，这会进而影响自己的热情和产出。我个人是非常不认同企业付高工资就可以将工程师当做工具人来使用的企业文化的，员工和项目只有共同成长才有可能建立一个长期高效持续创新的团队，也只有这样的团队才值得大家齐心协力为之奋斗。</p>
+<h3 id="真诚坦率"><a href="#真诚坦率" class="headerlink" title="真诚坦率"></a>真诚坦率</h3><p>《原则》这本书里谈到了真诚坦率是很难得的高价值品质，它带给我们的收益往往比我们想象的还要大。</p>
+<p>当我们能够真诚坦率的公开我们的工作内容和进度时，一方面会使我们更容易获得上级和同事的理解信任，另一方面也会促使我们减少摸鱼时间，更加重视自己的单位时间产出并努力提高自己的工作效率，而后者在我看来是更关键的。人都会存在惰性，这样的机制可以帮助自己克服惰性，追求效率至上。</p>
+<h3 id="不要妄想别人帮自己指出最优解，路都是自己走出来的"><a href="#不要妄想别人帮自己指出最优解，路都是自己走出来的" class="headerlink" title="不要妄想别人帮自己指出最优解，路都是自己走出来的"></a>不要妄想别人帮自己指出最优解，路都是自己走出来的</h3><p>我在振华老师组的时候曾经请教他让他为我指一条发展最快的捷径。振华老师当时说他也不确定我走哪条路是最快的捷径，只能结合我自己的状态一步步走着看。</p>
+<p>当时的我还不能够理解，现在的我逐渐明白了：对于大部分人来说，路都是要自己一步步走出来的，不要妄想有个大佬能直接给自己指出全局最优的捷径。保持开放的心态，一直学习一直反思，多向大佬们请教，能走出一条局部最优解的路就已经很不错了。</p>
+<h3 id="养成定期反思的好习惯"><a href="#养成定期反思的好习惯" class="headerlink" title="养成定期反思的好习惯"></a>养成定期反思的好习惯</h3><p>犯错误不可怕，不反思错误的原因并进行针对性的分析和改进就很可怕了。</p>
+<p>随着见识的增长，我逐渐意识到定期反思总结对于个人的发展至关重要。因此我们小组除了每周同步两次工作进度以外，每周每月还会做反思总结并在组间进行分享和互相评价，这些总结内容包括但不限于工作总结，个人发展，自我反思和想法建议等。每月抽一个小时反思下存在的问题，不论是自身的还是团队的，一经分享讨论下个月就可能已经进行了改进，这形成了一个正反馈效应，对大家都是有益无害的。</p>
+<p>通过这些分享，我们每个人都在逐渐的进步，这些进步包括但不限于代码设计，时间管理，汇报技巧，工作方式，做事思维等等。就跟当年高考刷题一样，悲观的人认为题量是无尽的，怎么刷也刷不完；乐观的人认为题量是有尽的，刷一道少一道。我是乐观的人，我坚信这些定期反思加上我们的长期专注一定会迎来收获。</p>
+<h3 id="了解技术细节最好的时机有两个，一个是过去，一个是现在"><a href="#了解技术细节最好的时机有两个，一个是过去，一个是现在" class="headerlink" title="了解技术细节最好的时机有两个，一个是过去，一个是现在"></a>了解技术细节最好的时机有两个，一个是过去，一个是现在</h3><p>在写代码的时候我们常会碰到一些技术细节（比如 git 命令，比如不同 IO 的区别），有些人认为这些细节无关紧要将其置之不理，而有些人非常重视这些细节并将其很快学懂。我觉得面对这些细节问题的态度是决定技术水平是否会停滞不前的重要因素。</p>
+<p>了解技术细节最好的时机有两个，一个是过去，一个是现在。当遇到技术细节时，可以简单评估一下学习成本。如果很低（小于 1 小时），则可以在当天尽量将其搞明白。如果比较高，则可以将其放在预计学习的列表里面，定期抽出一些整块的时间集中学习。</p>
+<p>诚然，在刚开始编程的时候就这样会比较累，因为什么都不会。但只要能够长期坚持学习，遇到不懂技术细节的概率会越来越低，自己的水平也会越来越高，形成的正反馈效应也会强化这一过程。</p>
+<h3 id="不要给自己设限"><a href="#不要给自己设限" class="headerlink" title="不要给自己设限"></a>不要给自己设限</h3><p>在大型基础软件里，往往不同的人会负责不同的模块。如果模块解耦做的比较好的话，可能不同模块的同学不会有太多交流。比如在刚进组的时候我就只关注了分布式模块的内容，有关单机任何模块的功能和 bug 修复我基本都不会关注，这也使得我进组都一年了还不太了解时序数据库是什么。现在回想当时的自己还是太傻了。</p>
+<p>之前振华组里的明亮学长在做秋招分享时介绍到，他认为互联网跳槽之所以容易涨薪涨职级，就是因为跳槽人往往对其所在组工作具有比较深刻的认知，这些认知可能是几十人的团队踩了数年的坑才提炼出来的经验，而只要在这个团队待几个月说不定就能够学懂大半了，这些经验可以为下家公司创造很大的价值。</p>
+<p>基于这样的思路，我们就不应该给自己设限。在自己力所能及的范围内去关注一下其他模块的工作往往不需要很多时间，但对于自己的职业发展一定是有益无害的。这里我就非常佩服和我在一个组的苏总，他就是典型的不给自己设限的人，他一人为 IoTDB 带来了 UDF, Trigger, Select into, Continuous query, 算数表达式等高级特性，写入，查询，生态工具这些模块他都碰过。尽管他现在非常忙，但我们这一届的同学毕业后对 IoTDB 了解最深的人很可能就是他，那他的价值就会非常高了。</p>
+<h3 id="多给自己一些正向反馈"><a href="#多给自己一些正向反馈" class="headerlink" title="多给自己一些正向反馈"></a>多给自己一些正向反馈</h3><p>这个感悟其实涉及到了一些心理学的技巧。在学习计算机的过程中，往往会遇到很多棘手的问题，而这些问题很可能会影响学习热情。很多小白在刚入门的时候遇到一个棘手的问题就被劝退了。因此我们需要定期给自己一些正向反馈，这些反馈包括但不限于做一个完整的 project/feature，解决一个别人解决不了的 bug，参加各种比赛获奖，做 talk，发论文等等。通过这种外在的对自己的认可，我们也就能继续保持着学习热情。这一点黄东旭老师在 VLDB summer school 的 panel 上也有提到。</p>
+<h3 id="不能只有输入没有输出"><a href="#不能只有输入没有输出" class="headerlink" title="不能只有输入没有输出"></a>不能只有输入没有输出</h3><p>在工作学习中，不能只有输入没有输出。我对输入的理解是指花费的时间成本，对输出的理解则是明确的他人可以看到的工作量。</p>
+<p>为什么要强调这一点？因为我刚到实验室就是这样的状态，后面才慢慢意识到并进行了改变。比如对于一个调研的工作，往往会花费很多时间，调研完后自己可能感觉学习到了很多东西，但也没有明确的输出（包括但不限于分享，阅读笔记，解决实际问题等等）让别人看到，过一段时间可能自己又忘了。这不仅会导致别人丧失对自己的信任，也会导致自己忽视自己的单位时间产出，形成过一天混一天的惰性思维。它们都会使得自己丧失进一步成长的机会。因此，定期适当地输出是非常重要的。</p>
+<h3 id="敢于不卑不亢地分享自己的想法"><a href="#敢于不卑不亢地分享自己的想法" class="headerlink" title="敢于不卑不亢地分享自己的想法"></a>敢于不卑不亢地分享自己的想法</h3><p>之前振华老师跟我们分享过他在明尼苏达留学时的一个有趣现象。在每周全院的科研 idea 分享会上，尽管上台分享的印度人很多，但大多数都很 naive，相反上台分享的中国人很少，但大多都很厉害，这侧面反映了我们中国人可能受儒家思想的影响，大都不好意思去分享自己还不成熟的工作。不同的人对这种现象有不同的看法，但在振华老师看来，早分享可能早避坑，不畏惧批评反而会有更大的前景。在 VLDB summer school 上黄东旭老师也告诫我们不要畏惧权威，要敢于分享自己的想法。</p>
+<p>对于技术问题，我们要敢于不卑不亢，就事论事的分享自己的想法。如果我们的想法是正确的，这样能够不断竖立自己的个人影响力。如果我们的想法是错误的，这样也能够早点遭致批评来纠正自己的错误想法。无论如何对自己都是有益无害的。</p>
+<h3 id="养成闭环的做事习惯"><a href="#养成闭环的做事习惯" class="headerlink" title="养成闭环的做事习惯"></a>养成闭环的做事习惯</h3><p>养成闭环的做事习惯非常重要，这有利于自己在同事中建立信任，塑造自己靠谱的形象。</p>
+<p>一个新功能的开发工作，从接受，需求，调研，设计，实现，测试，review，合并到最终汇报要形成一个闭环。我在刚开始参与社区的时候对这样繁琐的流程非常困惑，感觉没有什么意义。随着维护项目经验的积累，我逐步意识到了这些都是过来人的智慧。</p>
+<p>乔老师常给我们介绍说做事要做到”事事有回应 件件有着落 凡事有交代”，务实的说，很难对所有的事情都做到这种程度，但我们可以怀抱着这样的期望尽力做到这样，至少也得把重要且紧急的事情做到这个地步。养成这样的习惯对于自己的职业发展绝对是有益无害的。</p>
+<h3 id="开源铸就了数据库最好的时代"><a href="#开源铸就了数据库最好的时代" class="headerlink" title="开源铸就了数据库最好的时代"></a>开源铸就了数据库最好的时代</h3><p>不确定是不是幸存者偏差，感觉数据库近几年在国内越来越火了。但就算是幸存者偏差，开源基础软件在国内越来越火已经是毋庸置疑的事实了。不论是资本还是企业，都更青睐开源的基础软件。</p>
+<p>作为学生，这也是我们迅速成长的最好时代。我们完全可以参与开源社区，迅速提升自己的能力并认识一批志同道合的朋友，我就是开源的典型受益者，不论是 Talent Plan 社区还是 Apache IoTDB 社区都让我受益良多。</p>
+<p>此外，站在巨人的肩膀上非常重要。我们如今身处开源的时代，很多资料都是公开的，一定要避免闭门造车。多了解其他系统，多交流，多调研，这对于个人和项目的发展都是有益无害的。</p>
+<h3 id="稳定性可维护性大于性能"><a href="#稳定性可维护性大于性能" class="headerlink" title="稳定性可维护性大于性能"></a>稳定性可维护性大于性能</h3><p>当修 bug 次数多了之后，我逐渐意识到软件工程的重要性，并开始思考项目不稳定的根因。</p>
+<p>OceanBase 的杨传辉老师提过一个观点：每个系统设计时都需要考虑架构、稳定性和性能，这三者之间的关系是什么？一个经典的规律是“把稳定的系统做高效，远比把高效的系统做稳定更容易”。最难的是从 0 到 1 把系统做稳定。有了稳定的系统，接下来逐步优化性能往往会比较顺利，直到遇到系统架构的性能天花板。因此，系统架构设计之前，首先要考虑清楚系统的目标和性能天花板，接着基于正确的架构把系统做稳定，最后优化性能。</p>
+<p>我个人非常认同这个观点，大型基础软件的性能和稳定性可维护性往往存在一个不那么明显的 trade-off。在开源软件里，要实现新功能或者重构，一定要优先关注可维护性和稳定性。实现一个性能最优但模块耦合不好维护的功能对项目的伤害是非常大的，甚至可以被称为技术债，这会大大影响开发者的热情并辜负客户的信任。先实现一个 naive 但好维护几乎没有 bug 的版本，逐步的去优化性能，对于开发者和客户来说都是一个正向反馈的过程，这对于社区的发展也是很有帮助的。这里我就非常喜欢 TiDB 社区的方式，模块解耦做的比较干净，从 3.0 到 4.0 再到 5.0。每个版本都有巨大的性能提升，社区也越来越好，这就是一个明显的正反馈过程。</p>
+<p>至于如何进一步提升系统的稳定性，在 VLDB summer school 的 panel 上我请教了黄东旭老师，他分享了 PingCAP 现在已经有几百台测试服务器日夜不息的进行测试，同时每年 PingCAP 为了稳定性付出的成本（包括硬件成本，人力成本等）已经达到了总支出的 30%~40%，而这依然还没有让他满意。由此可见，稳定的产品一定是大量的测试打磨出来的，没有太多捷径可走。当然，作为写代码的工程师，多反思总结，不断提升自己的技术水平，也能够对项目的稳定性做出自己的贡献。</p>
+<h3 id="创新往往来自假设的改变"><a href="#创新往往来自假设的改变" class="headerlink" title="创新往往来自假设的改变"></a>创新往往来自假设的改变</h3><p>在今年的 VLDB summer school 上，有一个观点始终被提及：”创新往往来自假设的改变”。这个世界本来并不存在什么假设，假设是人类描述自然规律时的前置条件，而这个前置条件并不一定绝对正确，也不一定一成不变。不论是做学术还是做产品，可以时常想想假设在部分场景是否已经发生了变化，这其中可能蕴含着巨大的创新。</p>
+<h2 id="来年展望"><a href="#来年展望" class="headerlink" title="来年展望"></a>来年展望</h2><p>洋洋洒洒写了这么一大堆流水账，也是借着写总结的机会再反思下自己，给未来的自己一个警醒。</p>
+<p>新的一年，希望自己能努力干好以下 6 件事情吧：</p>
+<ul>
+<li>和实验室同学们一起打造出一个稳定高效的分布式 IoTDB，在毕业之前不留遗憾。</li>
+<li>和实验室同学们一起营造团队的技术氛围，希望能够将我们组塑造成高校做开源的标杆实验室，吸引一大批对分布式系统感兴趣的优秀同学过来，一起干有意义有挑战的事情。</li>
+<li>实习和秋招的时候多找一些团队聊聊，最终选择一个能得到成长的增量赛道。</li>
+<li>认真学习一下数据库引擎，真的动手实践一下 LLVM，JIT，CodeGen，向量化等技术，也许是学习一下 tinysql 3.0 版本或者 risinglight。</li>
+<li>规律作息，多锻炼多运动，减减肥，让自己拥有健康的身体。</li>
+<li>多抽一些时间陪陪我的小杨同学，祝愿她申请一切顺利。</li>
+</ul>
+<p>最后，在除夕这天，预祝大家新年万事如意。愿每个人在新的一年都学有所得，学有所获，学有所长。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/IoTDB/">IoTDB</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">年终总结</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/talent-plan-raft-talk/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Raft 算法和对应代码框架介绍</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/tinykv/">
+                        <span class="hidden-mobile">2021 Talent Plan KV 学习营结营总结</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>

@@ -1,0 +1,660 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  <meta name="description" content="版本控制系统代码作为软件研发的核心产物，在整个开发周期都在递增，不断合入新需求以及解决 bug 的新 patch，这就需要有一款系统，能够存储、追踪文件的修改历史，记录多个版本的开发和维护。于是，版本控制系统（Version Control Systems）应运而生，主要分为两类，集中式和分布式。 集中式版本控制系统 集中化的版本控制系统，诸如 CVS，SVN 等，都有一个单一的集中管理的服务器，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为什么选择 git 来作为代码版本控制系统">
+<meta property="og:url" content="https://tanxinyu.work/git-or-svn/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="版本控制系统代码作为软件研发的核心产物，在整个开发周期都在递增，不断合入新需求以及解决 bug 的新 patch，这就需要有一款系统，能够存储、追踪文件的修改历史，记录多个版本的开发和维护。于是，版本控制系统（Version Control Systems）应运而生，主要分为两类，集中式和分布式。 集中式版本控制系统 集中化的版本控制系统，诸如 CVS，SVN 等，都有一个单一的集中管理的服务器，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-974ee843e5b45fa3c81701dcd86ce8e9_1440w.png">
+<meta property="og:image" content="https://tanxinyu.work/git-or-svn/c-vcs.png">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-fb54a44c9918cd2228224b89a64fa7d1_1440w.png">
+<meta property="og:image" content="https://tanxinyu.work/git-or-svn/d-vcs.png">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-6349574ea7ed79d1e9aa65fdd84bb141_1440w.png">
+<meta property="article:published_time" content="2020-11-09T15:20:37.000Z">
+<meta property="article:modified_time" content="2022-01-30T03:42:04.000Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="git">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pic2.zhimg.com/80/v2-974ee843e5b45fa3c81701dcd86ce8e9_1440w.png">
+  
+  <title>为什么选择 git 来作为代码版本控制系统 - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/blog-background.jpeg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="为什么选择 git 来作为代码版本控制系统">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-11-09 23:20" pubdate>
+        2020年11月9日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.5k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      8 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">为什么选择 git 来作为代码版本控制系统</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：6 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h2 id="版本控制系统"><a href="#版本控制系统" class="headerlink" title="版本控制系统"></a>版本控制系统</h2><p>代码作为软件研发的核心产物，在整个开发周期都在递增，不断合入新需求以及解决 bug 的新 patch，这就需要有一款系统，能够存储、追踪文件的修改历史，记录多个版本的开发和维护。于是，版本控制系统（Version Control Systems）应运而生，主要分为两类，集中式和分布式。</p>
+<h2 id="集中式版本控制系统"><a href="#集中式版本控制系统" class="headerlink" title="集中式版本控制系统"></a>集中式版本控制系统</h2><p><img src="https://pic2.zhimg.com/80/v2-974ee843e5b45fa3c81701dcd86ce8e9_1440w.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>集中化的版本控制系统，诸如 CVS，SVN 等，都有一个单一的集中管理的服务器，保存所有文件的修订版本，而协同工作的人们都通过客户端连到这台服务器，取出最新的文件或者提交更新。</p>
+<p>这么做最显而易见的缺点是中央服务器的单点故障。如果宕机一小时，那么在这一小时内，谁都无法提交更新，也就无法协同工作。要是中央服务器的磁盘发生故障，碰巧没做备份，或者备份不够及时，就会有丢失数据的风险。最坏的情况是彻底丢失整个项目的所有历史更改记录。</p>
+<p><img src="/git-or-svn/c-vcs.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>集中式版本控制系统的优点：</p>
+<ol>
+<li>操作简单，使用没有难度，可轻松上手。</li>
+<li>文件夹级权限控制，权限控制粒度小。</li>
+<li>对客户端配置要求不高，无需存储全套代码。</li>
+</ol>
+<p>集中式版本控制系统的缺点：</p>
+<ol>
+<li>网络环境要求高，相关人员必须联网才能工作。</li>
+<li>中央服务器的单点故障影响全局，如果服务器宕机，所有人都无法工作。</li>
+<li>中央服务器在没有备份的情况下，磁盘一旦被损坏，将丢失所有数据。</li>
+</ol>
+<h2 id="分布式版本控制系统"><a href="#分布式版本控制系统" class="headerlink" title="分布式版本控制系统"></a>分布式版本控制系统</h2><p><img src="https://pic2.zhimg.com/80/v2-fb54a44c9918cd2228224b89a64fa7d1_1440w.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>分布式版本控制系统的客户端并不只提取最新版本的文件快照，而是把代码仓库完整地镜像下来。这么一来，任何一处协同工作用的服务器发生故障，事后都可以用任何一个镜像出来的本地仓库恢复。因为每一次的提取操作，实际上都是一次对代码仓库的完整备份。可能有人会问，我们公司使用 git 工具，也有”中央服务器”啊？其实，这个所谓的”中央服务器”仅仅是用来方便管理多人协作，任何一台客户端都可以胜任它的工作，它和所有客户端没有本质区别。</p>
+<p><img src="/git-or-svn/d-vcs.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>分布式版本控制系统的优点：</p>
+<ol>
+<li>版本库本地化，版本库的完整克隆，包括标签、分支、版本记录等。</li>
+<li>支持离线提交，适合跨地域协同开发。</li>
+<li>分支切换快速高效，创建和销毁分支廉价。</li>
+</ol>
+<p>分布式版本控制系统的缺点：</p>
+<ol>
+<li>学习成本高，不容易上手。</li>
+<li>只能针对整个仓库创建分支，无法根据目录建立层次性的分支。</li>
+</ol>
+<h2 id="svn-or-git"><a href="#svn-or-git" class="headerlink" title="svn or git?"></a>svn or git?</h2><p>svn 和 git 作为集中式和分布式版本控制系统的代表，都有广大的使用群体，两者的优缺点经常被比较。其实，工具对我们来说，就是帮助我们有效提升工作的效率与质量，最适合的就是最好的。我们引用几个开发场景来看看两个版本控制工具的适用范围。</p>
+<h3 id="场景一"><a href="#场景一" class="headerlink" title="场景一"></a>场景一</h3><p>公司 A，非纯技术开发，项目包含大量媒体设计文件，相关人员只需下载自己关注的部分文件；员工 PC 电脑配置不高，没有空间拷贝整个项目资料。</p>
+<p>适用：svn</p>
+<p>分析：只需公司有一个足够大的服务器硬盘，员工本地只存储自己相关的文件夹，不必下载不想关的媒体文件，避免浪费文件传输时间。</p>
+<h3 id="场景二"><a href="#场景二" class="headerlink" title="场景二"></a>场景二</h3><p>公司 B，嵌入式底层开发，项目人员较多并且分布在两个城市，代码庞大；用分支管理多机种并行开发，机种间经常相互合并新特性，新 patch。</p>
+<p>适用：git</p>
+<p>分析：</p>
+<ol>
+<li>git 有能力高效管理类似 Linux 内核一样的超大规模项目；</li>
+<li>git 实现了离线开发、代码审核特性，解决了跨地域协同开发中代码质量和编码协同的问题；</li>
+<li>分支管理功能强大，便于查询和追溯分支间的提交历史；</li>
+<li>git 基于 DAG（有向非环图）的设计比 svn 的线性提交提供更好的合并追踪，避免不必要的冲突，提高工作效率。</li>
+</ol>
+<p><img src="https://pic2.zhimg.com/80/v2-6349574ea7ed79d1e9aa65fdd84bb141_1440w.png" srcset="/img/loading.gif" lazyload alt></p>
+<h3 id="场景三"><a href="#场景三" class="headerlink" title="场景三"></a>场景三</h3><p>公司 C，某行业软件开发，包含敏感重要数据，代码仓库和版本发布权限掌握在客户手中，代码安全要求高，公司开发人员先将代码提交到本地仓库，只有在客户审核通过才能提交到发布仓库。</p>
+<p>适用：git</p>
+<p>分析：</p>
+<ol>
+<li>git 通过哈希加密保证数据的完整性，防止恶意篡改；</li>
+<li>代码分布存储，异地容灾，保证数据安全；</li>
+<li>git 支持团队成员自建本地版本库和分支，只有客户发出合并请求，开发人员才能提交代码，客户可以对提交说明、代码规范等方面逐一审核。</li>
+</ol>
+<h3 id="讨论"><a href="#讨论" class="headerlink" title="讨论"></a>讨论</h3><p>可以参考此 <a href="https://draveness.me/whys-the-design-git-the-best/" target="_blank" rel="noopener">博客</a> 和 Linus 2007 年在 Google Talk 中对 Git 的 <a href="https://www.bilibili.com/video/av34867224?t=1494" target="_blank" rel="noopener">介绍</a>。</p>
+<p>上文首先介绍了集中式管理系统的缺点：</p>
+<ul>
+<li>工程师必须都需要连接网络才能开发，在网络状况不好或者无网络的情况下无法进行提交；<ul>
+<li>很多人可能认为自己并没有离线工作的需求，但是这实际上在我们的日常工作中也比较常见，百兆带宽虽然已经能够满足日常开发的需求，不过在复杂的网络环境下，很多时候我们还是会遇到无法联网或者网络极差的场景，例如在飞机和火车上；</li>
+<li>对于一个较大的分布式开发团队，在实际生产中我们也难以保证所有成员都能同时通过骨干网等高速网络连接到同一个主仓库；</li>
+</ul>
+</li>
+<li>对中心仓库的提交和改动，例如创建分支等操作对于所有的开发人员都是可见的；<ul>
+<li>当我们使用集中式的开发模型时，无论是提交代码还是创建新的实验分支，这些操作其实都会改变所有人共享的代码库，这也就意味着如果某个开发者创建了很多的实验分支，所有开发者的代码库也都会变大；</li>
+<li>虽然我们能在中心仓库中创建分支，但是由于中心仓库中不存在名空间，如果开发者创建分支没有遵循特定的命名规则，就非常容易出现命名冲突的问题，例如各种 test 分支；</li>
+</ul>
+</li>
+<li>当前仓库的所有开发者都需要有直接向主仓库提交代码的权限，否则他们就无法进行开发；<ul>
+<li>同时让项目中的所有开发者具有写权限其实是一件危险的事情，我们并不是知道这些开发者是否有着足够的经验操作主仓库，一旦出现操作上的失误，所有的成员都将面临这一失误带来的风险；</li>
+</ul>
+</li>
+</ul>
+<p>接着 Git 完美的解决了以上问题：</p>
+<ul>
+<li>Git 作为分布式的版本控制系统能够让开发者离线工作和本地提交，不仅能够避免直接提交大量代码带来的风险，还能帮助我们限制对主仓库的授权，减少由于命名空间导致的冲突问题；</li>
+<li>Git 在优化性能时选择了合并分支作为主要的性能衡量指标，将合并分支变成了成本非常低的操作以鼓励分支的使用；</li>
+<li>Git 通过 SHA-1 哈希来保证仓库中数据的可靠性，我们通过 SHA-1 就可以对数据进行校验，保证整个提交链条上的所有数据的稳定性和可靠性，也帮助我们抵御了来自攻击者的恶意篡改；</li>
+</ul>
+<p>此外也可参考此 <a href="https://www.zhihu.com/question/25491925" target="_blank" rel="noopener">知乎上大家的讨论</a>。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>不难看出，git 凭借自身的优势，完美解决了大多数公司对版本控制工具的诉求。在当今敏捷开发成为主流，研发周期短，跨地域协同开发多的大形势下，选择 git 是大势所趋。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://zhuanlan.zhihu.com/p/27374348" target="_blank" rel="noopener">如何选择版本控制系统 —-为什么选择 Git 版本控制系统</a></li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/git/">git</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/spark-thesis/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Spark 论文阅读</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/git-common-command/">
+                        <span class="hidden-mobile">33 条常用 git 命令详解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>

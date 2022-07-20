@@ -1,0 +1,630 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  <meta name="description" content="背景基于一个物理现实：内存操作比磁盘操作快若干个数量级。现代网站服务广泛使用了类似 redis ，memcached 的内存缓存系统。其思想很简单：尽管海量数据最终都需要落盘持久化，但如果能够将一些常用的数据在内存中缓存以供读请求直接获取，则不仅能够降低请求时延，还能够提升系统吞吐量，而且也能够减少底层数据管理系统比如关系型数据库的负载。 内存缓存系统的大规模商用激发了业界对其的研究，现有的研究主">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Twitter 内存缓存系统分析论文阅读">
+<meta property="og:url" content="https://tanxinyu.work/twitter-cache-analysis-thesis/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="背景基于一个物理现实：内存操作比磁盘操作快若干个数量级。现代网站服务广泛使用了类似 redis ，memcached 的内存缓存系统。其思想很简单：尽管海量数据最终都需要落盘持久化，但如果能够将一些常用的数据在内存中缓存以供读请求直接获取，则不仅能够降低请求时延，还能够提升系统吞吐量，而且也能够减少底层数据管理系统比如关系型数据库的负载。 内存缓存系统的大规模商用激发了业界对其的研究，现有的研究主">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tanxinyu.work/twitter-cache-analysis-thesis/1.png">
+<meta property="og:image" content="https://tanxinyu.work/twitter-cache-analysis-thesis/2.png">
+<meta property="og:image" content="https://tanxinyu.work/twitter-cache-analysis-thesis/3.png">
+<meta property="og:image" content="https://tanxinyu.work/twitter-cache-analysis-thesis/4.png">
+<meta property="og:image" content="https://tanxinyu.work/twitter-cache-analysis-thesis/5.png">
+<meta property="og:image" content="https://tanxinyu.work/twitter-cache-analysis-thesis/6.png">
+<meta property="og:image" content="https://tanxinyu.work/twitter-cache-analysis-thesis/7.png">
+<meta property="og:image" content="https://tanxinyu.work/twitter-cache-analysis-thesis/8.png">
+<meta property="article:published_time" content="2020-12-17T15:46:07.000Z">
+<meta property="article:modified_time" content="2022-01-30T03:43:24.000Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="分布式存储">
+<meta property="article:tag" content="论文阅读">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tanxinyu.work/twitter-cache-analysis-thesis/1.png">
+  
+  <title>Twitter 内存缓存系统分析论文阅读 - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/blog-background.jpeg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Twitter 内存缓存系统分析论文阅读">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-12-17 23:46" pubdate>
+        2020年12月17日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.1k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      10 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Twitter 内存缓存系统分析论文阅读</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：6 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>基于一个物理现实：内存操作比磁盘操作快若干个数量级。现代网站服务广泛使用了类似 redis ，memcached 的内存缓存系统。其思想很简单：尽管海量数据最终都需要落盘持久化，但如果能够将一些常用的数据在内存中缓存以供读请求直接获取，则不仅能够降低请求时延，还能够提升系统吞吐量，而且也能够减少底层数据管理系统比如关系型数据库的负载。</p>
+<p>内存缓存系统的大规模商用激发了业界对其的研究，现有的研究主要集中在如何提高吞吐量，如何减少缓存缺失率等等。由于用户场景与缓存系统的性能息息相关，之前也出现了生产系统的分析，但其针对的用户场景过少。这就导致了理论和生产环境之间的一个巨大 gap，因此业界需要一个能够包含大量用户场景的内存缓存系统分析；此外，业界对内存缓存系统的前提假设都是写少读多，而且许多理论比如内存管理都是基于数据大小是恒定这一假设来做的，那么实际上线的生产环境也都是理论假设的这样吗？此外，一些看似不重要的特性，比如 TTL 受到了业界极少的关注，那么它对于生产系统的性能影响真的很小吗？带着这些问题，我们开始介绍这篇论文。</p>
+<h2 id="数据"><a href="#数据" class="headerlink" title="数据"></a>数据</h2><p>首先介绍数据情况，Twitter 内部的内存缓存集群都是单租户单层的容器化实例，这样的架构方便作者直接将集群的分析结果与商业逻辑对应，更能够反映现象的真实原因。可以看到，Twitter 的内存缓存集群很大。</p>
+<p><img src="/twitter-cache-analysis-thesis/1.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>为了保证分析不受采样方法的影响，作者未取样的收集了两段区间为一周的集群请求全量元信息，在 80TB 的数据基础上做了详细的分析。而且，作者也将数据适度脱敏后进行了开源，能够让任何人去继续分析。</p>
+<p><img src="/twitter-cache-analysis-thesis/2.png" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="缓存场景"><a href="#缓存场景" class="headerlink" title="缓存场景"></a>缓存场景</h2><p>Twitter 内部的内存缓存系统主要有三种应用场景：</p>
+<p><img src="/twitter-cache-analysis-thesis/3.png" srcset="/img/loading.gif" lazyload alt></p>
+<h3 id="存储缓存"><a href="#存储缓存" class="headerlink" title="存储缓存"></a>存储缓存</h3><p>将一些在磁盘上的热点数据缓存在内存中，来减少底层涉及磁盘的数据系统比如关系型数据库的压力。</p>
+<h3 id="计算缓存"><a href="#计算缓存" class="headerlink" title="计算缓存"></a>计算缓存</h3><p>缓存一些计算结果或预结算结果。随着 BI 时代的到来，许多公司都会利用机器学习的方法做用户画像或者是实时流推荐。这些算法的每次计算很难在秒级以下，而且用户的画像也一般不会在几小时内发生变化，因此企业一般会每计算一次用户的画像就将其设置一个几分钟或几小时的 TTL 存储到缓存中，这样既能够大幅度减少计算资源的消耗也能够保持 BI 逻辑，这种使用方式正在逐渐流行。</p>
+<h3 id="瞬态数据缓存"><a href="#瞬态数据缓存" class="headerlink" title="瞬态数据缓存"></a>瞬态数据缓存</h3><p>有一些数据是不需要持久化的，只存在于内存缓存中。比如限速场景会把用户的请求存储到缓存中进行统计，一旦超速即开始限速，过期后隐形删除这些统计日志即可。</p>
+<h2 id="数据分析"><a href="#数据分析" class="headerlink" title="数据分析"></a>数据分析</h2><h3 id="写多读少场景广泛存在"><a href="#写多读少场景广泛存在" class="headerlink" title="写多读少场景广泛存在"></a>写多读少场景广泛存在</h3><p>如下图所示，这是一个有关写请求占总请求比率的集群比例概率分布图。<br><img src="/twitter-cache-analysis-thesis/4.png" srcset="/img/loading.gif" lazyload alt><br>作者将比率大于 30% 的集群定义为写多读少负载，可以看到 twitter 内部至少 35 % 的集群都是写多读少的负载，这打破了业界对于内存缓存系统的前提假设，也展示了生产和理论之间的 gap。对于写多读少场景，长尾效应，扩展性受限都成了问题，而这一块却几乎没有学者研究过，因此作者为业界指明了一条研究方向：即写多读少场景内存缓存系统的优化。</p>
+<h3 id="对象大小"><a href="#对象大小" class="headerlink" title="对象大小"></a>对象大小</h3><p>下图是集群中有关对象大小的若干集群比例概率分布图。<br><img src="/twitter-cache-analysis-thesis/5.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="元数据大小"><a href="#元数据大小" class="headerlink" title="元数据大小"></a>元数据大小</h4><p>从前三张子图中可以看到，大部分对象数据都很小，那相比之下，原本被忽视的元数据消耗就非常大了，比如 memcached 中每个对象的元数据就有 56 字节。现有的研究大多数都是通过增加元数据来提高缓存命中率的。而实际上对于小对象场景来说，最小化元数据的大小能够增大缓存个数，也是一条提升性能的方向。</p>
+<h4 id="key-大小"><a href="#key-大小" class="headerlink" title="key 大小"></a>key 大小</h4><p>在上图的第四张子图中可以观察到，对于 60 % 的 workload，key 和 value 的大小都在一个数量级，这很让人惊异。在观察了许多实际 key 后，作者发现很多业务使用了较为冗长的 key，比如把很长的多段命名空间都扔到了里面，这浪费了许多空间。由于直接让业务团队将 key 改小是不可行的，所以内存缓存系统也可以为 key 增加一个轻量级的压缩，这样也能够有效的增大缓存空间。这个工作实现起来很容易，但之前没有人观察到过这个现象，因此这也是作者的贡献。</p>
+<h3 id="对象大小的动态分布"><a href="#对象大小的动态分布" class="headerlink" title="对象大小的动态分布"></a>对象大小的动态分布</h3><p>当前，内存缓存系统大多假设对象随着时间的推移大小不变，然而在生产系统中，作者观察到大部分时间中，其对象大小的分布并不是恒定的。</p>
+<p><img src="/twitter-cache-analysis-thesis/6.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>这个不恒定主要有两种表现形式：</p>
+<ul>
+<li><p>第一种是周期性的变化，比如很多负载都具有白天对象更大的特征。如图所示，亮度发生变化代表分布发生了变化，很多亮度是有周期出现的。</p>
+</li>
+<li><p>第二种是临时的突变，过后即恢复。如图所示，存在个别无规律的亮点。</p>
+</li>
+</ul>
+<p>这些突变给缓存系统的内存管理带来了很多挑战，就如同操作系统的内部碎片和外部碎片一样。作者实际测试发现，现有缓存系统的主流内存管理技术 slab-class ，在面对可变对象大小时表现十分受限，作者认为内存管理技术方面需要更大的创新，比如随着机器学习的发展，动态的预测缓存行为并做出智能的内存管理就是一个可行的方向。</p>
+<h3 id="TTL"><a href="#TTL" class="headerlink" title="TTL"></a>TTL</h3><p>TTL，一个限定对象生命周期的内存缓存系统特有参数，作者进行了细致的分析。对应前面提到内存缓存的三种场景，TTL 都有作用。</p>
+<h4 id="TTL-使用场景"><a href="#TTL-使用场景" class="headerlink" title="TTL 使用场景"></a>TTL 使用场景</h4><p><img src="/twitter-cache-analysis-thesis/7.png" srcset="/img/loading.gif" lazyload alt></p>
+<ul>
+<li>保证不一致上界：部分对一致性要求较低的业务可能在写缓存失败时并不重试，这可能最终导致缓存与实际数据的不一致，因此用户可以使用 TTL 这个属性给这个最终一致性的区间定一个上界，从而达到性能和不一致上限都得到保证的可控结果。</li>
+<li>定期更新：用户画像随着时间推移可能逐渐变得不准确，不实时，因此需要一个 TTL 属性来隐性指示计算，即哪怕新一轮计算结果还没触发，每过 TTL 时间请求用户的画像就得重新计算一次，这其实是一个实时性和计算资源之间的 trade-off。</li>
+<li>隐形删除：比如限速场景可以把用户每条请求数据的 TTL 设置为限速的时间窗口，这样既能够达到限速的目的又能够在一段时间后隐形删除掉这些数据。</li>
+</ul>
+<h4 id="小-TTL-能够限制工作集合的大小"><a href="#小-TTL-能够限制工作集合的大小" class="headerlink" title="小 TTL 能够限制工作集合的大小"></a>小 TTL 能够限制工作集合的大小</h4><p><img src="/twitter-cache-analysis-thesis/8.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>如图所示，作者统计了在有无 TTL 场景下的对象集合总大小和活跃对象集合大小，可以看到活跃的对象集合大小相比总大小始终在一个固定范围内。因此如果能够对过期数据清理得当，那么实际上不需要很大的缓存资源就能提供一个不错的缓存命中率。因此作者得出了结论，有效的主动过期策略比驱逐还要更重要。</p>
+<p>现有的主动驱逐策略主要有两种：一种是 Facebook 提出的环形缓冲区策略，它在 TTL 个数较少或者多但不连续时表现都不好；另一种是当前 redis 的定期删除策略，由于其是遍历实现的，而为了保证及时删除扫表时间至少要和最小的 ttl 在一个量级 ，则对于较大的 ttl，其数据会被扫描多次。这样也一定程度上造成了 cpu 时间的浪费，而且也容易有缓存雪崩问题。因此作者认为有效的主动过期策略也需要进一步的创新。</p>
+<h3 id="更多发现"><a href="#更多发现" class="headerlink" title="更多发现"></a>更多发现</h3><h4 id="生产数据统计"><a href="#生产数据统计" class="headerlink" title="生产数据统计"></a>生产数据统计</h4><p>请求激增不一定就是热点导致的，可能就是均匀的涨了一些。</p>
+<h4 id="对象分布"><a href="#对象分布" class="headerlink" title="对象分布"></a>对象分布</h4><p>尽管有些许偏差，但针对对象的请求基本符合幂率分布</p>
+<h4 id="驱逐策略"><a href="#驱逐策略" class="headerlink" title="驱逐策略"></a>驱逐策略</h4><p>尽管不同负载的表现情况不一样，但 FIFO 与 LRU 策略在大部分负载下的表现近似。这也预示业务可能实际没必要费事费力的去搞 LRU 策略，简单的 FIFO 就能达到类似的性能的。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>证明了写多读少内存缓存场景的广泛存在，指明了一个可以研究的领域。</li>
+<li>大多数场景的对象很小，要想提升吞吐量可以从减少元数据大小和适度压缩 key 入手。</li>
+<li>在内存缓存的生产系统中，对象的大小并不是恒定不变的。基于对象大小固定不变进行的理论推理都存在问题。</li>
+<li>有效的主动过期策略比驱逐策略更管用。</li>
+</ul>
+<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>本文作者基于世界上最大的实时内容公司之一 Twitter 的内存缓存统计数据，使用强有力的数据分析纠正了若干业界对于内存缓存的误区，辩驳了若干业界的前提假设和主流思想，并提出了若干研究方向，开创了多个子领域。我个人认为这是一篇很有意义的文章。</p>
+<h2 id="相关资料"><a href="#相关资料" class="headerlink" title="相关资料"></a>相关资料</h2><p><a href="https://www.usenix.org/system/files/osdi20-yang.pdf" target="_blank" rel="noopener">论文</a><br><a href="https://www.usenix.org/sites/default/files/conference/protected-files/osdi20_slides_yang.pdf" target="_blank" rel="noopener">PPT</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/open-source-license/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">开源协议解读</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/spark-thesis/">
+                        <span class="hidden-mobile">Spark 论文阅读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>
