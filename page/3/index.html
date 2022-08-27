@@ -193,6 +193,58 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/cluster-iotdb-idea-debugger/" target="_self">
+          <img src="/./cluster-iotdb-idea-debugger/iotdb.png" srcset="/img/loading.gif" lazyload alt="利用 IDEA 对分布式 IoTDB 进行调试">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/cluster-iotdb-idea-debugger/" target="_self">
+          利用 IDEA 对分布式 IoTDB 进行调试
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/cluster-iotdb-idea-debugger/" target="_self">
+          
+          
+            
+          
+          前言在单机数据库中，寻找 bug 相对较为简单。因为一旦可以复现 bug，那我们可以利用 IDE 在服务端打断点一步步执行并跟踪查看堆栈信息来判断代码出错的位置从而最终找到问题。
+在分布式数据库中，找 bug 就变得相对困难了。一方面是因为分布式数据库较难利用 IDE 打断点，其往往通过打 log 的方式来记录错误情况，另一方面是一条客户端请求过来后往往伴随着若干并行和跨节点的 rpc，因此如果通
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-04-07 22:44" pubdate>
+              2021-04-07
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/IoTDB/">IoTDB</a>
+            
+              <a href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E9%85%8D%E7%BD%AE/">开发工具配置</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/consistency-and-consensus/" target="_self">
           <img src="/./consistency-and-consensus/background.png" srcset="/img/loading.gif" lazyload alt="一致性模型与共识算法">
         </a>
@@ -657,57 +709,6 @@ MapReduce 虽然对利用集群中的计算资源做了各类抽象，但还没�
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/git-or-svn/" target="_self">
-          <img src="/./git-or-svn/d-vcs.png" srcset="/img/loading.gif" lazyload alt="为什么选择 git 来作为代码版本控制系统">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/git-or-svn/" target="_self">
-          为什么选择 git 来作为代码版本控制系统
-        </a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/git-or-svn/" target="_self">
-          
-          
-            
-          
-          版本控制系统代码作为软件研发的核心产物，在整个开发周期都在递增，不断合入新需求以及解决 bug 的新 patch，这就需要有一款系统，能够存储、追踪文件的修改历史，记录多个版本的开发和维护。于是，版本控制系统（Version Control Systems）应运而生，主要分为两类，集中式和分布式。
-集中式版本控制系统
-集中化的版本控制系统，诸如 CVS，SVN 等，都有一个单一的集中管理的服务器，
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2020-11-09 23:20" pubdate>
-              2020-11-09
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/git/">git</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
@@ -879,5 +880,20 @@ MapReduce 虽然对利用集群中的计算资源做了各类抽象，但还没�
 <script  src="/js/boot.js" ></script>
 
 
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
 </html>

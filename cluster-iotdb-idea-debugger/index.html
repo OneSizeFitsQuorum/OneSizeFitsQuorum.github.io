@@ -262,7 +262,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：6 个月前
+                  本文最后更新于：7 个月前
                 
               </p>
             
@@ -273,7 +273,7 @@
 <p>在测试环境中，尽管我们也可以采用生产环境的 debug 方式，但显然我们希望能够找到效率更高的方式。万幸的是，Jetbrains 全家桶为我们提供分布式系统的 debug 方式。比如对于 Java 应用而言，IDEA 就提供了远程 debug 和本地多进程 debug 的方式。对于远程 debug，可以参考这篇 <a href="https://www.cnblogs.com/aligege/p/7308180.html" target="_blank" rel="noopener">博客</a> 介绍的方式对远程的应用进行 debug，也可以参照这篇 <a href="https://mp.weixin.qq.com/s/frwNMfr3wAkHaR9ZUXFcew" target="_blank" rel="noopener">博客</a> 介绍的方式对分布式 IoTDB 远程 debug；对于本地多进程 debug，本篇博客将介绍如何利用 IDEA 对分布式 IoTDB 进行调试。</p>
 <p>有关 Apache IoTDB 可以参考 <a href="https://iotdb.apache.org/" target="_blank" rel="noopener">官方网站</a>。</p>
 <h2 id="本地多进程-debug-调试"><a href="#本地多进程-debug-调试" class="headerlink" title="本地多进程 debug 调试"></a>本地多进程 debug 调试</h2><p>对于 IoTDB 集群的搭建示例，可以参照 <a href="https://github.com/apache/iotdb/blob/master/docs/zh/UserGuide/Cluster/Cluster-Setup.md" target="_blank" rel="noopener">官方文档</a>，其分布式模块的启动主类为 <a href="https://github.com/apache/iotdb/blob/master/cluster/src/main/java/org/apache/iotdb/cluster/ClusterMain.java" target="_blank" rel="noopener">ClusterMain.java</a>，其默认的三节点分布式配置参数文件夹可以参考 <a href="https://github.com/apache/iotdb/tree/master/cluster/src/test/resources" target="_blank" rel="noopener">这里</a>。</p>
-<figure class="highlight JAVA"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs JAVA"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>  <span class="hljs-keyword">if</span> (args.length &lt; <span class="hljs-number">1</span>) &#123;<br>    logger.error(<br>        <span class="hljs-string">"Usage: &lt;-s|-a|-r&gt; "</span><br>            + <span class="hljs-string">"[-D&#123;&#125; &lt;configure folder&gt;] \n"</span><br>            + <span class="hljs-string">"-s: start the node as a seed\n"</span><br>            + <span class="hljs-string">"-a: start the node as a new node\n"</span><br>            + <span class="hljs-string">"-r: remove the node out of the cluster\n"</span>,<br>        IoTDBConstant.IOTDB_CONF);<br><br>    <span class="hljs-keyword">return</span>;<br>  &#125;<br>  ...<br><br>&#125;<br></code></pre></div></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs JAVA"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>  <span class="hljs-keyword">if</span> (args.length &lt; <span class="hljs-number">1</span>) &#123;<br>    logger.error(<br>        <span class="hljs-string">"Usage: &lt;-s|-a|-r&gt; "</span><br>            + <span class="hljs-string">"[-D&#123;&#125; &lt;configure folder&gt;] \n"</span><br>            + <span class="hljs-string">"-s: start the node as a seed\n"</span><br>            + <span class="hljs-string">"-a: start the node as a new node\n"</span><br>            + <span class="hljs-string">"-r: remove the node out of the cluster\n"</span>,<br>        IoTDBConstant.IOTDB_CONF);<br><br>    <span class="hljs-keyword">return</span>;<br>  &#125;<br>  ...<br><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>可以看到其按照 seednodes 启动时指定 -s 即可，此外其也支持通过 <code>-D{}</code> 的方式来覆盖参数，因此我们可以利用 IDEA 分别指定不同的配置文件夹并用 debug 模式来启动三个 clusterMain 进程，这样即可达到本地多进程 debug 调试的理想效果。</p>
 <h2 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h2><ol>
 <li>点击 <code>Edit Configurations...</code><br><img src="/cluster-iotdb-idea-debugger/step1.png" srcset="/img/loading.gif" lazyload alt></li>
@@ -611,5 +611,20 @@
 <script  src="/js/boot.js" ></script>
 
 
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
 </html>

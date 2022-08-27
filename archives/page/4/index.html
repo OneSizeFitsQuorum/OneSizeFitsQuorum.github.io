@@ -185,13 +185,19 @@
                 
 
 <div class="list-group">
-  <p class="h4">共计 41 篇文章</p>
+  <p class="h4">共计 42 篇文章</p>
   <hr>
   
   
     
       
       <p class="h5">2020</p>
+    
+    <a href="/git-or-svn/" class="list-group-item list-group-item-action">
+      <span class="archive-post-title">为什么选择 git 来作为代码版本控制系统</span>
+      <time style="float: right;">11-09</time>
+    </a>
+  
     
     <a href="/git-common-command/" class="list-group-item list-group-item-action">
       <span class="archive-post-title">33 条常用 git 命令详解</span>
@@ -244,12 +250,6 @@
     <a href="/cap-theory/" class="list-group-item list-group-item-action">
       <span class="archive-post-title">CAP 定理介绍</span>
       <time style="float: right;">02-15</time>
-    </a>
-  
-    
-    <a href="/iTerm2-hotkeys/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">iTerm2 快捷键介绍</span>
-      <time style="float: right;">02-12</time>
     </a>
   
 </div>
@@ -425,5 +425,20 @@
 <script  src="/js/boot.js" ></script>
 
 
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
 </html>
