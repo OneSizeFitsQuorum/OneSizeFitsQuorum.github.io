@@ -1,0 +1,599 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  <meta name="description" content="背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 想要参与到 TiKV 的研发中来，首先需要学习 Rust 语言，其次需要理解 TiKV 的原理，最后便是在前两者的基础上去阅读学习 TiKV 的 codebase。  本人在 PingCAP 事务组实习的过程中，首先入门了 Rust 语言，接着又基于之前的一些知识系统地学习了 TiKV 事">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TiKV 读写流程源码阅读">
+<meta property="og:url" content="https://tanxinyu.work/tikv-source-code-reading/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 想要参与到 TiKV 的研发中来，首先需要学习 Rust 语言，其次需要理解 TiKV 的原理，最后便是在前两者的基础上去阅读学习 TiKV 的 codebase。  本人在 PingCAP 事务组实习的过程中，首先入门了 Rust 语言，接着又基于之前的一些知识系统地学习了 TiKV 事">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://download.pingcap.com/images/docs-cn/tikv-arch.png">
+<meta property="article:published_time" content="2022-09-01T08:37:12.000Z">
+<meta property="article:modified_time" content="2022-09-01T16:35:01.040Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="分布式系统理论">
+<meta property="article:tag" content="源码阅读">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://download.pingcap.com/images/docs-cn/tikv-arch.png">
+  
+  <title>TiKV 读写流程源码阅读 - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/blog-background.jpeg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="TiKV 读写流程源码阅读">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-09-01 16:37" pubdate>
+        2022年9月1日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      9.4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      29 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">TiKV 读写流程源码阅读</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：10 小时前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p><a href="https://github.com/tikv/tikv" target="_blank" rel="noopener">TiKV</a> 是一个支持事务的分布式 Key-Value 数据库，目前已经是 <a href="https://www.cncf.io/projects/" target="_blank" rel="noopener">CNCF 基金会</a> 的顶级项目。</p>
+<p>想要参与到 TiKV 的研发中来，首先需要学习 Rust 语言，其次需要理解 TiKV 的原理，最后便是在前两者的基础上去阅读学习 TiKV 的 codebase。 </p>
+<p>本人在 PingCAP 事务组实习的过程中，首先入门了 Rust 语言，接着又基于之前的一些知识系统地学习了 TiKV 事务层的演示历史，最后开始尝试学习 TiKV 的 codebase 并尝试在其中做一些探索性的预研工作。</p>
+<p>TiKV 的 <a href="https://pingcap.com/zh/blog/?tag=TiKV%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" target="_blank" rel="noopener">官方源码解析文档</a> 详细的介绍了 TiKV 3.x 版本不同模块的设计要点，主要流程和相应代码片段，是学习 TiKV 源码必读的学习资料。然而，TiKV 目前已经发展到了 6.x 版本，不仅引入了很多新的功能和优化，而且对源码也进行了多次重构，这使得一些官方源码阅读报告中的代码已经不复存在，无法与博客形成对照；此外尽管 TiKV 官方源码解析文档系统地介绍了不同模块的工作，但并没有将完整的读写流程串起来去介绍经过的模块和对应的代码片段，而对于新人来讲，尽快的熟悉读写流程的总链路会更便于从全局角度理解代码。</p>
+<p>基于以上动机，本篇博客将首先介绍 TiKV 中的一些基本概念，接着以源码的视角介绍 TiKV 的 RPC 启动流程和读写流程，最后再简单介绍断点调试 TiKV 学习源码的方案。</p>
+<p>希望本篇博客能够帮助对 TiKV 开发感兴趣的同学尽快了解 TiKV 的代码框架。</p>
+<p>注：以下源码阅读基于 TiKV 6.1 版本。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>TiKV 的架构简介可以查看 <a href="https://docs.pingcap.com/zh/tidb/dev/tikv-overview" target="_blank" rel="noopener">官方文档</a>。总体来看，TiKV 是一个支持 Multi-Raft 的分布式 KV 存储。</p>
+<p>TiKV 的每个进程拥有一个 store，store 中拥有若干 region。每个 region 是一个 raft 组，会存在于副本数个 store 上管理一段 KV 区间的数据。</p>
+<p><img src="https://download.pingcap.com/images/docs-cn/tikv-arch.png" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="RPC-启动流程"><a href="#RPC-启动流程" class="headerlink" title="RPC 启动流程"></a>RPC 启动流程</h2><p>本小节将介绍 TiKV 的 RPC 启动流程，并顺带介绍 TiKV 若干模块和结构的初始化过程，之后的章节将直接基于读写流程对应的 RPC handler 进一步介绍。</p>
+<p>cmd/tikv-server/main.rs 是 TiKV 进程启动的入口，其主要做了以下两个工作：</p>
+<ul>
+<li>配置参数解析</li>
+<li>使用 <code>server::server::run_tikv(config)</code> 启动 tikv 进程</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs Rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> build_timestamp = <span class="hljs-built_in">option_env!</span>(<span class="hljs-string">"TIKV_BUILD_TIME"</span>);<br>    <span class="hljs-keyword">let</span> version_info = tikv::tikv_version_info(build_timestamp);<br>    <br>    <span class="hljs-comment">// config parsing</span><br>    <span class="hljs-comment">// ...</span><br>    <span class="hljs-comment">// config parsing</span><br>   <br>    server::server::run_tikv(config);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>对于 server/src/server.rs 的 run-tikv 函数，其会调用 run_impl 函数并根据配置参数来启动对应的 KV 引擎。</p>
+<p>在 run_impl 函数中，首先会调用 <code>TikvServer::&lt;CER&gt;::init::&lt;F&gt;(config)</code> 函数做若干重要模块的初始化，包含但不限于 batch_system, concurrency_manager,background_worker, quota_limiter 等等，接着在 <code>tikv.init_servers::&lt;F&gt;()</code> 里将 RPC handler 与 RPC server 绑定起来，最后在 <code>tikv.run_server(server_config)</code> 中便会使用 <a href="https://pingcap.com/zh/blog/tikv-source-code-reading-8" target="_blank" rel="noopener">TiKV 源码解析第八章</a> 介绍的 grpc-rs 绑定对应的端口并开始监听连接了。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs Rust"><span class="hljs-comment">/// Run a TiKV server. Returns when the server is shutdown by the user, in which</span><br><span class="hljs-comment">/// case the server will be properly stopped.</span><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">run_tikv</span></span>(config: TikvConfig) &#123;<br>    <span class="hljs-comment">// Sets the global logger ASAP.</span><br>    <span class="hljs-comment">// It is okay to use the config w/o `validate()`,</span><br>    <span class="hljs-comment">// because `initial_logger()` handles various conditions.</span><br>    initial_logger(&amp;config);<br><br>    <span class="hljs-comment">// Print version information.</span><br>    <span class="hljs-keyword">let</span> build_timestamp = <span class="hljs-built_in">option_env!</span>(<span class="hljs-string">"TIKV_BUILD_TIME"</span>);<br>    tikv::log_tikv_info(build_timestamp);<br><br>    <span class="hljs-comment">// Print resource quota.</span><br>    SysQuota::log_quota();<br>    CPU_CORES_QUOTA_GAUGE.set(SysQuota::cpu_cores_quota());<br><br>    <span class="hljs-comment">// Do some prepare works before start.</span><br>    pre_start();<br><br>    <span class="hljs-keyword">let</span> _m = Monitor::default();<br><br>    dispatch_api_version!(config.storage.api_version(), &#123;<br>        <span class="hljs-keyword">if</span> !config.raft_engine.enable &#123;<br>            run_impl::&lt;RocksEngine, API&gt;(config)<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            run_impl::&lt;RaftLogEngine, API&gt;(config)<br>        &#125;<br>    &#125;)<br>&#125;<br><br><span class="hljs-meta">#[inline]</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">run_impl</span></span>&lt;CER: ConfiguredRaftEngine, F: KvFormat&gt;(config: TikvConfig) &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> tikv = TikvServer::&lt;CER&gt;::init::&lt;F&gt;(config);<br><br>    <span class="hljs-comment">// Must be called after `TikvServer::init`.</span><br>    <span class="hljs-keyword">let</span> memory_limit = tikv.config.memory_usage_limit.unwrap().<span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">let</span> high_water = (tikv.config.memory_usage_high_water * memory_limit <span class="hljs-keyword">as</span> <span class="hljs-built_in">f64</span>) <span class="hljs-keyword">as</span> <span class="hljs-built_in">u64</span>;<br>    register_memory_usage_high_water(high_water);<br><br>    tikv.check_conflict_addr();<br>    tikv.init_fs();<br>    tikv.init_yatp();<br>    tikv.init_encryption();<br>    <span class="hljs-keyword">let</span> fetcher = tikv.init_io_utility();<br>    <span class="hljs-keyword">let</span> listener = tikv.init_flow_receiver();<br>    <span class="hljs-keyword">let</span> (engines, engines_info) = tikv.init_raw_engines(listener);<br>    tikv.init_engines(engines.clone());<br>    <span class="hljs-keyword">let</span> server_config = tikv.init_servers::&lt;F&gt;();<br>    tikv.register_services();<br>    tikv.init_metrics_flusher(fetcher, engines_info);<br>    tikv.init_storage_stats_task(engines);<br>    tikv.run_server(server_config);<br>    tikv.run_status_server();<br>    tikv.init_quota_tuning_task(tikv.quota_limiter.clone());<br><br>    signal_handler::wait_for_signal(<span class="hljs-literal">Some</span>(tikv.engines.take().unwrap().engines));<br>    tikv.stop();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">run_server</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, server_config: Arc&lt;VersionTrack&lt;ServerConfig&gt;&gt;) &#123;<br>    <span class="hljs-keyword">let</span> server = <span class="hljs-keyword">self</span>.servers.as_mut().unwrap();<br>    server<br>        .server<br>        .build_and_bind()<br>        .unwrap_or_else(|e| fatal!(<span class="hljs-string">"failed to build server: &#123;&#125;"</span>, e));<br>    server<br>        .server<br>        .start(server_config, <span class="hljs-keyword">self</span>.security_mgr.clone())<br>        .unwrap_or_else(|e| fatal!(<span class="hljs-string">"failed to start server: &#123;&#125;"</span>, e));<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>RPC 服务启动后，所有发往 RPC 的请求便可以在 src/server/service/kv.rs 中找到对应的 handler，之后直接阅读对应的实现即可。有关 TiKV 目前支持 idea 接口，可以直接查看 <a href="https://github.com/pingcap/kvproto/blob/master/proto/tikvpb.proto" target="_blank" rel="noopener">kvproto</a> 对应的 <code>service Tikv</code>，目前的 RPC 接口已经接近 60 个，每个 RPC 接口在代码中都会对应一个 handler。</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs protobuf"><span class="hljs-comment">// Key/value store API for TiKV.</span><br><span class="hljs-class"><span class="hljs-keyword">service</span> <span class="hljs-title">Tikv</span> </span>&#123;<br>    <span class="hljs-comment">// Commands using a transactional interface.</span><br>    <span class="hljs-function"><span class="hljs-keyword">rpc</span> KvGet(kvrpcpb.GetRequest) <span class="hljs-keyword">returns</span> (kvrpcpb.GetResponse) &#123;&#125;</span><br><span class="hljs-function">    <span class="hljs-keyword">rpc</span> KvScan(kvrpcpb.ScanRequest) <span class="hljs-keyword">returns</span> (kvrpcpb.ScanResponse) &#123;&#125;</span><br><span class="hljs-function">    <span class="hljs-keyword">rpc</span> KvPrewrite(kvrpcpb.PrewriteRequest) <span class="hljs-keyword">returns</span> (kvrpcpb.PrewriteResponse) &#123;&#125;</span><br><span class="hljs-function">    <span class="hljs-keyword">rpc</span> KvPessimisticLock(kvrpcpb.PessimisticLockRequest) <span class="hljs-keyword">returns</span> (kvrpcpb.PessimisticLockResponse) &#123;&#125;</span><br><span class="hljs-function">    <span class="hljs-keyword">rpc</span> KVPessimisticRollback(kvrpcpb.PessimisticRollbackRequest) <span class="hljs-keyword">returns</span> (kvrpcpb.PessimisticRollbackResponse) &#123;&#125;</span><br><span class="hljs-function">    ...</span><br><span class="hljs-function">&#125;</span><br></code></pre></div></td></tr></table></figure>
+<p>回到 RPC handler 的具体实现中，与 <a href="https://pingcap.com/zh/blog/tikv-source-code-reading-7" target="_blank" rel="noopener">TiKV 源码解析第七章</a> 中介绍的 handler example 不同，当前 kv.rs 对部分 RPC handler 例如  prewrite, commit 等事务相关接口进行了重构，所有相关的逻辑被封装到了 <code>handle_request</code> 宏中，对应不同接口的实现被放到了 future_prewirte, future_commit 等 future_xxx 函数中，不过仍然有部分接口例如 coprocessor 等采用了原生对接 grpc-rs 的方式。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-built_in">macro_rules!</span> handle_request &#123;<br>    ($fn_name: ident, $future_name: ident, $req_ty: ident, $resp_ty: ident) =&gt; &#123;<br>        handle_request!($fn_name, $future_name, $req_ty, $resp_ty, no_time_detail);<br>    &#125;;<br>    ($fn_name: ident, $future_name: ident, $req_ty: ident, $resp_ty: ident, $time_detail: tt) =&gt; &#123;<br>        <span class="hljs-function"><span class="hljs-keyword">fn</span> $<span class="hljs-title">fn_name</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, ctx: RpcContext&lt;<span class="hljs-symbol">'_</span>&gt;, <span class="hljs-keyword">mut</span> req: $req_ty, sink: UnarySink&lt;$resp_ty&gt;) &#123;<br>            forward_unary!(<span class="hljs-keyword">self</span>.proxy, $fn_name, ctx, req, sink);<br>            <span class="hljs-keyword">let</span> begin_instant = Instant::now();<br><br>            <span class="hljs-keyword">let</span> source = req.mut_context().take_request_source();<br>            <span class="hljs-keyword">let</span> resp = $future_name(&amp;<span class="hljs-keyword">self</span>.storage, req);<br>            <span class="hljs-keyword">let</span> task = <span class="hljs-keyword">async</span> <span class="hljs-keyword">move</span> &#123;<br>                <span class="hljs-keyword">let</span> resp = resp.<span class="hljs-keyword">await</span>?;<br>                <span class="hljs-keyword">let</span> elapsed = begin_instant.saturating_elapsed();<br>                set_total_time!(resp, elapsed, $time_detail);<br>                sink.success(resp).<span class="hljs-keyword">await</span>?;<br>                GRPC_MSG_HISTOGRAM_STATIC<br>                    .$fn_name<br>                    .observe(elapsed.as_secs_f64());<br>                record_request_source_metrics(source, elapsed);<br>                ServerResult::<span class="hljs-literal">Ok</span>(())<br>            &#125;<br>            .map_err(|e| &#123;<br>                log_net_error!(e, <span class="hljs-string">"kv rpc failed"</span>;<br>                    <span class="hljs-string">"request"</span> =&gt; <span class="hljs-built_in">stringify!</span>($fn_name)<br>                );<br>                GRPC_MSG_FAIL_COUNTER.$fn_name.inc();<br>            &#125;)<br>            .map(|_|());<br><br>            ctx.spawn(task);<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;T: RaftStoreRouter&lt;E::Local&gt; + <span class="hljs-symbol">'static</span>, E: Engine, L: LockManager, F: KvFormat&gt; Tikv<br>    <span class="hljs-keyword">for</span> Service&lt;T, E, L, F&gt;<br>&#123;<br>    handle_request!(kv_get, future_get, GetRequest, GetResponse, has_time_detail);<br>    handle_request!(kv_scan, future_scan, ScanRequest, ScanResponse);<br>    handle_request!(<br>        kv_prewrite,<br>        future_prewrite,<br>        PrewriteRequest,<br>        PrewriteResponse,<br>        has_time_detail<br>    );<br>    handle_request!(<br>        kv_pessimistic_lock,<br>        future_acquire_pessimistic_lock,<br>        PessimisticLockRequest,<br>        PessimisticLockResponse,<br>        has_time_detail<br>    );<br><br>    ...<br><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">coprocessor</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, ctx: RpcContext&lt;<span class="hljs-symbol">'_</span>&gt;, <span class="hljs-keyword">mut</span> req: Request, sink: UnarySink&lt;Response&gt;) &#123;<br>        forward_unary!(<span class="hljs-keyword">self</span>.proxy, coprocessor, ctx, req, sink);<br>        <span class="hljs-keyword">let</span> source = req.mut_context().take_request_source();<br>        <span class="hljs-keyword">let</span> begin_instant = Instant::now();<br>        <span class="hljs-keyword">let</span> future = future_copr(&amp;<span class="hljs-keyword">self</span>.copr, <span class="hljs-literal">Some</span>(ctx.peer()), req);<br>        <span class="hljs-keyword">let</span> task = <span class="hljs-keyword">async</span> <span class="hljs-keyword">move</span> &#123;<br>            <span class="hljs-keyword">let</span> resp = future.<span class="hljs-keyword">await</span>?.consume();<br>            sink.success(resp).<span class="hljs-keyword">await</span>?;<br>            <span class="hljs-keyword">let</span> elapsed = begin_instant.saturating_elapsed();<br>            GRPC_MSG_HISTOGRAM_STATIC<br>                .coprocessor<br>                .observe(elapsed.as_secs_f64());<br>            record_request_source_metrics(source, elapsed);<br>            ServerResult::<span class="hljs-literal">Ok</span>(())<br>        &#125;<br>        .map_err(|e| &#123;<br>            log_net_error!(e, <span class="hljs-string">"kv rpc failed"</span>;<br>                <span class="hljs-string">"request"</span> =&gt; <span class="hljs-string">"coprocessor"</span><br>            );<br>            GRPC_MSG_FAIL_COUNTER.coprocessor.inc();<br>        &#125;)<br>        .map(|_| ());<br><br>        ctx.spawn(task);<br>    &#125;<br><br>    ...<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>对于事务相关的 future_xxx，由于它们会被统一调度到 storage 结构体中（有关该 storage 是如何初始化的相信您已经能够从前面的启动流程中自行根据调用栈反向找到对应的初始化逻辑），当前又抽象出了 <code>txn_command_future</code> 宏来减少事务相关 future_xxx 函数的冗余代码。</p>
+<figure class="highlight lasso"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs lasso">macro_rules! txn_command_future &#123;<br>    ($fn_name: ident, $req_ty: ident, $resp_ty: ident, ($req: ident) $prelude: stmt; ($v: ident, $resp: ident, $tracker: ident) &#123; $else_branch: expr &#125;) =&gt; &#123;<br>        fn $fn_name&lt;E: Engine, L: LockManager, F: KvFormat&gt;(<br>            storage: &amp;Storage&lt;E, L, F&gt;,<br>            $req: $req_ty,<br>        ) -&gt; impl Future&lt;Output = ServerResult&lt;$resp_ty&gt;&gt; &#123;<br>            $prelude<br>            <span class="hljs-keyword">let</span> $tracker = GLOBAL_TRACKERS.insert(Tracker<span class="hljs-type">::new</span>(RequestInfo<span class="hljs-type">::new</span>(<br>                $req.get_context(),<br>                RequestType<span class="hljs-type">::Unknown</span>,<br>                <span class="hljs-number">0</span>,<br>            )));<br>            set_tls_tracker_token($tracker);<br>            <span class="hljs-keyword">let</span> (cb, f) = paired_future_callback();<br>            <span class="hljs-keyword">let</span> res = storage.sched_txn_command($req.into(), cb);<br><br>            async move &#123;<br>                defer!&#123;&#123;<br>                    GLOBAL_TRACKERS.remove($tracker);<br>                &#125;&#125;;<br>                <span class="hljs-keyword">let</span> $v = <span class="hljs-keyword">match</span> res &#123;<br>                    Err(e) =&gt; Err(e),<br>                    Ok(_) =&gt; f.await?,<br>                &#125;;<br>                <span class="hljs-keyword">let</span> mut $resp = $resp_ty<span class="hljs-type">::default</span>();<br>                <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> Some(err) = extract_region_error(&amp;$v) &#123;<br>                    $resp.set_region_error(err);<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    $else_branch;<br>                &#125;<br>                Ok($resp)<br>            &#125;<br>        &#125;<br>    &#125;;<br>    ($fn_name: ident, $req_ty: ident, $resp_ty: ident, ($v: ident, $resp: ident, $tracker: ident) &#123; $else_branch: expr &#125;) =&gt; &#123;<br>        txn_command_future!($fn_name, $req_ty, $resp_ty, (req) &#123;&#125;; ($v, $resp, $tracker) &#123; $else_branch &#125;);<br>    &#125;;<br>    ($fn_name: ident, $req_ty: ident, $resp_ty: ident, ($v: ident, $resp: ident) &#123; $else_branch: expr &#125;) =&gt; &#123;<br>        txn_command_future!($fn_name, $req_ty, $resp_ty, (req) &#123;&#125;; ($v, $resp, tracker) &#123; $else_branch &#125;);<br>    &#125;;<br>&#125;<br><br>txn_command_future!(future_prewrite, PrewriteRequest, PrewriteResponse, (v, resp, tracker) &#123;&#123;<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> Ok(v) = &amp;v &#123;<br>        resp.set_min_commit_ts(v.min_commit_ts.into_inner());<br>        resp.set_one_pc_commit_ts(v.one_pc_commit_ts.into_inner());<br>        GLOBAL_TRACKERS.with_tracker(tracker, |tracker| &#123;<br>            tracker.write_scan_detail(resp.mut_exec_details_v2().mut_scan_detail_v2());<br>            tracker.write_write_detail(resp.mut_exec_details_v2().mut_write_detail());<br>        &#125;);<br>    &#125;<br>    resp.set_errors(extract_key_errors(v.<span class="hljs-built_in">map</span>(|v| v.locks)).<span class="hljs-keyword">into</span>());<br>&#125;&#125;);<br></code></pre></div></td></tr></table></figure>
+<p>自 3.0 版本以来，kv.rs 利用了多个宏显著减少了 RPC 接口的冗余代码，然而这些宏目前还不能被 Clion 等调试工具的函数调用关系链所检索到，这可能会困惑刚开始查看函数调用链却无法找到对应 handler 的新同学。</p>
+<p>通过本小节，希望您能够简单了解 TiKV 启动流程中的若干重要步骤，具备寻找全局重要结构体的初始化代码片段的能力，此外也能够在需要时迅速找到需要的 RPC handler 去从上到下追踪一个 RPC 请求的具体流程。</p>
+<h2 id="读流程"><a href="#读流程" class="headerlink" title="读流程"></a>读流程</h2><h2 id="写流程"><a href="#写流程" class="headerlink" title="写流程"></a>写流程</h2><h2 id="调试方案"><a href="#调试方案" class="headerlink" title="调试方案"></a>调试方案</h2>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/naive-kvengine-in-rust/">
+                        <span class="hidden-mobile">Talent-Plan：用 Rust 实现简易 KV 引擎</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>
