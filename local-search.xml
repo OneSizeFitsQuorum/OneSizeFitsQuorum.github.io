@@ -4,7 +4,7 @@
   
   
   <entry>
-    <title>TiKV 源码解析之读写流程</title>
+    <title>TiKV 源码阅读之读写流程</title>
     <link href="/tikv-source-code-reading/"/>
     <url>/tikv-source-code-reading/</url>
     
@@ -35,9 +35,9 @@
     
     <tags>
       
-      <tag>Rust</tag>
-      
       <tag>存储引擎</tag>
+      
+      <tag>Rust</tag>
       
     </tags>
     

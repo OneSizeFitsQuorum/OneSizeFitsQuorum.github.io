@@ -20,7 +20,7 @@
   <meta name="keywords" content="">
   <meta name="description" content="背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 想要参与到 TiKV 的研发中来，首先需要学习 Rust 语言，其次需要理解 TiKV 的原理，最后便是在前两者的基础上去了解熟悉 TiKV 的源码。  本人在 PingCAP 事务组实习的过程中，首先入门了 Rust 语言，接着又基于之前的一些知识系统地学习了 TiKV 事务层的演进历史">
 <meta property="og:type" content="article">
-<meta property="og:title" content="TiKV 源码解析之读写流程">
+<meta property="og:title" content="TiKV 源码阅读之读写流程">
 <meta property="og:url" content="https://tanxinyu.work/tikv-source-code-reading/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 想要参与到 TiKV 的研发中来，首先需要学习 Rust 语言，其次需要理解 TiKV 的原理，最后便是在前两者的基础上去了解熟悉 TiKV 的源码。  本人在 PingCAP 事务组实习的过程中，首先入门了 Rust 语言，接着又基于之前的一些知识系统地学习了 TiKV 事务层的演进历史">
@@ -29,14 +29,14 @@
 <meta property="og:image" content="https://img1.www.pingcap.com/prod/1_1c0d99f78e.png">
 <meta property="og:image" content="https://img1.www.pingcap.com/prod/2_3696723f56.png">
 <meta property="article:published_time" content="2022-09-01T08:37:12.000Z">
-<meta property="article:modified_time" content="2022-09-05T03:10:14.347Z">
+<meta property="article:modified_time" content="2022-09-05T03:17:03.401Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="分布式系统理论">
 <meta property="article:tag" content="源码阅读">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://download.pingcap.com/images/docs-cn/tikv-arch.png">
   
-  <title>TiKV 源码解析之读写流程 - 谭新宇的博客</title>
+  <title>TiKV 源码阅读之读写流程 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -183,7 +183,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="TiKV 源码解析之读写流程">
+            <span class="h2" id="subtitle" title="TiKV 源码阅读之读写流程">
               
             </span>
 
@@ -250,11 +250,11 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">TiKV 源码解析之读写流程</h1>
+            <h1 style="display: none">TiKV 源码阅读之读写流程</h1>
             
               <p class="note note-info">
                 
-                  本文最后更新于：3 分钟前
+                  本文最后更新于：几秒前
                 
               </p>
             
@@ -750,5 +750,20 @@
 <script  src="/js/boot.js" ></script>
 
 
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
 </html>
