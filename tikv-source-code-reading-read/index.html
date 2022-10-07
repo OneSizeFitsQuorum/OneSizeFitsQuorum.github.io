@@ -1,0 +1,655 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  <meta name="description" content="背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。 TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TiKV 源码阅读三部曲（二）读流程">
+<meta property="og:url" content="https://tanxinyu.work/tikv-source-code-reading-read/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。 TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-10-05T09:37:12.000Z">
+<meta property="article:modified_time" content="2022-10-07T16:47:16.043Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="分布式系统理论">
+<meta property="article:tag" content="源码阅读">
+<meta property="article:tag" content="TiKV">
+<meta name="twitter:card" content="summary_large_image">
+  
+  <title>TiKV 源码阅读三部曲（二）读流程 - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/blog-background.jpeg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="TiKV 源码阅读三部曲（二）读流程">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-10-05 17:37" pubdate>
+        2022年10月5日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      17k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      52 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">TiKV 源码阅读三部曲（二）读流程</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：1 分钟前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p><a href="https://github.com/tikv/tikv" target="_blank" rel="noopener">TiKV</a> 是一个支持事务的分布式 Key-Value 数据库，目前已经是 <a href="https://www.cncf.io/projects/" target="_blank" rel="noopener">CNCF 基金会</a> 的顶级项目。</p>
+<p>作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。</p>
+<p><a href="https://pingcap.com/zh/blog/?tag=TiKV%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" target="_blank" rel="noopener">TiKV 官方源码解析文档</a> 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，是学习 TiKV 源码必读的学习资料。当前 TiKV 已经迭代到了 6.x 版本，不仅引入了很多新的功能和优化，而且对源码也进行了多次重构，因而一些官方源码解析文档中的代码片段已经不复存在，这使得读者在阅读源码解析文档时无法对照最新源码加深理解；此外尽管 TiKV 官方源码解析文档系统地介绍了若干重要模块的工作，但并没有将读写流程全链路串起来去介绍经过的模块和对应的代码片段，实际上尽快地熟悉读写流程全链路会更利于新同学从全局角度理解代码。</p>
+<p>基于以上存在的问题，笔者将基于 6.1 版本的源码撰写三篇博客，分别介绍以下三个方面：</p>
+<ul>
+<li>TiKV 源码阅读三部曲（一）重要模块：TiKV 中的基本概念，TiKV 的三个重要模块（KVService，Storage，RaftStore）和断点调试 TiKV 学习源码的方案</li>
+<li>TiKV 源码阅读三部曲（二）读流程：TiKV 中一条读请求的全链路流程</li>
+<li>TiKV 源码阅读三部曲（三）写流程：TiKV 中一条写请求的全链路流程</li>
+</ul>
+<p>希望此三篇博客能够帮助对 TiKV 开发感兴趣的新同学尽快了解 TiKV 的 codebase。</p>
+<p>本文为第二篇博客，将主要介绍 TiKV 中一条读请求的全链路流程。</p>
+<h2 id="读流程"><a href="#读流程" class="headerlink" title="读流程"></a>读流程</h2><p><a href="https://pingcap.com/zh/blog/tikv-source-code-reading-19" target="_blank" rel="noopener">TiKV 源码解析系列文章（十九）read index 和 local read 情景分析</a> 介绍了 TiKV 3.x 版本的 ReadIndex/LeaseRead 实现方案。</p>
+<p>本小节将在 TiKV 6.1 版本的源码基础上，以一条读请求为例，介绍当前版本读请求的全链路执行流程。</p>
+<p>前文已经提到，可以从 <a href="https://github.com/pingcap/kvproto/blob/master/proto/tikvpb.proto#L20" target="_blank" rel="noopener">kvproto</a> 对应的 <code>service Tikv</code> 中了解当前 TiKV 支持的 RPC 接口。</p>
+<p>经过简单整理，常用的读接口如下：</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs Rust"><span class="hljs-comment">// Key/value store API for TiKV.</span><br>service Tikv &#123; <br><br>    rpc KvGet(kvrpcpb.GetRequest) returns (kvrpcpb.GetResponse) &#123;&#125;<br>    rpc KvScan(kvrpcpb.ScanRequest) returns (kvrpcpb.ScanResponse) &#123;&#125;<br>    rpc KvBatchGet(kvrpcpb.BatchGetRequest) returns (kvrpcpb.BatchGetResponse) &#123;&#125;<br><br>    rpc RawGet(kvrpcpb.RawGetRequest) returns (kvrpcpb.RawGetResponse) &#123;&#125;<br>    rpc RawBatchGet(kvrpcpb.RawBatchGetRequest) returns (kvrpcpb.RawBatchGetResponse) &#123;&#125;<br>    rpc RawScan(kvrpcpb.RawScanRequest) returns (kvrpcpb.RawScanResponse) &#123;&#125;<br>    rpc RawBatchScan(kvrpcpb.RawBatchScanRequest) returns (kvrpcpb.RawBatchScanResponse) &#123;&#125;<br><br>    ...<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>以下将以最常用的 KvGet 接口为例介绍读流程，其他的读接口所经过的模块大致相似，之后也可以用断点调试的方案去自行阅读。</p>
+<p>在 KVService 中， handle_request 宏将业务逻辑封装到了 future_get 函数中。在 future_get 函数中，主要使用了 <code>storage.get(req.take_context(), Key::from_raw(req.get_key()), req.get_version().into())</code> 函数将请求路由到 Storage 模块去执行。</p>
+<p>为了可观测性，当前 TiKV 在读写关键路径上加了很多全局和 request 级别的 metric，这一定程度上影响了刚开始阅读代码的体验。其实刚开始熟悉代码时只需要关注核心逻辑即可，metric 相关的代码可以先不用细究。 </p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs Rust"><span class="hljs-keyword">impl</span>&lt;T: RaftStoreRouter&lt;E::Local&gt; + <span class="hljs-symbol">'static</span>, E: Engine, L: LockManager, F: KvFormat&gt; Tikv<br>    <span class="hljs-keyword">for</span> Service&lt;T, E, L, F&gt;<br>&#123;<br>    handle_request!(kv_get, future_get, GetRequest, GetResponse, has_time_detail);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">future_get</span></span>&lt;E: Engine, L: LockManager, F: KvFormat&gt;(<br>    storage: &amp;Storage&lt;E, L, F&gt;,<br>    <span class="hljs-keyword">mut</span> req: GetRequest,<br>) -&gt; <span class="hljs-keyword">impl</span> Future&lt;Output = ServerResult&lt;GetResponse&gt;&gt; &#123;<br><br>    ...<br><br>    <span class="hljs-keyword">let</span> v = storage.get(<br>        req.take_context(),<br>        Key::from_raw(req.get_key()),<br>        req.get_version().into(),<br>    );<br><br>    <span class="hljs-keyword">async</span> <span class="hljs-keyword">move</span> &#123;<br>        <span class="hljs-keyword">let</span> v = v.<span class="hljs-keyword">await</span>;<br>        <br>        ...<br>        <br>        <span class="hljs-literal">Ok</span>(resp)<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>在 Storage 模块的 get 函数中，所有的 task 都会被 spawn 到 readPool 中执行，具体执行的任务主要包含以下两个工作：</p>
+<ul>
+<li>使用 <code>Self::with_tls_engine(|engine| Self::snapshot(engine, snap_ctx)).await?</code> 获取 snapshot</li>
+<li>使用 <code>snap_store.get(&amp;key, &amp;mut statistics)</code> 基于获取到的 snapshot 获取符合对应事务语义的数据</li>
+</ul>
+<p>第二个工作比较简单，本小节不再赘述，以下主要介绍第一个工作的具体代码流程。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs Rust"><span class="hljs-comment">/// Get value of the given key from a snapshot.</span><br><span class="hljs-comment">///</span><br><span class="hljs-comment">/// Only writes that are committed before `start_ts` are visible.</span><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">get</span></span>(<br>    &amp;<span class="hljs-keyword">self</span>,<br>    <span class="hljs-keyword">mut</span> ctx: Context,<br>    key: Key,<br>    start_ts: TimeStamp,<br>) -&gt; <span class="hljs-keyword">impl</span> Future&lt;Output = <span class="hljs-built_in">Result</span>&lt;(<span class="hljs-built_in">Option</span>&lt;Value&gt;, KvGetStatistics)&gt;&gt; &#123;<br><br>    ...<br><br>    <span class="hljs-keyword">let</span> res = <span class="hljs-keyword">self</span>.read_pool.spawn_handle(<br>        <span class="hljs-keyword">async</span> <span class="hljs-keyword">move</span> &#123;<br><br>            ...<br><br>            <span class="hljs-keyword">let</span> snap_ctx = prepare_snap_ctx(<br>                &amp;ctx,<br>                iter::once(&amp;key),<br>                start_ts,<br>                &amp;bypass_locks,<br>                &amp;concurrency_manager,<br>                CMD,<br>            )?;<br>            <span class="hljs-keyword">let</span> snapshot =<br>                Self::with_tls_engine(|engine| Self::snapshot(engine, snap_ctx)).<span class="hljs-keyword">await</span>?;<br><br>            &#123;<br>                <span class="hljs-keyword">let</span> begin_instant = Instant::now();<br>                <span class="hljs-keyword">let</span> stage_snap_recv_ts = begin_instant;<br>                <span class="hljs-keyword">let</span> buckets = snapshot.ext().get_buckets();<br>                <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> statistics = Statistics::default();<br>                <span class="hljs-keyword">let</span> result = Self::with_perf_context(CMD, || &#123;<br>                    <span class="hljs-keyword">let</span> _guard = sample.observe_cpu();<br>                    <span class="hljs-keyword">let</span> snap_store = SnapshotStore::new(<br>                        snapshot,<br>                        start_ts,<br>                        ctx.get_isolation_level(),<br>                        !ctx.get_not_fill_cache(),<br>                        bypass_locks,<br>                        access_locks,<br>                        <span class="hljs-literal">false</span>,<br>                    );<br>                    snap_store<br>                    .get(&amp;key, &amp;<span class="hljs-keyword">mut</span> statistics)<br>                    <span class="hljs-comment">// map storage::txn::Error -&gt; storage::Error</span><br>                    .map_err(Error::from)<br>                    .map(|r| &#123;<br>                        KV_COMMAND_KEYREAD_HISTOGRAM_STATIC.get(CMD).observe(<span class="hljs-number">1_f64</span>);<br>                        r<br>                    &#125;)<br>                &#125;);<br>                <br>                ...<br>        <br>                <span class="hljs-literal">Ok</span>((<br>                    result?,<br>                    KvGetStatistics &#123;<br>                        stats: statistics,<br>                        latency_stats,<br>                    &#125;,<br>                ))<br>            &#125;<br>        &#125;<br>        .in_resource_metering_tag(resource_tag),<br>        priority,<br>        thread_rng().next_u64(),<br>    );<br>    <span class="hljs-keyword">async</span> <span class="hljs-keyword">move</span> &#123;<br>        res.map_err(|_| Error::from(ErrorInner::SchedTooBusy))<br>            .<span class="hljs-keyword">await</span>?<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>对于 <code>Self::snapshot(engine, snap_ctx)</code> 函数，其会经由 <code>storage::snapshot -&gt; kv::snapshot -&gt; raftkv::async_snapshot -&gt; raftkv::exec_snapshot</code> 的调用链来到 <code>ServerRaftStoreRouter::read</code> 函数中。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">/// Get a snapshot of `engine`.</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">snapshot</span></span>(<br>    engine: &amp;E,<br>    ctx: SnapContext&lt;<span class="hljs-symbol">'_</span>&gt;,<br>) -&gt; <span class="hljs-keyword">impl</span> std::future::Future&lt;Output = <span class="hljs-built_in">Result</span>&lt;E::Snap&gt;&gt; &#123;<br>    kv::snapshot(engine, ctx)<br>        .map_err(txn::Error::from)<br>        .map_err(Error::from)<br>&#125;<br><br><span class="hljs-comment">/// Get a snapshot of `engine`.</span><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">snapshot</span></span>&lt;E: Engine&gt;(<br>    engine: &amp;E,<br>    ctx: SnapContext&lt;<span class="hljs-symbol">'_</span>&gt;,<br>) -&gt; <span class="hljs-keyword">impl</span> std::future::Future&lt;Output = <span class="hljs-built_in">Result</span>&lt;E::Snap&gt;&gt; &#123;<br>    <span class="hljs-keyword">let</span> begin = Instant::now();<br>    <span class="hljs-keyword">let</span> (callback, future) =<br>        tikv_util::future::paired_must_called_future_callback(drop_snapshot_callback::&lt;E&gt;);<br>    <span class="hljs-keyword">let</span> val = engine.async_snapshot(ctx, callback);<br>    <span class="hljs-comment">// make engine not cross yield point</span><br>    <span class="hljs-keyword">async</span> <span class="hljs-keyword">move</span> &#123;<br>        val?; <span class="hljs-comment">// propagate error</span><br>        <span class="hljs-keyword">let</span> result = future<br>            .map_err(|cancel| Error::from(ErrorInner::Other(box_err!(cancel))))<br>            .<span class="hljs-keyword">await</span>?;<br>        with_tls_tracker(|tracker| &#123;<br>            tracker.metrics.get_snapshot_nanos += begin.elapsed().as_nanos() <span class="hljs-keyword">as</span> <span class="hljs-built_in">u64</span>;<br>        &#125;);<br>        fail_point!(<span class="hljs-string">"after-snapshot"</span>);<br>        result<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">async_snapshot</span></span>(&amp;<span class="hljs-keyword">self</span>, <span class="hljs-keyword">mut</span> ctx: SnapContext&lt;<span class="hljs-symbol">'_</span>&gt;, cb: Callback&lt;Self::Snap&gt;) -&gt; kv::<span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <br>    ...<br><br>    <span class="hljs-keyword">self</span>.exec_snapshot(<br>        ctx,<br>        req,<br>        <span class="hljs-built_in">Box</span>::new(<span class="hljs-keyword">move</span> |res| <span class="hljs-keyword">match</span> res &#123;<br>            ...<br>        &#125;),<br>    )<br>    .map_err(|e| &#123;<br>        <span class="hljs-keyword">let</span> status_kind = get_status_kind_from_error(&amp;e);<br>        ASYNC_REQUESTS_COUNTER_VEC.snapshot.get(status_kind).inc();<br>        e.into()<br>    &#125;)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">exec_snapshot</span></span>(<br>    &amp;<span class="hljs-keyword">self</span>,<br>    ctx: SnapContext&lt;<span class="hljs-symbol">'_</span>&gt;,<br>    req: Request,<br>    cb: Callback&lt;CmdRes&lt;E::Snapshot&gt;&gt;,<br>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br><br>    ...<br>    <br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> cmd = RaftCmdRequest::default();<br>    cmd.set_header(header);<br>    cmd.set_requests(<span class="hljs-built_in">vec!</span>[req].into());<br>    <span class="hljs-keyword">self</span>.router<br>        .read(<br>            ctx.read_id,<br>            cmd,<br>            StoreCallback::read(<span class="hljs-built_in">Box</span>::new(<span class="hljs-keyword">move</span> |resp| &#123;<br>                cb(on_read_result(resp).map_err(Error::into));<br>            &#125;)),<br>        )<br>        .map_err(<span class="hljs-built_in">From</span>::from)<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;EK: KvEngine, ER: RaftEngine&gt; LocalReadRouter&lt;EK&gt; <span class="hljs-keyword">for</span> ServerRaftStoreRouter&lt;EK, ER&gt; &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">read</span></span>(<br>        &amp;<span class="hljs-keyword">self</span>,<br>        read_id: <span class="hljs-built_in">Option</span>&lt;ThreadReadId&gt;,<br>        req: RaftCmdRequest,<br>        cb: Callback&lt;EK::Snapshot&gt;,<br>    ) -&gt; RaftStoreResult&lt;()&gt; &#123;<br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> local_reader = <span class="hljs-keyword">self</span>.local_reader.borrow_mut();<br>        local_reader.read(read_id, req, cb);<br>        <span class="hljs-literal">Ok</span>(())<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>在 <code>ServerRaftStoreRouter::read</code> 函数中，其会调用 <code>local_reader</code> 的 <code>read</code> 函数，并进而路由到 <code>LocalReader::propose_raft_command</code> 函数。在该函数中，会使用 <code>LocalReader::pre_propose_raft_command</code> 函数来判断是否能够 ReadLocal，如果可以则直接获取本地引擎的 snapshot 并执行 callback 返回即可，否则便调用 <code>redirect</code> 函数连带 callback 路由到 RaftBatchSystem 的对应 normal 状态机中去执行 ReadIndex 读，之后本线程不再处理该任务。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-meta">#[inline]</span><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">read</span></span>(<br>    &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>,<br>    read_id: <span class="hljs-built_in">Option</span>&lt;ThreadReadId&gt;,<br>    req: RaftCmdRequest,<br>    cb: Callback&lt;E::Snapshot&gt;,<br>) &#123;<br>    <span class="hljs-keyword">self</span>.propose_raft_command(read_id, req, cb);<br>    maybe_tls_local_read_metrics_flush();<br>&#125;<br><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">propose_raft_command</span></span>(<br>    &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>,<br>    <span class="hljs-keyword">mut</span> read_id: <span class="hljs-built_in">Option</span>&lt;ThreadReadId&gt;,<br>    req: RaftCmdRequest,<br>    cb: Callback&lt;E::Snapshot&gt;,<br>) &#123;<br>    <span class="hljs-keyword">match</span> <span class="hljs-keyword">self</span>.pre_propose_raft_command(&amp;req) &#123;<br>        <span class="hljs-literal">Ok</span>(<span class="hljs-literal">Some</span>((<span class="hljs-keyword">mut</span> delegate, policy))) =&gt; &#123;<br>            <span class="hljs-keyword">let</span> delegate_ext: LocalReadContext&lt;<span class="hljs-symbol">'_</span>, E&gt;;<br>            <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> response = <span class="hljs-keyword">match</span> policy &#123;<br>                <span class="hljs-comment">// Leader can read local if and only if it is in lease.</span><br>                RequestPolicy::ReadLocal =&gt; &#123;<br>                 <br>                    ...<br><br>                    <span class="hljs-keyword">let</span> region = Arc::clone(&amp;delegate.region);<br>                    <span class="hljs-keyword">let</span> response =<br>                        delegate.execute(&amp;req, &amp;region, <span class="hljs-literal">None</span>, read_id, <span class="hljs-literal">Some</span>(delegate_ext));<br>                    <span class="hljs-comment">// Try renew lease in advance</span><br>                    delegate.maybe_renew_lease_advance(&amp;<span class="hljs-keyword">self</span>.router, snapshot_ts);<br>                    response<br>                &#125;<br>                <span class="hljs-comment">// Replica can serve stale read if and only if its `safe_ts` &gt;= `read_ts`</span><br>                RequestPolicy::StaleRead =&gt; &#123;<br>               <br>                    ...<br><br>                    <span class="hljs-keyword">let</span> region = Arc::clone(&amp;delegate.region);<br>                    <span class="hljs-comment">// Getting the snapshot</span><br>                    <span class="hljs-keyword">let</span> response =<br>                        delegate.execute(&amp;req, &amp;region, <span class="hljs-literal">None</span>, read_id, <span class="hljs-literal">Some</span>(delegate_ext));<br><br>                    ...<br>                    <br>                &#125;<br>                _ =&gt; <span class="hljs-built_in">unreachable!</span>(),<br>            &#125;;<br>           <br>            ...<br>            <br>            cb.invoke_read(response);<br>        &#125;<br>        <span class="hljs-comment">// Forward to raftstore.</span><br>        <span class="hljs-literal">Ok</span>(<span class="hljs-literal">None</span>) =&gt; <span class="hljs-keyword">self</span>.redirect(RaftCommand::new(req, cb)),<br>        <span class="hljs-literal">Err</span>(e) =&gt; &#123;<br>            <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> response = cmd_resp::new_error(e);<br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(delegate) = <span class="hljs-keyword">self</span>.delegates.get(&amp;req.get_header().get_region_id()) &#123;<br>                cmd_resp::bind_term(&amp;<span class="hljs-keyword">mut</span> response, delegate.term);<br>            &#125;<br>            cb.invoke_read(ReadResponse &#123;<br>                response,<br>                snapshot: <span class="hljs-literal">None</span>,<br>                txn_extra_op: TxnExtraOp::Noop,<br>            &#125;);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>需要注意的是，在此处能否 ReadLocal 的判断是可以并行的，也就是乐观情况下并行的读请求可以并行获取底层引擎的 snapshot，不需要经过 RaftBatchSystem 。</p>
+<p>那么到底什么时候可以直接读取 snapshot 而不需要经过 RaftStore 走一轮 ReadIndex 来处理呢？原理就是 Lease 机制，可以先简单阅读一下 <a href="https://pingcap.com/zh/blog/lease-read" target="_blank" rel="noopener">TiKV Lease Read 的功能介绍</a>。</p>
+<p>接着让我们回到 <code>LocalReader::pre_propose_raft_command</code> 函数，其会进行一系列的检查（此处已略去），如果皆通过则会进一步调用 <code>inspector.inspect(req)</code> 函数，在其内部，其会进行一系列的判断并返回是否可以 ReadLocal。</p>
+<ul>
+<li><code>req.get_header().get_read_quorum()</code>：如果该请求明确要求需要用 read index 方式处理，所以返回 ReadIndex。</li>
+<li><code>self.has_applied_to_current_term()</code>：如果该 leader 尚未 apply 到它自己的 term，则使用 ReadIndex 处理，这是 Raft 有关线性一致性读的一个 corner case。</li>
+<li><code>self.inspect_lease()</code>：如果该 leader 的 lease 已经过期或者不确定，说明可能出现了一些问题，比如网络不稳定，心跳没成功等，此时使用 ReadIndex 处理，否则便可以使用 ReadLocal 处理。</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">pre_propose_raft_command</span></span>(<br>    &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>,<br>    req: &amp;RaftCmdRequest,<br>) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">Option</span>&lt;(D, RequestPolicy)&gt;&gt; &#123;<br>    <br>    ...<br><br>    <span class="hljs-keyword">match</span> inspector.inspect(req) &#123;<br>        <span class="hljs-literal">Ok</span>(RequestPolicy::ReadLocal) =&gt; <span class="hljs-literal">Ok</span>(<span class="hljs-literal">Some</span>((delegate, RequestPolicy::ReadLocal))),<br>        <span class="hljs-literal">Ok</span>(RequestPolicy::StaleRead) =&gt; <span class="hljs-literal">Ok</span>(<span class="hljs-literal">Some</span>((delegate, RequestPolicy::StaleRead))),<br>        <span class="hljs-comment">// It can not handle other policies.</span><br>        <span class="hljs-literal">Ok</span>(_) =&gt; <span class="hljs-literal">Ok</span>(<span class="hljs-literal">None</span>),<br>        <span class="hljs-literal">Err</span>(e) =&gt; <span class="hljs-literal">Err</span>(e),<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">inspect</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, req: &amp;RaftCmdRequest) -&gt; <span class="hljs-built_in">Result</span>&lt;RequestPolicy&gt; &#123;<br><br>    ...<br><br>    fail_point!(<span class="hljs-string">"perform_read_index"</span>, |_| <span class="hljs-literal">Ok</span>(RequestPolicy::ReadIndex));<br><br>    <span class="hljs-keyword">let</span> flags = WriteBatchFlags::from_bits_check(req.get_header().get_flags());<br>    <span class="hljs-keyword">if</span> flags.contains(WriteBatchFlags::STALE_READ) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">Ok</span>(RequestPolicy::StaleRead);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> req.get_header().get_read_quorum() &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">Ok</span>(RequestPolicy::ReadIndex);<br>    &#125;<br><br>    <span class="hljs-comment">// If applied index's term is differ from current raft's term, leader transfer</span><br>    <span class="hljs-comment">// must happened, if read locally, we may read old value.</span><br>    <span class="hljs-keyword">if</span> !<span class="hljs-keyword">self</span>.has_applied_to_current_term() &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">Ok</span>(RequestPolicy::ReadIndex);<br>    &#125;<br><br>    <span class="hljs-comment">// Local read should be performed, if and only if leader is in lease.</span><br>    <span class="hljs-comment">// None for now.</span><br>    <span class="hljs-keyword">match</span> <span class="hljs-keyword">self</span>.inspect_lease() &#123;<br>        LeaseState::Valid =&gt; <span class="hljs-literal">Ok</span>(RequestPolicy::ReadLocal),<br>        LeaseState::Expired | LeaseState::Suspect =&gt; &#123;<br>            <span class="hljs-comment">// Perform a consistent read to Raft quorum and try to renew the leader lease.</span><br>            <span class="hljs-literal">Ok</span>(RequestPolicy::ReadIndex)<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>乐观情况下的 ReadLocal 流程我们已经了解，接下来让我们看看 ReadIndex 的执行路径。</p>
+<p>前文已经介绍过 RaftBatchSystem 的大体框架，我们已知会有多个 PollHandler 线程调用 poll 函数进入长期循环来事件驱动并动态均衡地管理所有 normal 状态机。</p>
+<p>当 ReadIndex 请求被路由到 RaftBatchSystem 中的对应 normal 状态机后，某个 PollHandler 会在接下来的一次 loop 中处理该状态机的消息。</p>
+<p>直接定位到 <code>RaftPoller</code> 的 <code>handle_normal</code> 函数。可以看到，其会首先尝试获取 <code>messages_per_tick</code> 次路由到该状态机的消息，接着调用 <code>PeerFsmDelegate::handle_msgs</code> 函数进行处理，</p>
+<p>这里只列出了我们需要关注的几种消息类型：</p>
+<ul>
+<li>RaftMessage: 其他 Peer 发送过来 Raft 消息，包括心跳、日志、投票消息等。</li>
+<li>RaftCommand: 上层提出的 proposal，其中包含了需要通过 Raft 同步的操作，以及操作成功之后需要调用的 callback 函数。ReadIndex 请求便是一种特殊的 proposal。</li>
+<li>ApplyRes: ApplyFsm 在将日志应用到状态机之后发送给 PeerFsm 的消息，用于在进行操作之后更新某些内存状态。</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;EK: KvEngine, ER: RaftEngine, T: Transport&gt; PollHandler&lt;PeerFsm&lt;EK, ER&gt;, StoreFsm&lt;EK&gt;&gt;<br>    <span class="hljs-keyword">for</span> RaftPoller&lt;EK, ER, T&gt;<br>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">handle_normal</span></span>(<br>        &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>,<br>        peer: &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">impl</span> DerefMut&lt;Target = PeerFsm&lt;EK, ER&gt;&gt;,<br>    ) -&gt; HandleResult &#123;<br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> handle_result = HandleResult::KeepProcessing;<br><br>        ...<br><br>        <span class="hljs-keyword">while</span> <span class="hljs-keyword">self</span>.peer_msg_buf.len() &lt; <span class="hljs-keyword">self</span>.messages_per_tick &#123;<br>            <span class="hljs-keyword">match</span> peer.receiver.try_recv() &#123;<br>                <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> we may need a way to optimize the message copy.</span><br>                <span class="hljs-literal">Ok</span>(msg) =&gt; &#123;<br>                    ...<br>                    <span class="hljs-keyword">self</span>.peer_msg_buf.push(msg);<br>                &#125;<br>                <span class="hljs-literal">Err</span>(TryRecvError::Empty) =&gt; &#123;<br>                    handle_result = HandleResult::stop_at(<span class="hljs-number">0</span>, <span class="hljs-literal">false</span>);<br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>                <span class="hljs-literal">Err</span>(TryRecvError::Disconnected) =&gt; &#123;<br>                    peer.stop();<br>                    handle_result = HandleResult::stop_at(<span class="hljs-number">0</span>, <span class="hljs-literal">false</span>);<br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> delegate = PeerFsmDelegate::new(peer, &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>.poll_ctx);<br>        delegate.handle_msgs(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>.peer_msg_buf);<br>        <span class="hljs-comment">// No readiness is generated and using sync write, skipping calling ready and</span><br>        <span class="hljs-comment">// release early.</span><br>        <span class="hljs-keyword">if</span> !delegate.collect_ready() &amp;&amp; <span class="hljs-keyword">self</span>.poll_ctx.sync_write_worker.is_some() &#123;<br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> HandleResult::StopAt &#123; skip_end, .. &#125; = &amp;<span class="hljs-keyword">mut</span> handle_result &#123;<br>                *skip_end = <span class="hljs-literal">true</span>;<br>            &#125;<br>        &#125;<br><br>        handle_result<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">'a</span>, EK, ER, T: Transport&gt; PeerFsmDelegate&lt;<span class="hljs-symbol">'a</span>, EK, ER, T&gt;<br><span class="hljs-keyword">where</span><br>    EK: KvEngine,<br>    ER: RaftEngine,<br>&#123;<br>    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">handle_msgs</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, msgs: &amp;<span class="hljs-keyword">mut</span> <span class="hljs-built_in">Vec</span>&lt;PeerMsg&lt;EK&gt;&gt;) &#123;<br>        <span class="hljs-keyword">for</span> m <span class="hljs-keyword">in</span> msgs.drain(..) &#123;<br>            <span class="hljs-keyword">match</span> m &#123;<br>                PeerMsg::RaftMessage(msg) =&gt; &#123;<br>                    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Err</span>(e) = <span class="hljs-keyword">self</span>.on_raft_message(msg) &#123;<br>                        error!(%e;<br>                            <span class="hljs-string">"handle raft message err"</span>;<br>                            <span class="hljs-string">"region_id"</span> =&gt; <span class="hljs-keyword">self</span>.fsm.region_id(),<br>                            <span class="hljs-string">"peer_id"</span> =&gt; <span class="hljs-keyword">self</span>.fsm.peer_id(),<br>                        );<br>                    &#125;<br>                &#125;<br>                PeerMsg::RaftCommand(cmd) =&gt; &#123;<br>                        ...<br>                        <span class="hljs-keyword">self</span>.propose_raft_command(<br>                            cmd.request,<br>                            cmd.callback,<br>                            cmd.extra_opts.disk_full_opt,<br>                        );<br>                    &#125;<br>                &#125;<br>                PeerMsg::ApplyRes &#123; res &#125; =&gt; &#123;<br>                    <span class="hljs-keyword">self</span>.on_apply_res(res);<br>                &#125;<br>                ...<br>            &#125;<br>        &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>对于 ReadIndex 请求，其会进入 <code>PeerMsg::RaftCommand(cmd)</code> 分支，进而以 <code>PeerFsmDelegate::propose_raft_command -&gt; PeerFsmDelegate::propose_raft_command_internal</code> 的调用链走到 <code>store::propose</code> 函数中，在该函数中，会再进行一次 <code>self.inspect()</code>，如果此时 Leader 的 lease 已经稳定，则会调用 <code>read_local</code> 函数直接获取引擎的 snapshot 并执行 callback 返回，否则调用 <code>read_index</code> 函数执行 ReadIndex 流程。</p>
+<p>在 read_index 函数中，ReadIndex 请求连带 callback 会被构建成一个 ReadIndexRequest 被 push 到 pending_reads 即一个 ReadIndexQueue 中，之后当前线程即可结束本轮流程，之后的事件会进而触发该 ReadIndexRequest 的执行。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">propose</span></span>&lt;T: Transport&gt;(<br>    &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>,<br>    ctx: &amp;<span class="hljs-keyword">mut</span> PollContext&lt;EK, ER, T&gt;,<br>    <span class="hljs-keyword">mut</span> cb: Callback&lt;EK::Snapshot&gt;,<br>    req: RaftCmdRequest,<br>    <span class="hljs-keyword">mut</span> err_resp: RaftCmdResponse,<br>    <span class="hljs-keyword">mut</span> disk_full_opt: DiskFullOpt,<br>) -&gt; <span class="hljs-built_in">bool</span> &#123;<br><br>    ...<br><br>    <span class="hljs-keyword">let</span> policy = <span class="hljs-keyword">self</span>.inspect(&amp;req);<br>    <span class="hljs-keyword">let</span> res = <span class="hljs-keyword">match</span> policy &#123;<br>        <span class="hljs-literal">Ok</span>(RequestPolicy::ReadLocal) | <span class="hljs-literal">Ok</span>(RequestPolicy::StaleRead) =&gt; &#123;<br>            <span class="hljs-keyword">self</span>.read_local(ctx, req, cb);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        <span class="hljs-literal">Ok</span>(RequestPolicy::ReadIndex) =&gt; <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>.read_index(ctx, req, err_resp, cb),<br>        <span class="hljs-literal">Ok</span>(RequestPolicy::ProposeTransferLeader) =&gt; &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>.propose_transfer_leader(ctx, req, cb);<br>        &#125;<br>        <span class="hljs-literal">Ok</span>(RequestPolicy::ProposeNormal) =&gt; &#123;<br>            <span class="hljs-comment">// For admin cmds, only region split/merge comes here.</span><br>            <span class="hljs-keyword">if</span> req.has_admin_request() &#123;<br>                disk_full_opt = DiskFullOpt::AllowedOnAlmostFull;<br>            &#125;<br>            <span class="hljs-keyword">self</span>.check_normal_proposal_with_disk_full_opt(ctx, disk_full_opt)<br>                .and_then(|_| <span class="hljs-keyword">self</span>.propose_normal(ctx, req))<br>        &#125;<br>        <span class="hljs-literal">Ok</span>(RequestPolicy::ProposeConfChange) =&gt; <span class="hljs-keyword">self</span>.propose_conf_change(ctx, &amp;req),<br>        <span class="hljs-literal">Err</span>(e) =&gt; <span class="hljs-literal">Err</span>(e),<br>    &#125;;<br>    fail_point!(<span class="hljs-string">"after_propose"</span>);<br><br>    ...<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">read_index</span></span>&lt;T: Transport&gt;(<br>    &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>,<br>    poll_ctx: &amp;<span class="hljs-keyword">mut</span> PollContext&lt;EK, ER, T&gt;,<br>    <span class="hljs-keyword">mut</span> req: RaftCmdRequest,<br>    <span class="hljs-keyword">mut</span> err_resp: RaftCmdResponse,<br>    cb: Callback&lt;EK::Snapshot&gt;,<br>) -&gt; <span class="hljs-built_in">bool</span> &#123;<br><br>    ...<br><br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> read = ReadIndexRequest::with_command(id, req, cb, now);<br>    read.addition_request = request.map(<span class="hljs-built_in">Box</span>::new);<br>    <span class="hljs-keyword">self</span>.push_pending_read(read, <span class="hljs-keyword">self</span>.is_leader());<br>    <span class="hljs-keyword">self</span>.should_wake_up = <span class="hljs-literal">true</span>;<br><br>    ...<br><br>    <span class="hljs-literal">true</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>那么什么条件满足后该 ReadIndexRequest 会被 pop 出队列并执行呢？</p>
+<p>前面已经提到 ApplyBatchSystem 在应用一批日志之后首先会调用对应的 callback 尽快回复客户端，之后会发送一条 ApplyRes 的消息到 RaftBatchSystem，该消息和以上的 ReadIndex 请求一样被 PollHandler 在一次 loop 中被处理，并最终进入 <code>PeerFsmDelegate::handle_msgs</code> 函数的 <code>PeerMsg::ApplyRes { res }</code> 分支，接着其会调用 <code>PeerFsmDelegate::on_apply_res</code> 函数并进入 <code>store::peer::post_apply</code> 函数，在该函数中，ApplyRes 中携带的信息会被用来更新一些内存状态例如 <code>raft_group</code> 和 <code>cmd_epoch_checker</code>，当然，这些信息也会通过 <code>store::peer::post_pending_read_index_on_replica</code> 和 <code>self.pending_reads.pop_front()</code> 来释放某些满足条件的 ReadIndexRequest，对于每个 ReadIndexRequest ，此时可以通过 <code>store::peer::response_read</code> 函数来获取底层引擎的 Snapshot 并执行 callback 返回。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">on_apply_res</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, res: ApplyTaskRes&lt;EK::Snapshot&gt;) &#123;<br>    fail_point!(<span class="hljs-string">"on_apply_res"</span>, |_| &#123;&#125;);<br>    <span class="hljs-keyword">match</span> res &#123;<br>        ApplyTaskRes::Apply(<span class="hljs-keyword">mut</span> res) =&gt; &#123;<br>            <br>            ...<br><br>            <span class="hljs-keyword">self</span>.fsm.has_ready |= <span class="hljs-keyword">self</span>.fsm.peer.post_apply(<br>                <span class="hljs-keyword">self</span>.ctx,<br>                res.apply_state,<br>                res.applied_term,<br>                &amp;res.metrics,<br>            );<br>        <br>            ...<br>        &#125;<br>        ApplyTaskRes::Destroy &#123;<br>            region_id,<br>            peer_id,<br>            merge_from_snapshot,<br>        &#125; =&gt; &#123;<br>            ...<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">post_apply</span></span>&lt;T&gt;(<br>    &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>,<br>    ctx: &amp;<span class="hljs-keyword">mut</span> PollContext&lt;EK, ER, T&gt;,<br>    apply_state: RaftApplyState,<br>    applied_term: <span class="hljs-built_in">u64</span>,<br>    apply_metrics: &amp;ApplyMetrics,<br>) -&gt; <span class="hljs-built_in">bool</span> &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> has_ready = <span class="hljs-literal">false</span>;<br><br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.is_handling_snapshot() &#123;<br>        <span class="hljs-built_in">panic!</span>(<span class="hljs-string">"&#123;&#125; should not applying snapshot."</span>, <span class="hljs-keyword">self</span>.tag);<br>    &#125;<br><br>    <span class="hljs-keyword">let</span> applied_index = apply_state.get_applied_index();<br>    <span class="hljs-keyword">self</span>.raft_group.advance_apply_to(applied_index);<br><br>    <span class="hljs-keyword">self</span>.cmd_epoch_checker.advance_apply(<br>        applied_index,<br>        <span class="hljs-keyword">self</span>.term(),<br>        <span class="hljs-keyword">self</span>.raft_group.store().region(),<br>    );<br><br>    ...<br><br>    <span class="hljs-keyword">if</span> !<span class="hljs-keyword">self</span>.is_leader() &#123;<br>        <span class="hljs-keyword">self</span>.post_pending_read_index_on_replica(ctx)<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.ready_to_handle_read() &#123;<br>        <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(<span class="hljs-keyword">mut</span> read) = <span class="hljs-keyword">self</span>.pending_reads.pop_front() &#123;<br>            <span class="hljs-keyword">self</span>.response_read(&amp;<span class="hljs-keyword">mut</span> read, ctx, <span class="hljs-literal">false</span>);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">self</span>.pending_reads.gc();<br><br>    ...<br><br>    has_ready<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>综上，ReadIndexRequest 入队和出队的时机已经被介绍，那么 ReadIndex 的整体流程也基本介绍完整了。</p>
+<p>通过本小节，希望您能够了解 KVGet 读请求的完整流程，并进而具备分析其他读请求全链路的能力。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇博客介绍了 TiKV 中一条读请求的全链路流程。</p>
+<p>希望本篇博客能够帮助对 TiKV 开发感兴趣的新同学尽快了解 TiKV 的 codebase。</p>
+<p>感谢您的阅读~</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+                    
+                      <a class="hover-with-bg" href="/tags/TiKV/">TiKV</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/tikv-source-code-reading-write/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">TiKV 源码阅读三部曲（三）写流程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/tikv-source-code-reading-module/">
+                        <span class="hidden-mobile">TiKV 源码阅读三部曲（一）重要模块</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>

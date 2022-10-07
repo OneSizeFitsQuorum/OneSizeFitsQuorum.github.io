@@ -1,0 +1,690 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  <meta name="description" content="背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。 TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TiKV 源码阅读三部曲（一）重要模块">
+<meta property="og:url" content="https://tanxinyu.work/tikv-source-code-reading-module/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。 TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://download.pingcap.com/images/docs-cn/tikv-arch.png">
+<meta property="og:image" content="https://img1.www.pingcap.com/prod/1_1c0d99f78e.png">
+<meta property="og:image" content="https://img1.www.pingcap.com/prod/2_3696723f56.png">
+<meta property="article:published_time" content="2022-10-05T08:37:12.000Z">
+<meta property="article:modified_time" content="2022-10-07T16:47:12.287Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="分布式系统理论">
+<meta property="article:tag" content="源码阅读">
+<meta property="article:tag" content="TiKV">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://download.pingcap.com/images/docs-cn/tikv-arch.png">
+  
+  <title>TiKV 源码阅读三部曲（一）重要模块 - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/blog-background.jpeg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="TiKV 源码阅读三部曲（一）重要模块">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-10-05 16:37" pubdate>
+        2022年10月5日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      30k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      95 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">TiKV 源码阅读三部曲（一）重要模块</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：1 分钟前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p><a href="https://github.com/tikv/tikv" target="_blank" rel="noopener">TiKV</a> 是一个支持事务的分布式 Key-Value 数据库，目前已经是 <a href="https://www.cncf.io/projects/" target="_blank" rel="noopener">CNCF 基金会</a> 的顶级项目。</p>
+<p>作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。</p>
+<p><a href="https://pingcap.com/zh/blog/?tag=TiKV%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" target="_blank" rel="noopener">TiKV 官方源码解析文档</a> 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，是学习 TiKV 源码必读的学习资料。当前 TiKV 已经迭代到了 6.x 版本，不仅引入了很多新的功能和优化，而且对源码也进行了多次重构，因而一些官方源码解析文档中的代码片段已经不复存在，这使得读者在阅读源码解析文档时无法对照最新源码加深理解；此外尽管 TiKV 官方源码解析文档系统地介绍了若干重要模块的工作，但并没有将读写流程全链路串起来去介绍经过的模块和对应的代码片段，实际上尽快地熟悉读写流程全链路会更利于新同学从全局角度理解代码。</p>
+<p>基于以上存在的问题，笔者将基于 6.1 版本的源码撰写三篇博客，分别介绍以下三个方面：</p>
+<ul>
+<li>TiKV 源码阅读三部曲（一）重要模块：TiKV 中的基本概念，TiKV 的三个重要模块（KVService，Storage，RaftStore）和断点调试 TiKV 学习源码的方案</li>
+<li>TiKV 源码阅读三部曲（二）读流程：TiKV 中一条读请求的全链路流程</li>
+<li>TiKV 源码阅读三部曲（三）写流程：TiKV 中一条写请求的全链路流程</li>
+</ul>
+<p>希望此三篇博客能够帮助对 TiKV 开发感兴趣的新同学尽快了解 TiKV 的 codebase。</p>
+<p>本文为第一篇博客，将主要介绍 TiKV 中的基本概念，TiKV 的三个重要模块（KVService，Storage，RaftStore）和断点调试 TiKV 学习源码的方案。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>TiKV 的架构简介可以查看 <a href="https://docs.pingcap.com/zh/tidb/dev/tikv-overview" target="_blank" rel="noopener">官方文档</a>。总体来看，TiKV 是一个通过 Multi-Raft 实现的分布式 KV 数据库。</p>
+<p>TiKV 的每个进程拥有一个 store，store 中拥有若干 region。每个 region 是一个 raft 组，会存在于副本数个 store 上管理一段 KV 区间的数据。</p>
+<p><img src="https://download.pingcap.com/images/docs-cn/tikv-arch.png" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="重要模块"><a href="#重要模块" class="headerlink" title="重要模块"></a>重要模块</h2><h3 id="KVService"><a href="#KVService" class="headerlink" title="KVService"></a>KVService</h3><p>TiKV 的 Service 层代码位于 src/server 文件夹下，其职责包括提供 RPC 服务、将 store id 解析成地址、TiKV 之间的相互通信等。有关 Service 层的概念解析可以查看阅读 <a href="https://cn.pingcap.com/blog/tikv-source-code-reading-9" target="_blank" rel="noopener">TiKV 源码解析系列文章（九）Service 层处理流程解析</a>。</p>
+<p><img src="https://img1.www.pingcap.com/prod/1_1c0d99f78e.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>TiKV 包含多个 gRPC service。其中最重要的一个是 KVService，位于 src/server/service/kv.rs 文件中。</p>
+<p>KVService 定义了 TiKV 的 kv_get，kv_scan，kv_prewrite，kv_commit 等事务操作 API，用于执行 TiDB 下推下来的复杂查询和计算的 coprocessor API，以及 raw_get，raw_put 等 Raw KV API。batch_commands 接口则是用于将上述的接口 batch 起来，以优化高吞吐量的场景。另外，TiKV 的 Raft group 各成员之间通信用到的 raft 和 batch_raft 接口也是在这里提供的。</p>
+<p>本小节将简单介绍 KVService 及其启动流程，并顺带介绍 TiKV 若干重要结构的初始化流程。</p>
+<p>cmd/tikv-server/main.rs 是 TiKV 进程启动的入口，其主要做了以下两个工作：</p>
+<ul>
+<li>解析配置参数</li>
+<li>使用 <code>server::server::run_tikv(config)</code> 启动 tikv 进程</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs Rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> build_timestamp = <span class="hljs-built_in">option_env!</span>(<span class="hljs-string">"TIKV_BUILD_TIME"</span>);<br>    <span class="hljs-keyword">let</span> version_info = tikv::tikv_version_info(build_timestamp);<br>    <br>    <span class="hljs-comment">// config parsing</span><br>    <span class="hljs-comment">// ...</span><br>    <span class="hljs-comment">// config parsing</span><br>   <br>    server::server::run_tikv(config);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>对于 components/server/src/server.rs 的 run-tikv 函数，其会调用 run_impl 函数并根据配置参数来启动对应的 KV 引擎。</p>
+<p>在 run_impl 函数中，首先会调用 <code>TikvServer::&lt;CER&gt;::init::&lt;F&gt;(config)</code> 函数做若干重要结构的初始化，包含但不限于 batch_system, concurrency_manager,  background_worker, quota_limiter 等等，接着在 <code>tikv.init_servers::&lt;F&gt;()</code> 里将 RPC handler 与 KVService 绑定起来，最后在 <code>tikv.run_server(server_config)</code> 中便会使用 <a href="https://pingcap.com/zh/blog/tikv-source-code-reading-7" target="_blank" rel="noopener">TiKV 源码解析系列文章（七）gRPC Server 的初始化和启动流程</a> 中介绍的 grpc server 绑定对应的端口并开始监听连接了。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs Rust"><span class="hljs-comment">/// Run a TiKV server. Returns when the server is shutdown by the user, in which</span><br><span class="hljs-comment">/// case the server will be properly stopped.</span><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">run_tikv</span></span>(config: TikvConfig) &#123;<br><br>    ...<br><br>    <span class="hljs-comment">// Do some prepare works before start.</span><br>    pre_start();<br><br>    <span class="hljs-keyword">let</span> _m = Monitor::default();<br><br>    dispatch_api_version!(config.storage.api_version(), &#123;<br>        <span class="hljs-keyword">if</span> !config.raft_engine.enable &#123;<br>            run_impl::&lt;RocksEngine, API&gt;(config)<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            run_impl::&lt;RaftLogEngine, API&gt;(config)<br>        &#125;<br>    &#125;)<br>&#125;<br><br><span class="hljs-meta">#[inline]</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">run_impl</span></span>&lt;CER: ConfiguredRaftEngine, F: KvFormat&gt;(config: TikvConfig) &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> tikv = TikvServer::&lt;CER&gt;::init::&lt;F&gt;(config);<br><br>    ...<br><br>    <span class="hljs-keyword">let</span> server_config = tikv.init_servers::&lt;F&gt;();<br> <br>    ...<br>    <br>    tikv.run_server(server_config);<br><br>    signal_handler::wait_for_signal(<span class="hljs-literal">Some</span>(tikv.engines.take().unwrap().engines));<br>    tikv.stop();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">run_server</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, server_config: Arc&lt;VersionTrack&lt;ServerConfig&gt;&gt;) &#123;<br>    <span class="hljs-keyword">let</span> server = <span class="hljs-keyword">self</span>.servers.as_mut().unwrap();<br>    server<br>        .server<br>        .build_and_bind()<br>        .unwrap_or_else(|e| fatal!(<span class="hljs-string">"failed to build server: &#123;&#125;"</span>, e));<br>    server<br>        .server<br>        .start(server_config, <span class="hljs-keyword">self</span>.security_mgr.clone())<br>        .unwrap_or_else(|e| fatal!(<span class="hljs-string">"failed to start server: &#123;&#125;"</span>, e));<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>KVService 服务启动后，所有发往监听端口的请求便会路由到 KVService 对应的 handler 上。有关 KVService 目前支持的接口，可以直接查看 <a href="https://github.com/pingcap/kvproto/blob/master/proto/tikvpb.proto#L20" target="_blank" rel="noopener">kvproto</a> 对应的 <code>service Tikv</code>，目前的 RPC 接口已经接近 60 个，每个接口在代码中都会对应一个 handler。</p>
+<figure class="highlight plain"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs proto3">&#x2F;&#x2F; Key&#x2F;value store API for TiKV.<br>service Tikv &#123;<br>    &#x2F;&#x2F; Commands using a transactional interface.<br>    rpc KvGet(kvrpcpb.GetRequest) returns (kvrpcpb.GetResponse) &#123;&#125;<br>    rpc KvScan(kvrpcpb.ScanRequest) returns (kvrpcpb.ScanResponse) &#123;&#125;<br>    rpc KvPrewrite(kvrpcpb.PrewriteRequest) returns (kvrpcpb.PrewriteResponse) &#123;&#125;<br>    rpc KvPessimisticLock(kvrpcpb.PessimisticLockRequest) returns (kvrpcpb.PessimisticLockResponse) &#123;&#125;<br>    rpc KVPessimisticRollback(kvrpcpb.PessimisticRollbackRequest) returns (kvrpcpb.PessimisticRollbackResponse) &#123;&#125;<br>    ...<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>当 KVService 收到请求之后，会根据请求的类型把这些请求转发到不同的模块进行处理。对于从 TiDB 下推的读请求，比如 sum，avg 操作，会转发到 Coprocessor 模块进行处理，对于 KV 请求会直接转发到 Storage 模块进行处理。</p>
+<p>KV 操作根据功能可以被划分为 Raw KV 操作以及 Txn KV 操作两大类。Raw KV 操作包括 raw put、raw get、raw delete、raw batch get、raw batch put、raw batch delete、raw scan 等普通 KV 操作。 Txn KV 操作是为了实现事务机制而设计的一系列操作，如 prewrite 和 commit 分别对应于 2PC 中的 prepare 和 commit 阶段的操作。</p>
+<p>与 <a href="https://pingcap.com/zh/blog/tikv-source-code-reading-7" target="_blank" rel="noopener">TiKV 源码解析系列文章（七）gRPC Server 的初始化和启动流程</a> 中介绍的 handler example 不同，当前 KVService 对事务 API 例如 kv_prewrite, kv_commit 和 Raw API 例如 raw_get, raw_scan 进行了封装，由于他们都会被路由到 Storage 模块，所以接口无关的逻辑都被封装到了 <code>handle_request</code> 宏中，接口相关的逻辑则被封装到了 future_prewirte, future_commit 等 future_xxx 函数中。需要注意的是，对于 coprocessor API，raft API 等相关接口依然采用了原生对接 grpc-rs 的方式。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-built_in">macro_rules!</span> handle_request &#123;<br>    ($fn_name: ident, $future_name: ident, $req_ty: ident, $resp_ty: ident) =&gt; &#123;<br>        handle_request!($fn_name, $future_name, $req_ty, $resp_ty, no_time_detail);<br>    &#125;;<br>    ($fn_name: ident, $future_name: ident, $req_ty: ident, $resp_ty: ident, $time_detail: tt) =&gt; &#123;<br>        <span class="hljs-function"><span class="hljs-keyword">fn</span> $<span class="hljs-title">fn_name</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, ctx: RpcContext&lt;<span class="hljs-symbol">'_</span>&gt;, <span class="hljs-keyword">mut</span> req: $req_ty, sink: UnarySink&lt;$resp_ty&gt;) &#123;<br>            forward_unary!(<span class="hljs-keyword">self</span>.proxy, $fn_name, ctx, req, sink);<br>            <span class="hljs-keyword">let</span> begin_instant = Instant::now();<br><br>            <span class="hljs-keyword">let</span> source = req.mut_context().take_request_source();<br>            <span class="hljs-keyword">let</span> resp = $future_name(&amp;<span class="hljs-keyword">self</span>.storage, req);<br>            <span class="hljs-keyword">let</span> task = <span class="hljs-keyword">async</span> <span class="hljs-keyword">move</span> &#123;<br>                <span class="hljs-keyword">let</span> resp = resp.<span class="hljs-keyword">await</span>?;<br>                <span class="hljs-keyword">let</span> elapsed = begin_instant.saturating_elapsed();<br>                set_total_time!(resp, elapsed, $time_detail);<br>                sink.success(resp).<span class="hljs-keyword">await</span>?;<br>                GRPC_MSG_HISTOGRAM_STATIC<br>                    .$fn_name<br>                    .observe(elapsed.as_secs_f64());<br>                record_request_source_metrics(source, elapsed);<br>                ServerResult::<span class="hljs-literal">Ok</span>(())<br>            &#125;<br>            .map_err(|e| &#123;<br>                log_net_error!(e, <span class="hljs-string">"kv rpc failed"</span>;<br>                    <span class="hljs-string">"request"</span> =&gt; <span class="hljs-built_in">stringify!</span>($fn_name)<br>                );<br>                GRPC_MSG_FAIL_COUNTER.$fn_name.inc();<br>            &#125;)<br>            .map(|_|());<br><br>            ctx.spawn(task);<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;T: RaftStoreRouter&lt;E::Local&gt; + <span class="hljs-symbol">'static</span>, E: Engine, L: LockManager, F: KvFormat&gt; Tikv<br>    <span class="hljs-keyword">for</span> Service&lt;T, E, L, F&gt;<br>&#123;<br>    handle_request!(kv_get, future_get, GetRequest, GetResponse, has_time_detail);<br>    handle_request!(kv_scan, future_scan, ScanRequest, ScanResponse);<br>    handle_request!(<br>        kv_prewrite,<br>        future_prewrite,<br>        PrewriteRequest,<br>        PrewriteResponse,<br>        has_time_detail<br>    );<br><br>    ...<br><br>    handle_request!(raw_get, future_raw_get, RawGetRequest, RawGetResponse);<br>    handle_request!(<br>        raw_batch_get,<br>        future_raw_batch_get,<br>        RawBatchGetRequest,<br>        RawBatchGetResponse<br>    );<br>    handle_request!(raw_scan, future_raw_scan, RawScanRequest, RawScanResponse);<br><br>    ...<br><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">coprocessor</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, ctx: RpcContext&lt;<span class="hljs-symbol">'_</span>&gt;, <span class="hljs-keyword">mut</span> req: Request, sink: UnarySink&lt;Response&gt;) &#123;<br>        forward_unary!(<span class="hljs-keyword">self</span>.proxy, coprocessor, ctx, req, sink);<br>        <span class="hljs-keyword">let</span> source = req.mut_context().take_request_source();<br>        <span class="hljs-keyword">let</span> begin_instant = Instant::now();<br>        <span class="hljs-keyword">let</span> future = future_copr(&amp;<span class="hljs-keyword">self</span>.copr, <span class="hljs-literal">Some</span>(ctx.peer()), req);<br>        <span class="hljs-keyword">let</span> task = <span class="hljs-keyword">async</span> <span class="hljs-keyword">move</span> &#123;<br>            <span class="hljs-keyword">let</span> resp = future.<span class="hljs-keyword">await</span>?.consume();<br>            sink.success(resp).<span class="hljs-keyword">await</span>?;<br>            <span class="hljs-keyword">let</span> elapsed = begin_instant.saturating_elapsed();<br>            GRPC_MSG_HISTOGRAM_STATIC<br>                .coprocessor<br>                .observe(elapsed.as_secs_f64());<br>            record_request_source_metrics(source, elapsed);<br>            ServerResult::<span class="hljs-literal">Ok</span>(())<br>        &#125;<br>        .map_err(|e| &#123;<br>            log_net_error!(e, <span class="hljs-string">"kv rpc failed"</span>;<br>                <span class="hljs-string">"request"</span> =&gt; <span class="hljs-string">"coprocessor"</span><br>            );<br>            GRPC_MSG_FAIL_COUNTER.coprocessor.inc();<br>        &#125;)<br>        .map(|_| ());<br><br>        ctx.spawn(task);<br>    &#125;<br><br>    ...<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>在事务相关 API 的 future_xxx 函数实现中，对于带有写语义的 future_prewrite, future_commit 等函数，由于它们会被统一调度到 Storage 模块的 sched_txn_command 函数中，当前又抽象出了 <code>txn_command_future</code> 宏来减少冗余代码；对于带有读语义的 future_get, future_scan 等函数，由于他们会分别调用 Storage 模块的 get/scan 等函数，因而目前并没有进行进一步抽象。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-built_in">macro_rules!</span> txn_command_future &#123;<br>    ($fn_name: ident, $req_ty: ident, $resp_ty: ident, ($req: ident) $prelude: stmt; ($v: ident, $resp: ident, $tracker: ident) &#123; $else_branch: expr &#125;) =&gt; &#123;<br>        <span class="hljs-function"><span class="hljs-keyword">fn</span> $<span class="hljs-title">fn_name</span></span>&lt;E: Engine, L: LockManager, F: KvFormat&gt;(<br>            storage: &amp;Storage&lt;E, L, F&gt;,<br>            $req: $req_ty,<br>        ) -&gt; <span class="hljs-keyword">impl</span> Future&lt;Output = ServerResult&lt;$resp_ty&gt;&gt; &#123;<br>            $prelude<br>            <span class="hljs-keyword">let</span> $tracker = GLOBAL_TRACKERS.insert(Tracker::new(RequestInfo::new(<br>                $req.get_context(),<br>                RequestType::Unknown,<br>                <span class="hljs-number">0</span>,<br>            )));<br>            set_tls_tracker_token($tracker);<br>            <span class="hljs-keyword">let</span> (cb, f) = paired_future_callback();<br>            <span class="hljs-keyword">let</span> res = storage.sched_txn_command($req.into(), cb);<br><br>            <span class="hljs-keyword">async</span> <span class="hljs-keyword">move</span> &#123;<br>                defer!&#123;&#123;<br>                    GLOBAL_TRACKERS.remove($tracker);<br>                &#125;&#125;;<br>                <span class="hljs-keyword">let</span> $v = <span class="hljs-keyword">match</span> res &#123;<br>                    <span class="hljs-literal">Err</span>(e) =&gt; <span class="hljs-literal">Err</span>(e),<br>                    <span class="hljs-literal">Ok</span>(_) =&gt; f.<span class="hljs-keyword">await</span>?,<br>                &#125;;<br>                <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> $resp = $resp_ty::default();<br>                <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(err) = extract_region_error(&amp;$v) &#123;<br>                    $resp.set_region_error(err);<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    $else_branch;<br>                &#125;<br>                <span class="hljs-literal">Ok</span>($resp)<br>            &#125;<br>        &#125;<br>    &#125;;<br>    ($fn_name: ident, $req_ty: ident, $resp_ty: ident, ($v: ident, $resp: ident, $tracker: ident) &#123; $else_branch: expr &#125;) =&gt; &#123;<br>        txn_command_future!($fn_name, $req_ty, $resp_ty, (req) &#123;&#125;; ($v, $resp, $tracker) &#123; $else_branch &#125;);<br>    &#125;;<br>    ($fn_name: ident, $req_ty: ident, $resp_ty: ident, ($v: ident, $resp: ident) &#123; $else_branch: expr &#125;) =&gt; &#123;<br>        txn_command_future!($fn_name, $req_ty, $resp_ty, (req) &#123;&#125;; ($v, $resp, tracker) &#123; $else_branch &#125;);<br>    &#125;;<br>&#125;<br><br>txn_command_future!(future_prewrite, PrewriteRequest, PrewriteResponse, (v, resp, tracker) &#123;&#123;<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Ok</span>(v) = &amp;v &#123;<br>        resp.set_min_commit_ts(v.min_commit_ts.into_inner());<br>        resp.set_one_pc_commit_ts(v.one_pc_commit_ts.into_inner());<br>        GLOBAL_TRACKERS.with_tracker(tracker, |tracker| &#123;<br>            tracker.write_scan_detail(resp.mut_exec_details_v2().mut_scan_detail_v2());<br>            tracker.write_write_detail(resp.mut_exec_details_v2().mut_write_detail());<br>        &#125;);<br>    &#125;<br>    resp.set_errors(extract_key_errors(v.map(|v| v.locks)).into());<br>&#125;&#125;);<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">future_get</span></span>&lt;E: Engine, L: LockManager, F: KvFormat&gt;(<br>    storage: &amp;Storage&lt;E, L, F&gt;,<br>    <span class="hljs-keyword">mut</span> req: GetRequest,<br>) -&gt; <span class="hljs-keyword">impl</span> Future&lt;Output = ServerResult&lt;GetResponse&gt;&gt; &#123;<br>    <span class="hljs-keyword">let</span> tracker = GLOBAL_TRACKERS.insert(Tracker::new(RequestInfo::new(<br>        req.get_context(),<br>        RequestType::KvGet,<br>        req.get_version(),<br>    )));<br>    set_tls_tracker_token(tracker);<br>    <span class="hljs-keyword">let</span> start = Instant::now();<br>    <span class="hljs-keyword">let</span> v = storage.get(<br>        req.take_context(),<br>        Key::from_raw(req.get_key()),<br>        req.get_version().into(),<br>    );<br><br>    <span class="hljs-keyword">async</span> <span class="hljs-keyword">move</span> &#123;<br>        <span class="hljs-keyword">let</span> v = v.<span class="hljs-keyword">await</span>;<br>        <span class="hljs-keyword">let</span> duration_ms = duration_to_ms(start.saturating_elapsed());<br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> resp = GetResponse::default();<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(err) = extract_region_error(&amp;v) &#123;<br>            resp.set_region_error(err);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">match</span> v &#123;<br>                <span class="hljs-literal">Ok</span>((val, stats)) =&gt; &#123;<br>                    ...<br>                &#125;<br>                <span class="hljs-literal">Err</span>(e) =&gt; resp.set_error(extract_key_error(&amp;e)),<br>            &#125;<br>        &#125;<br>        GLOBAL_TRACKERS.remove(tracker);<br>        <span class="hljs-literal">Ok</span>(resp)<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>自 3.x 版本以来，KVService 利用了多个宏显著减少了不同 RPC handler 间的冗余代码，然而这些宏目前还不能被 Clion 等调试工具的函数调用关系链捕捉到，这可能会困惑刚开始查看函数调用链却无法找到对应 handler 的新同学。</p>
+<p>通过本小节，希望您能够了解 KVService 的作用和 TiKV 的启动流程，不仅具备寻找全局重要结构体初始化代码片段的能力，还能够迅速找到 KVService 中需要的 RPC handler 开始从上到下追踪 RPC 请求的调用路径。</p>
+<h3 id="Storage"><a href="#Storage" class="headerlink" title="Storage"></a>Storage</h3><p>Storage 模块位于 Service 与底层 KV 存储引擎之间，主要负责事务的并发控制。TiKV 端事务相关的实现都在 Storage 模块中。有关 3.x 版本的 Storage 模块可以参照 <a href="https://cn.pingcap.com/blog/tikv-source-code-reading-11" target="_blank" rel="noopener">TiKV 源码解析系列文章（十一）Storage - 事务控制层</a>。</p>
+<p>经过三个大版本的迭代，Storage 和 Scheduler 结构体已经发生了一些变化，本小节将基于之前的源码解析文档做一些更新和补充。</p>
+<p>Storage 结构体：</p>
+<ul>
+<li>engine：代表的是底层的 KV 存储引擎，利用 Trait Bound 来约束接口，拥有多种实现。实际 TiKV 使用的是 RaftKV 引擎，当调用 RaftKV 的 async_write 进行写入操作时，如果 async_write 通过回调方式成功返回了，说明写入操作已经通过 raft 复制给了大多数副本，并且在 leader 节点（调用者所在 TiKV）完成写入，后续 leader 节点上的读就能够看到之前写入的内容</li>
+<li>sched：事务调度器，负责并发事务请求的调度工作</li>
+<li>readPool：读取线程池，所有只读 KV 请求，包括事务的和非事务的，如 raw get、txn kv get 等最终都会在这个线程池内执行。由于只读请求不需要获取 latches，所以为其分配一个独立的线程池直接执行，而不是与非只读事务共用事务调度器。值得注意的是，当前版本的 readPool 已经支持根据读请求中的 priority 字段来差别调度读请求，而不是全部看做相同优先级的任务来公平调度</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Storage</span></span>&lt;E: Engine, L: LockManager, F: KvFormat&gt; &#123;<br>    <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Too many Arcs, would be slow when clone.</span><br>    engine: E,<br><br>    sched: TxnScheduler&lt;E, L&gt;,<br><br>    <span class="hljs-comment">/// The thread pool used to run most read operations.</span><br>    read_pool: ReadPoolHandle,<br><br>    ...<br>&#125;<br><br><span class="hljs-meta">#[derive(Clone)]</span><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">ReadPoolHandle</span></span> &#123;<br>    FuturePools &#123;<br>        read_pool_high: FuturePool,<br>        read_pool_normal: FuturePool,<br>        read_pool_low: FuturePool,<br>    &#125;,<br>    Yatp &#123;<br>        remote: Remote&lt;TaskCell&gt;,<br>        running_tasks: IntGauge,<br>        max_tasks: <span class="hljs-built_in">usize</span>,<br>        pool_size: <span class="hljs-built_in">usize</span>,<br>    &#125;,<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>Scheduler 结构体：</p>
+<ul>
+<li>id_alloc：到达 Scheduler 的请求都会被分配一个唯一的 command id</li>
+<li>latches：写请求到达 Scheduler 之后会尝试获取所需要的 latch，如果暂时获取不到所需要的 latch，其对应的 command id 会被插入到 latch 的 waiting list 里，当前面的请求执行结束后会唤醒 waiting list 里的请求继续执行。至于为什么需要 latches，可以参考 <a href="https://pingcap.com/zh/blog/tikv-source-code-reading-12" target="_blank" rel="noopener">TiKV 源码解析系列文章（十二）分布式事务</a> 中的 <code>Scheduler 与 Latch</code> 章节</li>
+<li>task_slots：用于存储 Scheduler 中所有请求的上下文，比如暂时未能获取到所有所需 latch 的请求会被暂存在 task_slots 中</li>
+<li>lock_mgr：悲观事务冲突管理器，当多个并行悲观事务之间存在冲突时可能会暂时阻塞某些事务。TiKV 悲观事务具体原理可参考博客 <a href="https://zhuanlan.zhihu.com/p/79034576" target="_blank" rel="noopener">TiDB 新特性漫谈：悲观事务</a></li>
+<li>pipelined_pessimistic_lock/in_memory_pessimistic_lock/enable_async_apply_prewrite：TiKV 悲观事务若干优化引入的新字段，具体优化可参考博客 <a href="https://baijiahao.baidu.com/s?id=1735680656672605012&amp;wfr=spider&amp;for=pc" target="_blank" rel="noopener">TiDB 6.0 实战分享丨内存悲观锁原理浅析与实践</a></li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">/// Scheduler which schedules the execution of `storage::Command`s.</span><br><span class="hljs-meta">#[derive(Clone)]</span><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Scheduler</span></span>&lt;E: Engine, L: LockManager&gt; &#123;<br>    inner: Arc&lt;SchedulerInner&lt;L&gt;&gt;,<br>    <span class="hljs-comment">// The engine can be fetched from the thread local storage of scheduler threads.</span><br>    <span class="hljs-comment">// So, we don't store the engine here.</span><br>    _engine: PhantomData&lt;E&gt;,<br>&#125;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">SchedulerInner</span></span>&lt;L: LockManager&gt; &#123;<br>    <span class="hljs-comment">// slot_id -&gt; &#123; cid -&gt; `TaskContext` &#125; in the slot.</span><br>    task_slots: <span class="hljs-built_in">Vec</span>&lt;CachePadded&lt;Mutex&lt;HashMap&lt;<span class="hljs-built_in">u64</span>, TaskContext&gt;&gt;&gt;&gt;,<br><br>    <span class="hljs-comment">// cmd id generator</span><br>    id_alloc: CachePadded&lt;AtomicU64&gt;,<br><br>    <span class="hljs-comment">// write concurrency control</span><br>    latches: Latches,<br><br>    sched_pending_write_threshold: <span class="hljs-built_in">usize</span>,<br><br>    <span class="hljs-comment">// worker pool</span><br>    worker_pool: SchedPool,<br><br>    <span class="hljs-comment">// high priority commands and system commands will be delivered to this pool</span><br>    high_priority_pool: SchedPool,<br><br>    <span class="hljs-comment">// used to control write flow</span><br>    running_write_bytes: CachePadded&lt;AtomicUsize&gt;,<br><br>    flow_controller: Arc&lt;FlowController&gt;,<br><br>    control_mutex: Arc&lt;tokio::sync::Mutex&lt;<span class="hljs-built_in">bool</span>&gt;&gt;,<br><br>    lock_mgr: L,<br><br>    concurrency_manager: ConcurrencyManager,<br><br>    pipelined_pessimistic_lock: Arc&lt;AtomicBool&gt;,<br><br>    in_memory_pessimistic_lock: Arc&lt;AtomicBool&gt;,<br><br>    enable_async_apply_prewrite: <span class="hljs-built_in">bool</span>,<br><br>    resource_tag_factory: ResourceTagFactory,<br><br>    quota_limiter: Arc&lt;QuotaLimiter&gt;,<br>    feature_gate: FeatureGate,<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>最开始看到 id_alloc 和 task_slots 的介绍时往往会好奇为每个 command 生成唯一 id 的意义是什么？ task_slots 里面存的上下文到底是什么？实际上这与 TiKV 的异步执行框架有关系。</p>
+<p>以下是 Storage 模块执行事务请求的关键函数 schedule_command，可以看到，每个请求一进入函数首先会申请一个递增唯一的 cid，接着依据该 cid 将本次请求的 command 包在一个 task 中，然后将该 task 附带 callback 生成一个 TaskContext 插入到 task_slot 中，之后便会尝试去申请 latches，如果成功便会继续调用 execute 函数去真正执行 task，否则便似乎没有下文了？那么如果 task 申请 latches 失败，之后该 task 会在什么时候被执行呢？</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">schedule_command</span></span>(&amp;<span class="hljs-keyword">self</span>, cmd: Command, callback: StorageCallback) &#123;<br>    <span class="hljs-keyword">let</span> cid = <span class="hljs-keyword">self</span>.inner.gen_id();<br>    <span class="hljs-keyword">let</span> tracker = get_tls_tracker_token();<br>    debug!(<span class="hljs-string">"received new command"</span>; <span class="hljs-string">"cid"</span> =&gt; cid, <span class="hljs-string">"cmd"</span> =&gt; ?cmd, <span class="hljs-string">"tracker"</span> =&gt; ?tracker);<br>    <span class="hljs-keyword">let</span> tag = cmd.tag();<br>    <span class="hljs-keyword">let</span> priority_tag = get_priority_tag(cmd.priority());<br>    SCHED_STAGE_COUNTER_VEC.get(tag).new.inc();<br>    SCHED_COMMANDS_PRI_COUNTER_VEC_STATIC<br>        .get(priority_tag)<br>        .inc();<br><br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> task_slot = <span class="hljs-keyword">self</span>.inner.get_task_slot(cid);<br>    <span class="hljs-keyword">let</span> tctx = task_slot.entry(cid).or_insert_with(|| &#123;<br>        <span class="hljs-keyword">self</span>.inner<br>            .new_task_context(Task::new(cid, tracker, cmd), callback)<br>    &#125;);<br><br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.inner.latches.acquire(&amp;<span class="hljs-keyword">mut</span> tctx.lock, cid) &#123;<br>        fail_point!(<span class="hljs-string">"txn_scheduler_acquire_success"</span>);<br>        tctx.on_schedule();<br>        <span class="hljs-keyword">let</span> task = tctx.task.take().unwrap();<br>        <span class="hljs-built_in">drop</span>(task_slot);<br>        <span class="hljs-keyword">self</span>.execute(task);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-keyword">let</span> task = tctx.task.as_ref().unwrap();<br>    <span class="hljs-keyword">let</span> deadline = task.cmd.deadline();<br>    <span class="hljs-keyword">let</span> cmd_ctx = task.cmd.ctx().clone();<br>    <span class="hljs-keyword">self</span>.fail_fast_or_check_deadline(cid, tag, cmd_ctx, deadline);<br>    fail_point!(<span class="hljs-string">"txn_scheduler_acquire_fail"</span>);<br>&#125;<br><br><span class="hljs-comment">/// Task is a running command.</span><br><span class="hljs-keyword">pub</span>(<span class="hljs-keyword">super</span>) <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Task</span></span> &#123;<br>    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">super</span>) cid: <span class="hljs-built_in">u64</span>,<br>    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">super</span>) tracker: TrackerToken,<br>    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">super</span>) cmd: Command,<br>    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">super</span>) extra_op: ExtraOp,<br>&#125;<br><br><span class="hljs-comment">// It stores context of a task.</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">TaskContext</span></span> &#123;<br>    task: <span class="hljs-built_in">Option</span>&lt;Task&gt;,<br><br>    lock: Lock,<br>    cb: <span class="hljs-built_in">Option</span>&lt;StorageCallback&gt;,<br>    pr: <span class="hljs-built_in">Option</span>&lt;ProcessResult&gt;,<br>    <span class="hljs-comment">// The one who sets `owned` from false to true is allowed to take</span><br>    <span class="hljs-comment">// `cb` and `pr` safely.</span><br>    owned: AtomicBool,<br>    write_bytes: <span class="hljs-built_in">usize</span>,<br>    tag: CommandKind,<br>    <span class="hljs-comment">// How long it waits on latches.</span><br>    <span class="hljs-comment">// latch_timer: Option&lt;Instant&gt;,</span><br>    latch_timer: Instant,<br>    <span class="hljs-comment">// Total duration of a command.</span><br>    _cmd_timer: CmdTimer,<br>&#125;<br><br><span class="hljs-comment">/// Latches which are used for concurrency control in the scheduler.</span><br><span class="hljs-comment">///</span><br><span class="hljs-comment">/// Each latch is indexed by a slot ID, hence the term latch and slot are used</span><br><span class="hljs-comment">/// interchangeably, but conceptually a latch is a queue, and a slot is an index</span><br><span class="hljs-comment">/// to the queue.</span><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Latches</span></span> &#123;<br>    slots: <span class="hljs-built_in">Vec</span>&lt;CachePadded&lt;Mutex&lt;Latch&gt;&gt;&gt;,<br>    size: <span class="hljs-built_in">usize</span>,<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>进入 <code>Latches::acquire</code> 函数中去细究，可以看到其会渐进的去收集所有 latch，如果在本次函数调用中没有收集到所有的 latch， 当前线程不会受到任何阻塞而是直接返回 false。当然在返回 false 之前其也会利用 <code>latch.wair_for_wake</code> 函数将当前 task 的 id 放到对应 latch 的 waiting 队列里面，之后当前线程便可以处理其他的任务而不是阻塞在该任务上。由于每个获取到所有 latch 去执行的任务会在执行结束后调用 <code>scheduler::release_lock</code> 函数来释放所拥有的全部 latch，在释放过程中，其便能够获取到阻塞在这些 latch 且位于 waiting 队列首位的所有其他 task，接着对应线程会调用 <code>scheduler::try_to_wake_up</code> 函数遍历唤醒这些 task 并尝试再次获取 latch 和执行，一旦能够获取成功便去 execute，否则继续阻塞等待其他线程再次唤醒即可。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">/// Tries to acquire the latches specified by the `lock` for command with ID</span><br><span class="hljs-comment">/// `who`.</span><br><span class="hljs-comment">///</span><br><span class="hljs-comment">/// This method will enqueue the command ID into the waiting queues of the</span><br><span class="hljs-comment">/// latches. A latch is considered acquired if the command ID is the first</span><br><span class="hljs-comment">/// one of elements in the queue which have the same hash value. Returns</span><br><span class="hljs-comment">/// true if all the Latches are acquired, false otherwise.</span><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">acquire</span></span>(&amp;<span class="hljs-keyword">self</span>, lock: &amp;<span class="hljs-keyword">mut</span> Lock, who: <span class="hljs-built_in">u64</span>) -&gt; <span class="hljs-built_in">bool</span> &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> acquired_count: <span class="hljs-built_in">usize</span> = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> &amp;key_hash <span class="hljs-keyword">in</span> &amp;lock.required_hashes[lock.owned_count..] &#123;<br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> latch = <span class="hljs-keyword">self</span>.lock_latch(key_hash);<br>        <span class="hljs-keyword">match</span> latch.get_first_req_by_hash(key_hash) &#123;<br>            <span class="hljs-literal">Some</span>(cid) =&gt; &#123;<br>                <span class="hljs-keyword">if</span> cid == who &#123;<br>                    acquired_count += <span class="hljs-number">1</span>;<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    latch.wait_for_wake(key_hash, who);<br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>            &#125;<br>            <span class="hljs-literal">None</span> =&gt; &#123;<br>                latch.wait_for_wake(key_hash, who);<br>                acquired_count += <span class="hljs-number">1</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br>    lock.owned_count += acquired_count;<br>    lock.acquired()<br>&#125;<br><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">wait_for_wake</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, key_hash: <span class="hljs-built_in">u64</span>, cid: <span class="hljs-built_in">u64</span>) &#123;<br>    <span class="hljs-keyword">self</span>.waiting.push_back(<span class="hljs-literal">Some</span>((key_hash, cid)));<br>&#125;<br><br><span class="hljs-comment">/// Releases all the latches held by a command.</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">release_lock</span></span>(&amp;<span class="hljs-keyword">self</span>, lock: &amp;Lock, cid: <span class="hljs-built_in">u64</span>) &#123;<br>    <span class="hljs-keyword">let</span> wakeup_list = <span class="hljs-keyword">self</span>.inner.latches.release(lock, cid);<br>    <span class="hljs-keyword">for</span> wcid <span class="hljs-keyword">in</span> wakeup_list &#123;<br>        <span class="hljs-keyword">self</span>.try_to_wake_up(wcid);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">/// Releases all latches owned by the `lock` of command with ID `who`,</span><br><span class="hljs-comment">/// returns the wakeup list.</span><br><span class="hljs-comment">///</span><br><span class="hljs-comment">/// Preconditions: the caller must ensure the command is at the front of the</span><br><span class="hljs-comment">/// latches.</span><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">release</span></span>(&amp;<span class="hljs-keyword">self</span>, lock: &amp;Lock, who: <span class="hljs-built_in">u64</span>) -&gt; <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">u64</span>&gt; &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> wakeup_list: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">u64</span>&gt; = <span class="hljs-built_in">vec!</span>[];<br>    <span class="hljs-keyword">for</span> &amp;key_hash <span class="hljs-keyword">in</span> &amp;lock.required_hashes[..lock.owned_count] &#123;<br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> latch = <span class="hljs-keyword">self</span>.lock_latch(key_hash);<br>        <span class="hljs-keyword">let</span> (v, front) = latch.pop_front(key_hash).unwrap();<br>        <span class="hljs-built_in">assert_eq!</span>(front, who);<br>        <span class="hljs-built_in">assert_eq!</span>(v, key_hash);<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(wakeup) = latch.get_first_req_by_hash(key_hash) &#123;<br>            wakeup_list.push(wakeup);<br>        &#125;<br>    &#125;<br>    wakeup_list<br>&#125;<br><br><span class="hljs-comment">/// Tries to acquire all the necessary latches. If all the necessary latches</span><br><span class="hljs-comment">/// are acquired, the method initiates a get snapshot operation for further</span><br><span class="hljs-comment">/// processing.</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">try_to_wake_up</span></span>(&amp;<span class="hljs-keyword">self</span>, cid: <span class="hljs-built_in">u64</span>) &#123;<br>    <span class="hljs-keyword">match</span> <span class="hljs-keyword">self</span>.inner.acquire_lock_on_wakeup(cid) &#123;<br>        <span class="hljs-literal">Ok</span>(<span class="hljs-literal">Some</span>(task)) =&gt; &#123;<br>            fail_point!(<span class="hljs-string">"txn_scheduler_try_to_wake_up"</span>);<br>            <span class="hljs-keyword">self</span>.execute(task);<br>        &#125;<br>        <span class="hljs-literal">Ok</span>(<span class="hljs-literal">None</span>) =&gt; &#123;&#125;<br>        <span class="hljs-literal">Err</span>(err) =&gt; &#123;<br>            <span class="hljs-comment">// Spawn the finish task to the pool to avoid stack overflow</span><br>            <span class="hljs-comment">// when many queuing tasks fail successively.</span><br>            <span class="hljs-keyword">let</span> this = <span class="hljs-keyword">self</span>.clone();<br>            <span class="hljs-keyword">self</span>.inner<br>                .worker_pool<br>                .pool<br>                .spawn(<span class="hljs-keyword">async</span> <span class="hljs-keyword">move</span> &#123;<br>                    this.finish_with_err(cid, err);<br>                &#125;)<br>                .unwrap();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>实际上一旦构造出 TaskContext 并插入到 task_slots 中，只要持有 id 便可以去 task_slots 中获取到该 task 和其对应的 callback，那么任何一个线程都可以去执行该任务并返回客户端对应的执行结果。</p>
+<p>总体来看，这样的异步执行方案相当于在 command 级别抽象出了一套类协程调度逻辑，再辅以 Rust 原生的无栈协程，减少了很多 grpc 线程之前的同步阻塞和切换。</p>
+<p>通过本小节，希望您能够了解 Storage 模块的组织结构，并对 scheduler 的异步并发请求调度方案有一定的认知，能够在正确的位置去追踪单个请求的异步调用路径。</p>
+<h3 id="RaftStore"><a href="#RaftStore" class="headerlink" title="RaftStore"></a>RaftStore</h3><p>RaftStore 常被认为是 TiKV 最复杂，最晦涩的模块，劝退了相当一部分开发者。</p>
+<p>在笔者看来这主要跟要保证 multi-raft + split/merge 在各种 case 下的一致性/正确性有关，本身的语义就十分复杂，那实现也就很难简单了。尽管有太多需要注意的细节，但如果仅要了解 RaftStore 的大体框架依然是可行的。</p>
+<p><a href="https://pingcap.com/zh/blog/tikv-source-code-reading-17" target="_blank" rel="noopener">TiKV 源码解析系列文章（十七）raftstore 概览</a> 介绍了 3.x 版本的 RaftStore，目前 RaftStore 已经有了些许的变化，本小节将简单补充笔者的理解。</p>
+<p>Batch System 是 RaftStore 处理的基石，是一套用来并发驱动状态机的机制。</p>
+<p>状态机的核心定义如下：<br><figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">/// A `Fsm` is a finite state machine. It should be able to be notified for</span><br><span class="hljs-comment">/// updating internal state according to incoming messages.</span><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Fsm</span></span> &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Message</span></span>: <span class="hljs-built_in">Send</span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">is_stopped</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">bool</span>;<br><br>    <span class="hljs-comment">/// Set a mailbox to FSM, which should be used to send message to itself.</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">set_mailbox</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _mailbox: Cow&lt;<span class="hljs-symbol">'_</span>, BasicMailbox&lt;<span class="hljs-keyword">Self</span>&gt;&gt;)<br>    <span class="hljs-keyword">where</span><br>        <span class="hljs-keyword">Self</span>: <span class="hljs-built_in">Sized</span>,<br>    &#123;<br>    &#125;<br>    <span class="hljs-comment">/// Take the mailbox from FSM. Implementation should ensure there will be</span><br>    <span class="hljs-comment">/// no reference to mailbox after calling this method.</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">take_mailbox</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;BasicMailbox&lt;<span class="hljs-keyword">Self</span>&gt;&gt;<br>    <span class="hljs-keyword">where</span><br>        <span class="hljs-keyword">Self</span>: <span class="hljs-built_in">Sized</span>,<br>    &#123;<br>        <span class="hljs-literal">None</span><br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">get_priority</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; Priority &#123;<br>        Priority::Normal<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">/// A unify type for FSMs so that they can be sent to channel easily.</span><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">FsmTypes</span></span>&lt;N, C&gt; &#123;<br>    Normal(<span class="hljs-built_in">Box</span>&lt;N&gt;),<br>    Control(<span class="hljs-built_in">Box</span>&lt;C&gt;),<br>    <span class="hljs-comment">// Used as a signal that scheduler should be shutdown.</span><br>    Empty,<br>&#125;<br></code></pre></div></td></tr></table></figure></p>
+<p>状态机通过 PollHandler 来驱动，定义如下：</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">/// A handler that polls all FSMs in ready.</span><br><span class="hljs-comment">///</span><br><span class="hljs-comment">/// A general process works like the following:</span><br><span class="hljs-comment">///</span><br><span class="hljs-comment">/// loop &#123;</span><br><span class="hljs-comment">///     begin</span><br><span class="hljs-comment">///     if control is ready:</span><br><span class="hljs-comment">///         handle_control</span><br><span class="hljs-comment">///     foreach ready normal:</span><br><span class="hljs-comment">///         handle_normal</span><br><span class="hljs-comment">///     light_end</span><br><span class="hljs-comment">///     end</span><br><span class="hljs-comment">/// &#125;</span><br><span class="hljs-comment">///</span><br><span class="hljs-comment">/// A [`PollHandler`] doesn't have to be [`Sync`] because each poll thread has</span><br><span class="hljs-comment">/// its own handler.</span><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">PollHandler</span></span>&lt;N, C&gt;: <span class="hljs-built_in">Send</span> + <span class="hljs-symbol">'static</span> &#123;<br>    <span class="hljs-comment">/// This function is called at the very beginning of every round.</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">begin</span></span>&lt;F&gt;(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _batch_size: <span class="hljs-built_in">usize</span>, update_cfg: F)<br>    <span class="hljs-keyword">where</span><br>        <span class="hljs-keyword">for</span>&lt;<span class="hljs-symbol">'a</span>&gt; F: <span class="hljs-built_in">FnOnce</span>(&amp;<span class="hljs-symbol">'a</span> Config);<br><br>    <span class="hljs-comment">/// This function is called when the control FSM is ready.</span><br>    <span class="hljs-comment">///</span><br>    <span class="hljs-comment">/// If `Some(len)` is returned, this function will not be called again until</span><br>    <span class="hljs-comment">/// there are more than `len` pending messages in `control` FSM.</span><br>    <span class="hljs-comment">///</span><br>    <span class="hljs-comment">/// If `None` is returned, this function will be called again with the same</span><br>    <span class="hljs-comment">/// FSM `control` in the next round, unless it is stopped.</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">handle_control</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, control: &amp;<span class="hljs-keyword">mut</span> C) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">usize</span>&gt;;<br><br>    <span class="hljs-comment">/// This function is called when some normal FSMs are ready.</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">handle_normal</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, normal: &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">impl</span> DerefMut&lt;Target = N&gt;) -&gt; HandleResult;<br><br>    <span class="hljs-comment">/// This function is called after [`handle_normal`] is called for all FSMs</span><br>    <span class="hljs-comment">/// and before calling [`end`]. The function is expected to run lightweight</span><br>    <span class="hljs-comment">/// works.</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">light_end</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _batch: &amp;<span class="hljs-keyword">mut</span> [<span class="hljs-built_in">Option</span>&lt;<span class="hljs-keyword">impl</span> DerefMut&lt;Target = N&gt;&gt;]) &#123;&#125;<br><br>    <span class="hljs-comment">/// This function is called at the end of every round.</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">end</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, batch: &amp;<span class="hljs-keyword">mut</span> [<span class="hljs-built_in">Option</span>&lt;<span class="hljs-keyword">impl</span> DerefMut&lt;Target = N&gt;&gt;]);<br><br>    <span class="hljs-comment">/// This function is called when batch system is going to sleep.</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">pause</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) &#123;&#125;<br><br>    <span class="hljs-comment">/// This function returns the priority of this handler.</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">get_priority</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; Priority &#123;<br>        Priority::Normal<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>大体来看，状态机分成两种，normal 和 control。对于每一个 Batch System，只有一个 control 状态机，负责管理和处理一些需要全局视野的任务。其他 normal 状态机负责处理其自身相关的任务。每个状态机都有其绑定的消息和消息队列。PollHandler 负责驱动状态机，处理自身队列中的消息。Batch System 的职责就是检测哪些状态机需要驱动，然后调用 PollHandler 去消费消息。消费消息会产生副作用，而这些副作用或要落盘，或要网络交互。PollHandler 在一个批次中可以处理多个 normal 状态机。</p>
+<p>在 RaftStore 里，一共有两个 Batch System。分别是 RaftBatchSystem 和 ApplyBatchSystem。RaftBatchSystem 用于驱动 Raft 状态机，包括日志的分发、落盘、状态跃迁等。已经提交的日志会被发往 ApplyBatchSystem 进行处理。ApplyBatchSystem 将日志解析并应用到底层 KV 数据库中，执行回调函数。所有的写操作都遵循着这个流程。</p>
+<p><img src="https://img1.www.pingcap.com/prod/2_3696723f56.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>具体一点来说：</p>
+<ul>
+<li>每个 PollHandler 对应一个线程，其在 poll 函数中会持续地检测需要驱动的状态机并进行处理，此外还可能将某些 hot region 路由给其他 PollHandler 来做一些负载均衡操作。</li>
+<li>每个 region 对应一个 raft 组，而每个 raft 组在一个 BatchSystem 里就对应一个 normal 状态机，<ul>
+<li>对于 RaftBatchSystem，参照 <a href="https://cn.pingcap.com/blog/tikv-source-code-reading-2" target="_blank" rel="noopener">TiKV 源码解析系列文章（二）raft-rs proposal 示例情景分析</a> 中提到的 raft-rs 接口，每个 normal 状态机在一轮 loop 中被 PollHandler 获取一次 ready，其中一般包含需要持久化的未提交日志，需要发送的消息和需要应用的已提交日志等。对于需要持久化的未提交日志，最直接的做法便是将其暂时缓存到内存中进行攒批，然后在当前 loop 结尾的 end 函数中统一同步处理，这无疑会影响每轮 loop 的效率， TiKV 的 6.x 版本已经将 loop 结尾的同步 IO 抽到了 loop 外交给了额外的线程池去做，这进一步提升了 store loop 的效率，具体可参考该 <a href="https://github.com/tikv/tikv/issues/10540" target="_blank" rel="noopener">issue</a>。对于需要发送的消息，则通过 Transport 异步发送给对应的 store。对于需要应用的已提交日志，则通过 applyRouter 带着回调函数发给 ApplyBatchSystem。</li>
+<li>对于 ApplyBatchSystem，每个 normal 状态机在一轮 loop 中被 PollHandler 获取 RaftBatchSystem 发来的若干已经提交需要应用的日志，其需要将其攒批提交并在之后执行对应的回调函数返回客户端结果。需要注意的是，返回客户端结果之后 ApplyBatchSystem 还需要向 RaftBatchSystem 再 propose ApplyRes 的消息，从而更新 RaftBatchSystem 的某些内存状态，比如 applyIndex，该字段的更新能够推动某些阻塞在某个 ReadIndex 上的读请求继续执行。</li>
+</ul>
+</li>
+</ul>
+<p>如下便是 BatchSystem 的启动流程及 poll 函数：</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">/// A system that can poll FSMs concurrently and in batch.</span><br><span class="hljs-comment">///</span><br><span class="hljs-comment">/// To use the system, two type of FSMs and their PollHandlers need to be</span><br><span class="hljs-comment">/// defined: Normal and Control. Normal FSM handles the general task while</span><br><span class="hljs-comment">/// Control FSM creates normal FSM instances.</span><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BatchSystem</span></span>&lt;N: Fsm, C: Fsm&gt; &#123;<br>    name_prefix: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">String</span>&gt;,<br>    router: BatchRouter&lt;N, C&gt;,<br>    receiver: channel::Receiver&lt;FsmTypes&lt;N, C&gt;&gt;,<br>    low_receiver: channel::Receiver&lt;FsmTypes&lt;N, C&gt;&gt;,<br>    pool_size: <span class="hljs-built_in">usize</span>,<br>    max_batch_size: <span class="hljs-built_in">usize</span>,<br>    workers: Arc&lt;Mutex&lt;<span class="hljs-built_in">Vec</span>&lt;JoinHandle&lt;()&gt;&gt;&gt;&gt;,<br>    joinable_workers: Arc&lt;Mutex&lt;<span class="hljs-built_in">Vec</span>&lt;ThreadId&gt;&gt;&gt;,<br>    reschedule_duration: Duration,<br>    low_priority_pool_size: <span class="hljs-built_in">usize</span>,<br>    pool_state_builder: <span class="hljs-built_in">Option</span>&lt;PoolStateBuilder&lt;N, C&gt;&gt;,<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;N, C&gt; BatchSystem&lt;N, C&gt;<br><span class="hljs-keyword">where</span><br>    N: Fsm + <span class="hljs-built_in">Send</span> + <span class="hljs-symbol">'static</span>,<br>    C: Fsm + <span class="hljs-built_in">Send</span> + <span class="hljs-symbol">'static</span>,<br>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">start_poller</span></span>&lt;B&gt;(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, name: <span class="hljs-built_in">String</span>, priority: Priority, builder: &amp;<span class="hljs-keyword">mut</span> B)<br>    <span class="hljs-keyword">where</span><br>        B: HandlerBuilder&lt;N, C&gt;,<br>        B::Handler: <span class="hljs-built_in">Send</span> + <span class="hljs-symbol">'static</span>,<br>    &#123;<br>        <span class="hljs-keyword">let</span> handler = builder.build(priority);<br>        <span class="hljs-keyword">let</span> receiver = <span class="hljs-keyword">match</span> priority &#123;<br>            Priority::Normal =&gt; <span class="hljs-keyword">self</span>.receiver.clone(),<br>            Priority::Low =&gt; <span class="hljs-keyword">self</span>.low_receiver.clone(),<br>        &#125;;<br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> poller = Poller &#123;<br>            router: <span class="hljs-keyword">self</span>.router.clone(),<br>            fsm_receiver: receiver,<br>            handler,<br>            max_batch_size: <span class="hljs-keyword">self</span>.max_batch_size,<br>            reschedule_duration: <span class="hljs-keyword">self</span>.reschedule_duration,<br>            joinable_workers: <span class="hljs-keyword">if</span> priority == Priority::Normal &#123;<br>                <span class="hljs-literal">Some</span>(Arc::clone(&amp;<span class="hljs-keyword">self</span>.joinable_workers))<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-literal">None</span><br>            &#125;,<br>        &#125;;<br>        <span class="hljs-keyword">let</span> props = tikv_util::thread_group::current_properties();<br>        <span class="hljs-keyword">let</span> t = thread::Builder::new()<br>            .name(name)<br>            .spawn_wrapper(<span class="hljs-keyword">move</span> || &#123;<br>                tikv_util::thread_group::set_properties(props);<br>                set_io_type(IoType::ForegroundWrite);<br>                poller.poll();<br>            &#125;)<br>            .unwrap();<br>        <span class="hljs-keyword">self</span>.workers.lock().unwrap().push(t);<br>    &#125;<br><br>    <span class="hljs-comment">/// Start the batch system.</span><br>    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">spawn</span></span>&lt;B&gt;(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, name_prefix: <span class="hljs-built_in">String</span>, <span class="hljs-keyword">mut</span> builder: B)<br>    <span class="hljs-keyword">where</span><br>        B: HandlerBuilder&lt;N, C&gt;,<br>        B::Handler: <span class="hljs-built_in">Send</span> + <span class="hljs-symbol">'static</span>,<br>    &#123;<br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..<span class="hljs-keyword">self</span>.pool_size &#123;<br>            <span class="hljs-keyword">self</span>.start_poller(<br>                thd_name!(<span class="hljs-built_in">format!</span>(<span class="hljs-string">"&#123;&#125;-&#123;&#125;"</span>, name_prefix, i)),<br>                Priority::Normal,<br>                &amp;<span class="hljs-keyword">mut</span> builder,<br>            );<br>        &#125;<br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..<span class="hljs-keyword">self</span>.low_priority_pool_size &#123;<br>            <span class="hljs-keyword">self</span>.start_poller(<br>                thd_name!(<span class="hljs-built_in">format!</span>(<span class="hljs-string">"&#123;&#125;-low-&#123;&#125;"</span>, name_prefix, i)),<br>                Priority::Low,<br>                &amp;<span class="hljs-keyword">mut</span> builder,<br>            );<br>        &#125;<br>        <span class="hljs-keyword">self</span>.name_prefix = <span class="hljs-literal">Some</span>(name_prefix);<br>    &#125;<br>&#125;<br><br>    <span class="hljs-comment">/// Polls for readiness and forwards them to handler. Removes stale peers if</span><br>    <span class="hljs-comment">/// necessary.</span><br>    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">poll</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) &#123;<br>        fail_point!(<span class="hljs-string">"poll"</span>);<br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> batch = Batch::with_capacity(<span class="hljs-keyword">self</span>.max_batch_size);<br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> reschedule_fsms = <span class="hljs-built_in">Vec</span>::with_capacity(<span class="hljs-keyword">self</span>.max_batch_size);<br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> to_skip_end = <span class="hljs-built_in">Vec</span>::with_capacity(<span class="hljs-keyword">self</span>.max_batch_size);<br><br>        <span class="hljs-comment">// Fetch batch after every round is finished. It's helpful to protect regions</span><br>        <span class="hljs-comment">// from becoming hungry if some regions are hot points. Since we fetch new FSM</span><br>        <span class="hljs-comment">// every time calling `poll`, we do not need to configure a large value for</span><br>        <span class="hljs-comment">// `self.max_batch_size`.</span><br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> run = <span class="hljs-literal">true</span>;<br>        <span class="hljs-keyword">while</span> run &amp;&amp; <span class="hljs-keyword">self</span>.fetch_fsm(&amp;<span class="hljs-keyword">mut</span> batch) &#123;<br>            <span class="hljs-comment">// If there is some region wait to be deal, we must deal with it even if it has</span><br>            <span class="hljs-comment">// overhead max size of batch. It's helpful to protect regions from becoming</span><br>            <span class="hljs-comment">// hungry if some regions are hot points.</span><br>            <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> max_batch_size = std::cmp::max(<span class="hljs-keyword">self</span>.max_batch_size, batch.normals.len());<br>            <span class="hljs-comment">// Update some online config if needed.</span><br>            &#123;<br>                <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> rust 2018 does not support capture disjoint field within a closure.</span><br>                <span class="hljs-comment">// See https://github.com/rust-lang/rust/issues/53488 for more details.</span><br>                <span class="hljs-comment">// We can remove this once we upgrade to rust 2021 or later edition.</span><br>                <span class="hljs-keyword">let</span> batch_size = &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>.max_batch_size;<br>                <span class="hljs-keyword">self</span>.handler.begin(max_batch_size, |cfg| &#123;<br>                    *batch_size = cfg.max_batch_size();<br>                &#125;);<br>            &#125;<br>            max_batch_size = std::cmp::max(<span class="hljs-keyword">self</span>.max_batch_size, batch.normals.len());<br><br>            <span class="hljs-keyword">if</span> batch.control.is_some() &#123;<br>                <span class="hljs-keyword">let</span> len = <span class="hljs-keyword">self</span>.handler.handle_control(batch.control.as_mut().unwrap());<br>                <span class="hljs-keyword">if</span> batch.control.as_ref().unwrap().is_stopped() &#123;<br>                    batch.remove_control(&amp;<span class="hljs-keyword">self</span>.router.control_box);<br>                &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(len) = len &#123;<br>                    batch.release_control(&amp;<span class="hljs-keyword">self</span>.router.control_box, len);<br>                &#125;<br>            &#125;<br><br>            <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> hot_fsm_count = <span class="hljs-number">0</span>;<br>            <span class="hljs-keyword">for</span> (i, p) <span class="hljs-keyword">in</span> batch.normals.iter_mut().enumerate() &#123;<br>                <span class="hljs-keyword">let</span> p = p.as_mut().unwrap();<br>                <span class="hljs-keyword">let</span> res = <span class="hljs-keyword">self</span>.handler.handle_normal(p);<br>                <span class="hljs-keyword">if</span> p.is_stopped() &#123;<br>                    p.policy = <span class="hljs-literal">Some</span>(ReschedulePolicy::Remove);<br>                    reschedule_fsms.push(i);<br>                &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> p.get_priority() != <span class="hljs-keyword">self</span>.handler.get_priority() &#123;<br>                    p.policy = <span class="hljs-literal">Some</span>(ReschedulePolicy::Schedule);<br>                    reschedule_fsms.push(i);<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    <span class="hljs-keyword">if</span> p.timer.saturating_elapsed() &gt;= <span class="hljs-keyword">self</span>.reschedule_duration &#123;<br>                        hot_fsm_count += <span class="hljs-number">1</span>;<br>                        <span class="hljs-comment">// We should only reschedule a half of the hot regions, otherwise,</span><br>                        <span class="hljs-comment">// it's possible all the hot regions are fetched in a batch the</span><br>                        <span class="hljs-comment">// next time.</span><br>                        <span class="hljs-keyword">if</span> hot_fsm_count % <span class="hljs-number">2</span> == <span class="hljs-number">0</span> &#123;<br>                            p.policy = <span class="hljs-literal">Some</span>(ReschedulePolicy::Schedule);<br>                            reschedule_fsms.push(i);<br>                            <span class="hljs-keyword">continue</span>;<br>                        &#125;<br>                    &#125;<br>                    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> HandleResult::StopAt &#123; progress, skip_end &#125; = res &#123;<br>                        p.policy = <span class="hljs-literal">Some</span>(ReschedulePolicy::Release(progress));<br>                        reschedule_fsms.push(i);<br>                        <span class="hljs-keyword">if</span> skip_end &#123;<br>                            to_skip_end.push(i);<br>                        &#125;<br>                    &#125;<br>                &#125;<br>            &#125;<br>            <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> fsm_cnt = batch.normals.len();<br>            <span class="hljs-keyword">while</span> batch.normals.len() &lt; max_batch_size &#123;<br>                <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Ok</span>(fsm) = <span class="hljs-keyword">self</span>.fsm_receiver.try_recv() &#123;<br>                    run = batch.push(fsm);<br>                &#125;<br>                <span class="hljs-comment">// When `fsm_cnt &gt;= batch.normals.len()`:</span><br>                <span class="hljs-comment">// - No more FSMs in `fsm_receiver`.</span><br>                <span class="hljs-comment">// - We receive a control FSM. Break the loop because ControlFsm may change</span><br>                <span class="hljs-comment">//   state of the handler, we shall deal with it immediately after calling</span><br>                <span class="hljs-comment">//   `begin` of `Handler`.</span><br>                <span class="hljs-keyword">if</span> !run || fsm_cnt &gt;= batch.normals.len() &#123;<br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>                <span class="hljs-keyword">let</span> p = batch.normals[fsm_cnt].as_mut().unwrap();<br>                <span class="hljs-keyword">let</span> res = <span class="hljs-keyword">self</span>.handler.handle_normal(p);<br>                <span class="hljs-keyword">if</span> p.is_stopped() &#123;<br>                    p.policy = <span class="hljs-literal">Some</span>(ReschedulePolicy::Remove);<br>                    reschedule_fsms.push(fsm_cnt);<br>                &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> HandleResult::StopAt &#123; progress, skip_end &#125; = res &#123;<br>                    p.policy = <span class="hljs-literal">Some</span>(ReschedulePolicy::Release(progress));<br>                    reschedule_fsms.push(fsm_cnt);<br>                    <span class="hljs-keyword">if</span> skip_end &#123;<br>                        to_skip_end.push(fsm_cnt);<br>                    &#125;<br>                &#125;<br>                fsm_cnt += <span class="hljs-number">1</span>;<br>            &#125;<br>            <span class="hljs-keyword">self</span>.handler.light_end(&amp;<span class="hljs-keyword">mut</span> batch.normals);<br>            <span class="hljs-keyword">for</span> index <span class="hljs-keyword">in</span> &amp;to_skip_end &#123;<br>                batch.schedule(&amp;<span class="hljs-keyword">self</span>.router, *index);<br>            &#125;<br>            to_skip_end.clear();<br>            <span class="hljs-keyword">self</span>.handler.end(&amp;<span class="hljs-keyword">mut</span> batch.normals);<br><br>            <span class="hljs-comment">// Iterate larger index first, so that `swap_reclaim` won't affect other FSMs</span><br>            <span class="hljs-comment">// in the list.</span><br>            <span class="hljs-keyword">for</span> index <span class="hljs-keyword">in</span> reschedule_fsms.iter().rev() &#123;<br>                batch.schedule(&amp;<span class="hljs-keyword">self</span>.router, *index);<br>                batch.swap_reclaim(*index);<br>            &#125;<br>            reschedule_fsms.clear();<br>        &#125;<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(fsm) = batch.control.take() &#123;<br>            <span class="hljs-keyword">self</span>.router.control_scheduler.schedule(fsm);<br>            info!(<span class="hljs-string">"poller will exit, release the left ControlFsm"</span>);<br>        &#125;<br>        <span class="hljs-keyword">let</span> left_fsm_cnt = batch.normals.len();<br>        <span class="hljs-keyword">if</span> left_fsm_cnt &gt; <span class="hljs-number">0</span> &#123;<br>            info!(<br>                <span class="hljs-string">"poller will exit, schedule &#123;&#125; left NormalFsms"</span>,<br>                left_fsm_cnt<br>            );<br>            <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..left_fsm_cnt &#123;<br>                <span class="hljs-keyword">let</span> to_schedule = <span class="hljs-keyword">match</span> batch.normals[i].take() &#123;<br>                    <span class="hljs-literal">Some</span>(f) =&gt; f,<br>                    <span class="hljs-literal">None</span> =&gt; <span class="hljs-keyword">continue</span>,<br>                &#125;;<br>                <span class="hljs-keyword">self</span>.router.normal_scheduler.schedule(to_schedule.fsm);<br>            &#125;<br>        &#125;<br>        batch.clear();<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>通过本小节，希望您能够了解 BatchSystem 的大体框架，并知悉 PollHandler 和 FSM 的物理含义，以便结合之后的博客去熟悉全链路读写流程。</p>
+<h2 id="调试方案"><a href="#调试方案" class="headerlink" title="调试方案"></a>调试方案</h2><p>断点调试是一种学习源码的有效手段。当不是很熟悉 gdb 等工具时，使用一些更现代的 IDE 会大幅提升调试代码的体验。</p>
+<p>笔者平时采用了 CLion + intellij-rust 的工具链来调试 Rust 代码。需要注意的是，在使用 CLion 调试 TiKV 源码时，需要参照 <a href="https://doc.rust-lang.org/cargo/reference/profiles.html" target="_blank" rel="noopener">Cargo book</a> 修改 TiKV cargo.toml 中 <code>[profile.test]</code> 和 <code>[profile.dev]</code> 的 <a href="https://github.com/tikv/tikv/blob/master/Cargo.toml#L327" target="_blank" rel="noopener">debug 选项</a> 来开启调试信息，否则在 Clion 里断点调试时会无法看到对应的堆栈信息。</p>
+<p>实际上如果要做到以上读写路径的全链路追踪，最简单的方法便是从集成测试里面寻找一些 case，接着从 Service 模块开始打断点，之后执行调试即可。在这里推荐 <code>integrations/server/kv_service.rs</code> 中的测试，里面的 test 都会构造 <code>TiKVClient</code> 发送真实的 RPC 请求，且服务端也基本不包含 Mock 组件，可以完整的去追踪一条 RPC 的全链路流程。</p>
+<p>此外由于 TiKV 的代码中有比较多的 spawn 和回调函数，刚开始可能并不能很直接的串起来流程，但相信通过上文的介绍，您已经大致了解其异步框架的实现，从而可以在正确的闭包位置打下断点，进而熟悉地追踪单条请求的全链路实现。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇博客介绍了 TiKV 的基本概念，TiKV 的三个重要模块（KVService，Storage，RaftStore）和断点调试 TiKV 学习源码的方案。</p>
+<p>希望本篇博客能够帮助对 TiKV 开发感兴趣的新同学尽快了解 TiKV 的 codebase。</p>
+<p>感谢您的阅读~</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+                    
+                      <a class="hover-with-bg" href="/tags/TiKV/">TiKV</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/tikv-source-code-reading-read/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">TiKV 源码阅读三部曲（二）读流程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/naive-kvengine-in-rust/">
+                        <span class="hidden-mobile">Talent-Plan：用 Rust 实现简易 KV 引擎</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>
