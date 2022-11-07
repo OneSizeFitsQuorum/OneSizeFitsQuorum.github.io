@@ -193,6 +193,57 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/distributed-transactions/" target="_self">
+          <img src="/./distributed-transactions/2pc.jpeg" srcset="/img/loading.gif" lazyload alt="分布式事务简介">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/distributed-transactions/" target="_self">
+          分布式事务简介
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/distributed-transactions/" target="_self">
+          
+          
+            
+          
+          前言事务是作为单个逻辑工作单元执行的一系列操作。一个逻辑工作单元必须有四个属性，称为原子性、一致性、隔离性和持久性 (ACID) 属性。分布式事务则是尝试在多节点的环境下实现这些语义。
+分布式事务涉及的知识内容较多，本篇博客并没有将其彻底整理清楚，只是简单记录了一下 6.824 课程所学。
+内容对于分布式事务，可以将其细化为并发控制和原子提交两个子问题。前者是在说如何保证并发事务的串行隔离性，后者
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-04-29 13:46" pubdate>
+              2021-04-29
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/aurora-thesis/" target="_self">
           <img src="/./aurora-thesis/Aurora.png" srcset="/img/loading.gif" lazyload alt="Aurora 论文阅读">
         </a>
@@ -665,59 +716,6 @@ distributed crash recovery
               <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
             
               <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/gfs-thesis/" target="_self">
-          <img src="/./gfs-thesis/architecture.png" srcset="/img/loading.gif" lazyload alt="GFS 论文阅读">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/gfs-thesis/" target="_self">
-          GFS 论文阅读
-        </a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/gfs-thesis/" target="_self">
-          
-          
-            
-          
-          相关背景单机文件系统我们见得已经很多，像 xfs，ext4 等等都已经是很出名的单机文件系统。然而，单机文件系统的容量始终是有限的，随着数据量的不断增大，就算对单机不断的 scale up 也会逐渐达到上限。因此，支持 scale out 的分布式文件系统是技术的必然。作为世界上数据量可能最多的公司，Google 在 21 世纪初就已经遇到了这个挑战，随之其开发了 GFS 这个创时代的分布式文件系
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-03-07 21:59" pubdate>
-              2021-03-07
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
-            
-              <a href="/tags/Google/">Google</a>
             
           </div>
         

@@ -6,7 +6,7 @@
   <link href="https://tanxinyu.work/atom.xml" rel="self"/>
   
   <link href="https://tanxinyu.work/"/>
-  <updated>2022-10-08T03:20:35.422Z</updated>
+  <updated>2022-11-07T03:44:30.304Z</updated>
   <id>https://tanxinyu.work/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Have we reached consensus on consensus？</title>
+    <link href="https://tanxinyu.work/have-we-reached-consensus-on-consensus/"/>
+    <id>https://tanxinyu.work/have-we-reached-consensus-on-consensus/</id>
+    <published>2022-11-07T03:02:32.000Z</published>
+    <updated>2022-11-07T03:44:30.304Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>分享一下前不久在 PingCAP 实习时做的有关共识算法及其应用的介绍（已经删除了部分不便公开的内容）。</p><p>这次分享主要针对 Raft 和 Paxos 做了相对详细的介绍，并从学术界和工业界的不同视角对比了他们的异同，最后也基于 TiKV 当前架构现状和其他系统的架构设计从一个 intern 的视角拍脑袋介绍了几个可能的演进方向。</p><p>回到 Raft 和 Multi Paxos 孰优孰劣这一圣战问题，可以明确的是对于普通 KV，很可能区别不大。对于结合共识和事务模块的 NewSQL 数据库，Multi-Paxos 能够在整体上为一些难点问题提供一点不一样的思路（例如增大 1PC 比例，缓解写热点问题等等），可能有更高的性能天花板。</p><p>注：本文内容仅代表个人看法。</p><p>注：以下仅为图片，可以在 <a href="https://vevotse3pn.feishu.cn/file/boxcnX1gpn45hpsILPUQA9r8PEf" target="_blank" rel="noopener">此处</a> 在线浏览 PPT 原件。</p><h1 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h1><p><img src="/have-we-reached-consensus-on-consensus/1.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/2.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/3.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/4.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/5.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/6.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/7.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/8.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/9.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/10.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/11.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/12.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/13.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/14.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/15.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/16.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/17.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/18.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/19.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/20.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/21.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/22.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/23.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/24.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/25.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/26.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/27.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/28.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/29.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/30.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/31.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/32.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/33.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/34.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/35.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/36.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/37.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/38.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/39.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/40.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/41.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/42.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/43.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/44.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/45.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/46.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/47.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/48.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/49.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/50.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/51.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/52.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/53.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/54.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/55.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/56.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/57.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/58.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/59.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/60.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/61.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/62.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/63.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/64.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/65.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/66.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/67.png" srcset="/img/loading.gif" lazyload alt></p><h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><h2 id="论文"><a href="#论文" class="headerlink" title="论文"></a>论文</h2><ul><li><a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf" target="_blank" rel="noopener">Paxos Made Simple</a></li><li><a href="https://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/papers/paper2-1.pdf" target="_blank" rel="noopener">Paxos Made Live - An Engineering Perspective</a></li><li><a href="https://dada.cs.washington.edu/research/tr/2009/09/UW-CSE-09-09-02.PDF" target="_blank" rel="noopener">Multi-Paxos: An Implementation and Evaluation</a></li><li><a href="https://people.csail.mit.edu/malte/pub/papers/2015-osr-raft.pdf" target="_blank" rel="noopener">Raft Refloated: Do We Have Consensus?</a></li><li><a href="https://www.vldb.org/pvldb/vol11/p1849-cao.pdf" target="_blank" rel="noopener">PolarFS: An Ultra-low Latency and Failure Resilient Distributed File System for Shared Storage Cloud Database</a></li><li><a href="https://dl.acm.org/doi/abs/10.14778/3137765.3137778" target="_blank" rel="noopener">PaxosStore: High-availability Storage Made Practical in WeChat</a></li><li><a href="https://dl.acm.org/doi/abs/10.14778/1938545.1938549" target="_blank" rel="noopener">Using Paxos to Build a Scalable, Consistent, and Highly Available Datastore</a></li><li><a href="https://dl.acm.org/doi/abs/10.1145/3380787.3393681" target="_blank" rel="noopener">Paxos vs Raft: have we reached consensus on distributed consensus?</a></li><li><a href="https://dl.acm.org/doi/pdf/10.1145/3293611.3331595" target="_blank" rel="noopener">On the Parallels between Paxos and Raft, and how to Port Optimizations</a></li><li><a href="https://www.usenix.org/system/files/fast21-chen-hao.pdf" target="_blank" rel="noopener">SpanDB: A Fast, Cost-Effective LSM-tree Based KV Store on Hybrid Storage</a></li></ul><h2 id="博客"><a href="#博客" class="headerlink" title="博客"></a>博客</h2><ul><li><a href="http://icyfenix.cn/distribution/consensus/raft.html" target="_blank" rel="noopener">凤凰架构 Multi-Paxos</a></li><li><a href="https://mp.weixin.qq.com/s/4D5_x-Ftg8Qzl6hPdoVTxQ" target="_blank" rel="noopener">将 paxos 和 raft 统一为一个协议：abstract-paxos</a></li><li><a href="https://mp.weixin.qq.com/s/3OZgqEWQcEf6V9v6eoSUUA" target="_blank" rel="noopener">可靠分布式系统-paxos 的直观解释</a></li><li><a href="https://blog.csdn.net/sinat_22338935/article/details/114320664" target="_blank" rel="noopener">Page Cache 引起的业务问题处理</a></li><li><a href="https://segmentfault.com/a/1190000038967218" target="_blank" rel="noopener">深入了解 MySQL 主从复制的原理</a></li><li><a href="https://github.com/oceanbase/oceanbase" target="_blank" rel="noopener">OceanBase 文档</a></li><li><a href="https://mp.weixin.qq.com/s/zKZrl26TIfkCK5EECLURzg" target="_blank" rel="noopener">OceanBase 社区版 4.0 发版：一个全新的里程碑</a></li><li><a href="https://www.bilibili.com/video/BV14d4y1D7wz/?spm_id_from=333.337.search-card.all.click&amp;vd_source=c856dfca0df73fe9dce87bfc54acabc5" target="_blank" rel="noopener">【PingCAP Infra Meetup】No.151 TiDB 事务模型演进</a></li><li><a href="https://cloud.tencent.com/developer/article/1352070" target="_blank" rel="noopener">Paxos 和 Raft 的前世今生</a></li><li><a href="https://www.infoq.cn/article/wechat-paxosstore-paxos-algorithm-protocol/" target="_blank" rel="noopener">微信 PaxosStore：深入浅出 Paxos 算法协议</a></li><li><a href="https://zhuanlan.zhihu.com/p/45720365" target="_blank" rel="noopener">共识算法 之 Basic Paxos</a></li><li><a href="https://www.zhihu.com/question/57321934/answer/152640954" target="_blank" rel="noopener">Paxos(Multi-Paxos) 在工程实现中需要注意哪些问题？</a></li><li><a href="https://ongardie.net/static/raft/userstudy/paxos.pptx" target="_blank" rel="noopener">Implementing Replicated Logs  with Paxos</a></li><li><a href="https://github.com/TPC-TiKV/rfc" target="_blank" rel="noopener">2021 TiDB Hackathon TPC-TiKV RFC</a></li><li><a href="https://github.com/FWH-TiKV/RFC" target="_blank" rel="noopener">2022 TiDB Hackathon FWH-TiKV RFC</a></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h1&gt;&lt;p&gt;分享一下前不久在 PingCAP 实习时做的有关共识算法及其应用的介绍（已经删除了部分不便公开的内容）。&lt;/p&gt;
+&lt;p&gt;这次分享主要针对 R</summary>
+      
+    
+    
+    
+    
+    <category term="分布式系统理论" scheme="https://tanxinyu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/"/>
+    
+    <category term="共识算法" scheme="https://tanxinyu.work/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/"/>
+    
+  </entry>
   
   <entry>
     <title>TiKV 源码阅读三部曲（三）写流程</title>
@@ -113,9 +138,9 @@
     
     
     
-    <category term="Rust" scheme="https://tanxinyu.work/tags/Rust/"/>
-    
     <category term="存储引擎" scheme="https://tanxinyu.work/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/"/>
+    
+    <category term="Rust" scheme="https://tanxinyu.work/tags/Rust/"/>
     
   </entry>
   
@@ -212,9 +237,9 @@
     
     
     
-    <category term="年终总结" scheme="https://tanxinyu.work/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/"/>
-    
     <category term="IoTDB" scheme="https://tanxinyu.work/tags/IoTDB/"/>
+    
+    <category term="年终总结" scheme="https://tanxinyu.work/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/"/>
     
   </entry>
   
@@ -285,9 +310,9 @@
     
     
     
-    <category term="IoTDB" scheme="https://tanxinyu.work/tags/IoTDB/"/>
-    
     <category term="测试" scheme="https://tanxinyu.work/tags/%E6%B5%8B%E8%AF%95/"/>
+    
+    <category term="IoTDB" scheme="https://tanxinyu.work/tags/IoTDB/"/>
     
   </entry>
   
@@ -309,9 +334,9 @@
     
     
     
-    <category term="网红课" scheme="https://tanxinyu.work/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/"/>
-    
     <category term="数据库" scheme="https://tanxinyu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+    <category term="网红课" scheme="https://tanxinyu.work/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/"/>
     
   </entry>
   
@@ -358,13 +383,13 @@
     
     
     
+    <category term="网红课" scheme="https://tanxinyu.work/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/"/>
+    
     <category term="分布式系统理论" scheme="https://tanxinyu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/"/>
     
     <category term="共识算法" scheme="https://tanxinyu.work/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/"/>
     
     <category term="分布式存储" scheme="https://tanxinyu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/"/>
-    
-    <category term="网红课" scheme="https://tanxinyu.work/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/"/>
     
   </entry>
   
@@ -486,28 +511,6 @@
     <category term="分布式系统理论" scheme="https://tanxinyu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/"/>
     
     <category term="论文阅读" scheme="https://tanxinyu.work/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>分布式事务简介</title>
-    <link href="https://tanxinyu.work/distributed-transactions/"/>
-    <id>https://tanxinyu.work/distributed-transactions/</id>
-    <published>2021-04-29T05:46:58.000Z</published>
-    <updated>2022-01-30T03:41:32.000Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>事务是作为单个逻辑工作单元执行的一系列操作。一个逻辑工作单元必须有四个属性，称为原子性、一致性、隔离性和持久性 (ACID) 属性。分布式事务则是尝试在多节点的环境下实现这些语义。</p><p>分布式事务涉及的知识内容较多，本篇博客并没有将其彻底整理清楚，只是简单记录了一下 6.824 课程所学。</p><h2 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h2><p>对于分布式事务，可以将其细化为并发控制和原子提交两个子问题。前者是在说如何保证并发事务的串行隔离性，后者是在说当数据分片分布在不同的节点上时，如何保证事务在不同节点上提交与否的原子性。</p><h3 id="并发控制"><a href="#并发控制" class="headerlink" title="并发控制"></a>并发控制</h3><p>对于事务的并发控制模型，一般有两个方向：悲观事务和乐观事务。前者适合于数据竞争严重且重试代价大的场景，后者适用于数据竞争不严重且重试代价不大的场景。</p><h4 id="悲观事务"><a href="#悲观事务" class="headerlink" title="悲观事务"></a>悲观事务</h4><p>在事务执行过程中对事务所用到的数据都上锁。这里的锁从事务中第一次用到对应数据时开始，直到事务结束时才释放。</p><p>2PL（2-Phase-Lock）就是一种典型的悲观事务方法，但并不是到事务结束时才释放所有锁，而是事务过程中一旦不再使用某对象即可释放该对象的锁。因此，6.824 课程中介绍的 2PL 严格来说是 S2PL（Strict-2-Phase-Lock），即所有锁都是在事务结束的同时才释放的。S2PL 相比 2PL 的性能更差，但能够避免级联终止的发生，具体可以参考此 <a href="https://niceaz.com/2019/03/24/isolation-2pl-mvcc/" target="_blank" rel="noopener">博客</a>。</p><p>不论是 2PL 还是 S2PL，都有可能导致死锁，因此一般要从两个方面入手来避免死锁：死锁检测、死锁预防</p><ul><li>死锁检测：为相互等待的事务之间维护一张 graph， 检测 graph 中是否有环。如果检测到优化，则根据一定的策略选择终止一个事务，打破循环等待。</li><li>死锁预防：按照一定顺序进行加锁，锁超时则终止等。</li></ul><p>S2PL 严格意义上不能解决幻读的问题，因为其加的都是行锁，所以其并不能实现串行隔离性，这一点与 6.824 课程中的介绍似乎有些许出入，等到之后有时间再认真研究一番。</p><h4 id="乐观事务"><a href="#乐观事务" class="headerlink" title="乐观事务"></a>乐观事务</h4><p>在事务执行过程中获取事务所用到的数据时并不上锁，直到计算完毕提交时才加锁对数据进行验证，若无变化则提交，否则 abort 或重新获取最新数据并计算。</p><p>由于分布式乐观事务在提交之前获取数据进行计算时并不需要加锁，因此一般也可以通过结合 RDMA 等技术来显著提升性能。</p><h3 id="原子提交"><a href="#原子提交" class="headerlink" title="原子提交"></a>原子提交</h3><p>在分布式事务中，参与事务的所有节点必须全部执行 Commit 操作或全部执行 Abort 操作，即他们需要在”执行 Commit 还是 Abort”这一点上达成一致（其实就是共识）。理论上有许多原子提交协议：2PC 和 3PC 等等。</p><p>原子提交协议和共识协议：</p><ul><li>目的相同：<ul><li>共识问题：解决的是如何在分布式系统中的多个节点之间就某个提议达成共识。</li><li>原子提交问题：解决的是参与分布式事务的所有节点在”执行 Commit 还是 Abort”这一点上达成共识。</li></ul></li><li>范围不同：前者要求所有节点达成共识，后者要求大多数未故障的节点达成共识。</li></ul><p>有关 2PC, 3PC, TCC, SAGA 等原子提交协议的具体内容，可以参考此 <a href="https://mp.weixin.qq.com/s/MbPRpBudXtdfl8o4hlqNlQ" target="_blank" rel="noopener">博客</a>。</p><p>对于业务上的分布式事务，还有 Seata 和基于 MQ 的分布式事务实现等等，花样很多，但实现各异。他们不是本文的重点，感兴趣自行谷歌即可。</p><p>对于数据库内核中的分布式事务实现，一般都是通过 2PC 的方式。为什么不用 3PC 呢？2PC 严格来说是保证了 safety 但牺牲了较多的 liveness（部分场景下资源会被永远锁定），而且正常工作时需要发两轮 RPC 来提交一个事务，其性能是被很多人诟病的一点；3PC 虽然提高了 liveness（资源锁定一定会在有限时间内被解除），但其是以牺牲 safety 为代价的，同时正常工作时需要发三轮 RPC 来提交一个事务，性能更差，因此很多人认为使用 3PC 是实现分布式事务的一条歪路，工业界也几乎很少有人使用 3PC，这一点 PingCAP 的 CTO 在分布式之美论坛上也提到过。</p><p>事实上，不论是 Spanner 还是 TiDB，他们的方式都是通过将协调者和参与者都分别组成共识组的方式来避免单点故障，从而在保证 safety 的基础上提升 liveness（由于协调者节点的单点故障被共识组规避掉，参与者的资源锁定一定会在有限时间内被解除），当然，由于每一个操作和决定都需要在共识组中进行同步，不可避免的其性能也会更差，但相比 3PC，其至少没有牺牲 safety，这一点非常关键，因为只要保证了 safety，至少我们可以通过 scale out 的方式来提升性能。</p><p>对于 2PC，业界和学术界针对不同的数据模型也有一些特定的优化，比如针对 KV 模型的 Percolator 算法等，它可以将 2PC 在部分场景下优化为 1PC 并结合 Async Commit 的方式来提升性能，这里之后有时间再进行研究吧。</p><p>业界也有一些替换 2PC 的声音，可以参考此 <a href="https://www.jdon.com/51588" target="_blank" rel="noopener">博客</a>。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇博客简单记录了 6.824 课程中分布式事务的内容，同时进行了一点点分析和拓宽，以做记录。</p><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul><li><a href="http://nil.csail.mit.edu/6.824/2020/notes/l-2pc.txt" target="_blank" rel="noopener">6.824 讲义</a></li><li><a href="http://nil.csail.mit.edu/6.824/2020/video/12.html" target="_blank" rel="noopener">6.824 视频</a></li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;事务是作为单个逻辑工作单元执行的一系列操作。一个逻辑工作单元必须有四个属性，称为原子性、一致性、隔离性和持久性 (ACID) 属性。分布式事</summary>
-      
-    
-    
-    
-    
-    <category term="分布式系统理论" scheme="https://tanxinyu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   

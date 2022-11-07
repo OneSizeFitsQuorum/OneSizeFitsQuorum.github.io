@@ -1,0 +1,687 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  <meta name="description" content="背景分享一下前不久在 PingCAP 实习时做的有关共识算法及其应用的介绍（已经删除了部分不便公开的内容）。 这次分享主要针对 Raft 和 Paxos 做了相对详细的介绍，并从学术界和工业界的不同视角对比了他们的异同，最后也基于 TiKV 当前架构现状和其他系统的架构设计从一个 intern 的视角拍脑袋介绍了几个可能的演进方向。 回到 Raft 和 Multi Paxos 孰优孰劣这一圣战问题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Have we reached consensus on consensus？">
+<meta property="og:url" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="背景分享一下前不久在 PingCAP 实习时做的有关共识算法及其应用的介绍（已经删除了部分不便公开的内容）。 这次分享主要针对 Raft 和 Paxos 做了相对详细的介绍，并从学术界和工业界的不同视角对比了他们的异同，最后也基于 TiKV 当前架构现状和其他系统的架构设计从一个 intern 的视角拍脑袋介绍了几个可能的演进方向。 回到 Raft 和 Multi Paxos 孰优孰劣这一圣战问题">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/1.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/2.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/3.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/4.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/5.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/6.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/7.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/8.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/9.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/10.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/11.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/12.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/13.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/14.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/15.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/16.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/17.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/18.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/19.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/20.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/21.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/22.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/23.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/24.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/25.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/26.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/27.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/28.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/29.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/30.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/31.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/32.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/33.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/34.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/35.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/36.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/37.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/38.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/39.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/40.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/41.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/42.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/43.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/44.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/45.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/46.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/47.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/48.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/49.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/50.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/51.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/52.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/53.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/54.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/55.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/56.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/57.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/58.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/59.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/60.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/61.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/62.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/63.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/64.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/65.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/66.png">
+<meta property="og:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/67.png">
+<meta property="article:published_time" content="2022-11-07T03:02:32.000Z">
+<meta property="article:modified_time" content="2022-11-07T03:44:30.304Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="分布式系统理论">
+<meta property="article:tag" content="共识算法">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tanxinyu.work/have-we-reached-consensus-on-consensus/1.png">
+  
+  <title>Have we reached consensus on consensus？ - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/blog-background.jpeg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Have we reached consensus on consensus？">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-11-07 11:02" pubdate>
+        2022年11月7日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.2k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      4 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Have we reached consensus on consensus？</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：几秒前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>分享一下前不久在 PingCAP 实习时做的有关共识算法及其应用的介绍（已经删除了部分不便公开的内容）。</p>
+<p>这次分享主要针对 Raft 和 Paxos 做了相对详细的介绍，并从学术界和工业界的不同视角对比了他们的异同，最后也基于 TiKV 当前架构现状和其他系统的架构设计从一个 intern 的视角拍脑袋介绍了几个可能的演进方向。</p>
+<p>回到 Raft 和 Multi Paxos 孰优孰劣这一圣战问题，可以明确的是对于普通 KV，很可能区别不大。对于结合共识和事务模块的 NewSQL 数据库，Multi-Paxos 能够在整体上为一些难点问题提供一点不一样的思路（例如增大 1PC 比例，缓解写热点问题等等），可能有更高的性能天花板。</p>
+<p>注：本文内容仅代表个人看法。</p>
+<p>注：以下仅为图片，可以在 <a href="https://vevotse3pn.feishu.cn/file/boxcnX1gpn45hpsILPUQA9r8PEf" target="_blank" rel="noopener">此处</a> 在线浏览 PPT 原件。</p>
+<h1 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h1><p><img src="/have-we-reached-consensus-on-consensus/1.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/2.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/3.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/4.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/5.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/6.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/7.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/8.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/9.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/10.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/11.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/12.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/13.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/14.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/15.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/16.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/17.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/18.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/19.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/20.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/21.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/22.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/23.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/24.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/25.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/26.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/27.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/28.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/29.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/30.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/31.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/32.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/33.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/34.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/35.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/36.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/37.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/38.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/39.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/40.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/41.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/42.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/43.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/44.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/45.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/46.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/47.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/48.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/49.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/50.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/51.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/52.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/53.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/54.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/55.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/56.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/57.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/58.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/59.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/60.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/61.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/62.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/63.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/64.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/65.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/66.png" srcset="/img/loading.gif" lazyload alt><br><img src="/have-we-reached-consensus-on-consensus/67.png" srcset="/img/loading.gif" lazyload alt></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><h2 id="论文"><a href="#论文" class="headerlink" title="论文"></a>论文</h2><ul>
+<li><a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf" target="_blank" rel="noopener">Paxos Made Simple</a></li>
+<li><a href="https://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/papers/paper2-1.pdf" target="_blank" rel="noopener">Paxos Made Live - An Engineering Perspective</a></li>
+<li><a href="https://dada.cs.washington.edu/research/tr/2009/09/UW-CSE-09-09-02.PDF" target="_blank" rel="noopener">Multi-Paxos: An Implementation and Evaluation</a></li>
+<li><a href="https://people.csail.mit.edu/malte/pub/papers/2015-osr-raft.pdf" target="_blank" rel="noopener">Raft Refloated: Do We Have Consensus?</a></li>
+<li><a href="https://www.vldb.org/pvldb/vol11/p1849-cao.pdf" target="_blank" rel="noopener">PolarFS: An Ultra-low Latency and Failure Resilient Distributed File System for Shared Storage Cloud Database</a></li>
+<li><a href="https://dl.acm.org/doi/abs/10.14778/3137765.3137778" target="_blank" rel="noopener">PaxosStore: High-availability Storage Made Practical in WeChat</a></li>
+<li><a href="https://dl.acm.org/doi/abs/10.14778/1938545.1938549" target="_blank" rel="noopener">Using Paxos to Build a Scalable, Consistent, and Highly Available Datastore</a></li>
+<li><a href="https://dl.acm.org/doi/abs/10.1145/3380787.3393681" target="_blank" rel="noopener">Paxos vs Raft: have we reached consensus on distributed consensus?</a></li>
+<li><a href="https://dl.acm.org/doi/pdf/10.1145/3293611.3331595" target="_blank" rel="noopener">On the Parallels between Paxos and Raft, and how to Port Optimizations</a></li>
+<li><a href="https://www.usenix.org/system/files/fast21-chen-hao.pdf" target="_blank" rel="noopener">SpanDB: A Fast, Cost-Effective LSM-tree Based KV Store on Hybrid Storage</a></li>
+</ul>
+<h2 id="博客"><a href="#博客" class="headerlink" title="博客"></a>博客</h2><ul>
+<li><a href="http://icyfenix.cn/distribution/consensus/raft.html" target="_blank" rel="noopener">凤凰架构 Multi-Paxos</a></li>
+<li><a href="https://mp.weixin.qq.com/s/4D5_x-Ftg8Qzl6hPdoVTxQ" target="_blank" rel="noopener">将 paxos 和 raft 统一为一个协议：abstract-paxos</a></li>
+<li><a href="https://mp.weixin.qq.com/s/3OZgqEWQcEf6V9v6eoSUUA" target="_blank" rel="noopener">可靠分布式系统-paxos 的直观解释</a></li>
+<li><a href="https://blog.csdn.net/sinat_22338935/article/details/114320664" target="_blank" rel="noopener">Page Cache 引起的业务问题处理</a></li>
+<li><a href="https://segmentfault.com/a/1190000038967218" target="_blank" rel="noopener">深入了解 MySQL 主从复制的原理</a></li>
+<li><a href="https://github.com/oceanbase/oceanbase" target="_blank" rel="noopener">OceanBase 文档</a></li>
+<li><a href="https://mp.weixin.qq.com/s/zKZrl26TIfkCK5EECLURzg" target="_blank" rel="noopener">OceanBase 社区版 4.0 发版：一个全新的里程碑</a></li>
+<li><a href="https://www.bilibili.com/video/BV14d4y1D7wz/?spm_id_from=333.337.search-card.all.click&amp;vd_source=c856dfca0df73fe9dce87bfc54acabc5" target="_blank" rel="noopener">【PingCAP Infra Meetup】No.151 TiDB 事务模型演进</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/1352070" target="_blank" rel="noopener">Paxos 和 Raft 的前世今生</a></li>
+<li><a href="https://www.infoq.cn/article/wechat-paxosstore-paxos-algorithm-protocol/" target="_blank" rel="noopener">微信 PaxosStore：深入浅出 Paxos 算法协议</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/45720365" target="_blank" rel="noopener">共识算法 之 Basic Paxos</a></li>
+<li><a href="https://www.zhihu.com/question/57321934/answer/152640954" target="_blank" rel="noopener">Paxos(Multi-Paxos) 在工程实现中需要注意哪些问题？</a></li>
+<li><a href="https://ongardie.net/static/raft/userstudy/paxos.pptx" target="_blank" rel="noopener">Implementing Replicated Logs  with Paxos</a></li>
+<li><a href="https://github.com/TPC-TiKV/rfc" target="_blank" rel="noopener">2021 TiDB Hackathon TPC-TiKV RFC</a></li>
+<li><a href="https://github.com/FWH-TiKV/RFC" target="_blank" rel="noopener">2022 TiDB Hackathon FWH-TiKV RFC</a></li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/tikv-source-code-reading-write/">
+                        <span class="hidden-mobile">TiKV 源码阅读三部曲（三）写流程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>
