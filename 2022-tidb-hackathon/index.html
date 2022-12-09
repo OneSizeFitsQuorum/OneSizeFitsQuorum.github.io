@@ -18,12 +18,12 @@
   <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
-  <meta name="description" content="背景2022 年 10 月，2022 TiDB Hackathon Possibility at Scale 成功举办。 作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。 本文将简单介绍我们组的工作和思考以做回">
+  <meta name="description" content="背景2022 年 10 月，2022 TiDB Hackathon Possibility at Scale 成功举办。 作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。 非常感谢 Hackathon 期间队友">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2022 TiDB Hackathon 产品组最佳校园奖总结">
 <meta property="og:url" content="https://tanxinyu.work/2022-tidb-hackathon/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
-<meta property="og:description" content="背景2022 年 10 月，2022 TiDB Hackathon Possibility at Scale 成功举办。 作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。 本文将简单介绍我们组的工作和思考以做回">
+<meta property="og:description" content="背景2022 年 10 月，2022 TiDB Hackathon Possibility at Scale 成功举办。 作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。 非常感谢 Hackathon 期间队友">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/1.png">
 <meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/2.png">
@@ -48,7 +48,7 @@
 <meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/21.png">
 <meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/22.png">
 <meta property="article:published_time" content="2022-12-08T12:28:07.000Z">
-<meta property="article:modified_time" content="2022-12-09T03:27:23.931Z">
+<meta property="article:modified_time" content="2022-12-09T03:43:03.908Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="分布式系统理论">
 <meta property="article:tag" content="共识算法">
@@ -281,6 +281,7 @@
             <div class="markdown-body">
               <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>2022 年 10 月，<a href="https://tidb.net/events/hackathon2022" target="_blank" rel="noopener">2022 TiDB Hackathon Possibility at Scale</a> 成功举办。</p>
 <p>作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。</p>
+<p>非常感谢 Hackathon 期间队友，mentor，组织者和评委对我们组的帮助和认可。</p>
 <p>本文将简单介绍我们组的工作和思考以做回顾。</p>
 <p>以下是我们项目的一些相关资料，欢迎点击了解：</p>
 <ul>
@@ -352,7 +353,7 @@
 <p><img src="/2022-tidb-hackathon/20.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>在收益方面，除了完全控制共识组个数和增大 1PC 比例以外，OB 4.0 更是基于自适应日志流架构重构了事务引擎，从而对大事务有了更好的支持，并基于这些工作产品化包装出了单机分布式一体化架构。这个架构的缺点就是灵活扩缩容和实时负载均衡会更难做，但如果考虑云上的部署形态，这些新的问题又可以通过其他方案来缓解。</p>
 <p><img src="/2022-tidb-hackathon/21.png" srcset="/img/loading.gif" lazyload alt></p>
-<p>总体而看，一个系统的架构设计就是要在关键模块的各种 trade-off 中做出纠结的选择，并且一旦做出了某个选择，就需要基于这个选择更进一步做非常多的产品化工作来进一步提升这些技术对于用户的实际价值。例如，TiDB 选了 TSO 的时间戳获取方案并不代表就不能服务跨数据中心场景了，其也做了 Local/Global TSO 的产品化工作来满足部分用户场景的跨数据中心需求。CRDB 用了 HLC 之后并不仅仅体现在获取事务时间戳更快，其至少还基于 HLC 在 Strong/Stale Follower Read 这一块做了许多工作来减少跨域流量从而降低成本。对于 OB，其选择了 Multi-Paxos 而不是 Raft，并且更进一步在 4.0 架构中提出了单机分布式一体化架构来解决其他数据库很难彻底解决的写热点缓解，大事务支持和 1PC 比例增大等难点。当然，这些技术和产品化的工作短期内很难形成事实标准，也都能够在各自的用户场景产生价值，至于孰优孰劣就很难客观判断了。</p>
+<p>总体而看，一个系统的架构设计就是要在关键模块的各种 trade-off 中做出纠结的选择，并且一旦做出了某个选择，就需要基于这个选择更进一步做非常多的产品化工作和优化打磨来提升这些技术对于用户的实际价值。例如，TiDB 选了 TSO 的时间戳获取方案并不代表就不能服务跨数据中心场景了，其也做了 Local/Global TSO 的产品化工作来满足部分用户场景的跨数据中心需求。CRDB 用了 HLC 之后并不仅仅体现在获取事务时间戳更快，其至少还基于 HLC 在 Strong/Stale Follower Read 这一块做了许多工作来减少跨域流量从而降低成本。对于 OB，其选择了 Multi-Paxos 而不是 Raft，并且更进一步在 4.0 架构中提出了单机分布式一体化架构来解决其他数据库很难彻底解决的写热点缓解，大事务支持和 1PC 比例增大等难点。当然，这些技术和产品化的工作短期内很难形成事实标准，也都能够在各自的用户场景产生价值，至于孰优孰劣就很难客观判断了。</p>
 <p><img src="/2022-tidb-hackathon/22.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>仅就技术而言，如同我在之前有关 <a href="https://zhuanlan.zhihu.com/p/581125699" target="_blank" rel="noopener">共识算法综述博客</a> 开头中介绍的一样，对于 Raft 和 Multi Paxos 孰优孰劣这一圣战问题，我的主观看法是对于普通 KV，很可能区别不大。对于结合共识和事务模块的 NewSQL 数据库，Multi-Paxos 能够在整体上为一些难点问题提供一点不一样的思路（例如增大 1PC 比例，缓解写热点问题，大事务支持等等），可能有更高的性能天花板。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文简要总结了 2022 TiDB Hackathon 产品组最佳校园奖热点清零队的工作，并简要分享了本人对 Raft 和 Multi-Paxos 异同的看法，希望能够引起更多的讨论。</p>
