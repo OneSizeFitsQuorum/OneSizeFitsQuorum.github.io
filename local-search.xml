@@ -4,6 +4,27 @@
   
   
   <entry>
+    <title>2022 互联网求职经验分享</title>
+    <link href="/2022-internet-job-hunting-experience-sharing/"/>
+    <url>/2022-internet-job-hunting-experience-sharing/</url>
+    
+    <content type="html"><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>在前前后后忙活了接近四个月后，我的秋招终于结束了。</p><p>这篇 <a href="https://www.zhihu.com/question/351956937/answer/2798391706" target="_blank" rel="noopener">回答</a> 分享了我几乎所有技术面的面经，本博客将结合本人在今年秋招中的经验和在院系就业分享会中的分享内容介绍一下实习和秋招各个环节的注意事项，希望能够帮助到对分布式数据库内核研发岗感兴趣的同学。</p><p>注：本文内容仅代表个人看法。</p><h1 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h1><p><img src="/2022-internet-job-hunting-experience-sharing/1.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/2.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/3.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/4.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/5.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/6.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/7.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/8.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/9.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/10.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/11.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/12.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/13.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/14.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/15.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/16.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/17.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/18.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/19.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/20.png" srcset="/img/loading.gif" lazyload alt></p><p><img src="/2022-internet-job-hunting-experience-sharing/21.png" srcset="/img/loading.gif" lazyload alt></p>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>数据库</tag>
+      
+      <tag>分享</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>2022 TiDB Hackathon 产品组最佳校园奖总结</title>
     <link href="/2022-tidb-hackathon/"/>
     <url>/2022-tidb-hackathon/</url>
@@ -40,6 +61,8 @@
       <tag>分布式系统理论</tag>
       
       <tag>共识算法</tag>
+      
+      <tag>分享</tag>
       
     </tags>
     
@@ -127,9 +150,9 @@
     
     <tags>
       
-      <tag>Rust</tag>
-      
       <tag>存储引擎</tag>
+      
+      <tag>Rust</tag>
       
     </tags>
     
@@ -163,7 +186,7 @@
     <link href="/talent-plan-transaction-talk/"/>
     <url>/talent-plan-transaction-talk/</url>
     
-    <content type="html"><![CDATA[<p>分享一下前两天在 <a href="https://tidb.net/talent-plan" target="_blank" rel="noopener">Talent Plan Community</a> 做的有关分布式事务和 Distributed-Txn 代码框架的介绍。</p><p>这次分享除了对 2021 VLDB summer school 中讲授的若干重要主题进行了概述，还着重介绍了事件排序这一很本质的问题，此外也参考了不少优质资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。由于本人水平有限，如有原理错误欢迎与我沟通~</p><p>注：以下仅为图片，可以在<a href="https://pingcap.feishu.cn/drive/folder/fldcn9zPuLSTqoL2JDQOT5jbpQd" target="_blank" rel="noopener">此处</a>在线浏览 PPT 原件和录屏。</p><p><img src="/talent-plan-transaction-talk/1.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/2.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/3.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/4.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/5.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/6.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/7.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/8.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/9.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/10.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/11.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/12.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/13.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/14.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/15.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/16.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/17.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/18.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/19.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/20.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/21.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/22.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/23.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/24.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/25.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/26.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/27.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/28.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/29.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/30.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/31.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/32.png" srcset="/img/loading.gif" lazyload alt></p>]]></content>
+    <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>分享一下前两天在 <a href="https://tidb.net/talent-plan" target="_blank" rel="noopener">Talent Plan Community</a> 做的有关分布式事务和 Distributed-Txn 代码框架的介绍。</p><p>这次分享除了对 2021 VLDB summer school 中讲授的若干重要主题进行了概述，还着重介绍了事件排序这一很本质的问题，此外也参考了不少优质资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。由于本人水平有限，如有原理错误欢迎与我沟通~</p><p>注：以下仅为图片，可以在 <a href="https://pingcap.feishu.cn/drive/folder/fldcn9zPuLSTqoL2JDQOT5jbpQd" target="_blank" rel="noopener">此处</a> 在线浏览 PPT 原件和录屏。</p><h2 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h2><p><img src="/talent-plan-transaction-talk/1.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/2.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/3.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/4.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/5.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/6.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/7.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/8.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/9.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/10.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/11.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/12.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/13.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/14.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/15.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/16.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/17.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/18.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/19.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/20.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/21.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/22.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/23.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/24.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/25.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/26.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/27.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/28.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/29.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/30.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/31.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/32.png" srcset="/img/loading.gif" lazyload alt></p>]]></content>
     
     
     
@@ -184,7 +207,7 @@
     <link href="/talent-plan-raft-talk/"/>
     <url>/talent-plan-raft-talk/</url>
     
-    <content type="html"><![CDATA[<p>分享一下前不久在 <a href="https://tidb.net/talent-plan" target="_blank" rel="noopener">Talent Plan Community</a> 做的有关 Raft 算法和 Etcd/TinyKV 代码框架的介绍。</p><p>这次分享对 Raft 算法和对应实现做了较为系统的调研整理，不仅对若干经典问题做了介绍，也提供了不少优质参考资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。</p><p>注：以下仅为图片，可以在<a href="https://vevotse3pn.feishu.cn/file/boxcn6tQX2I5QxyLM4ZGGVu2wmd" target="_blank" rel="noopener">此处</a>在线浏览 PPT 原件。</p><p><img src="/talent-plan-raft-talk/1.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/2.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/3.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/4.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/5.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/6.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/7.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/8.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/9.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/10.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/11.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/12.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/13.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/14.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/15.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/16.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/17.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/18.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/19.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/20.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/21.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/22.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/23.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/24.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/25.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/26.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/27.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/28.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/29.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/30.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/31.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/32.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/33.png" srcset="/img/loading.gif" lazyload alt></p>]]></content>
+    <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>分享一下前不久在 <a href="https://tidb.net/talent-plan" target="_blank" rel="noopener">Talent Plan Community</a> 做的有关 Raft 算法和 Etcd/TinyKV 代码框架的介绍。</p><p>这次分享对 Raft 算法和对应实现做了较为系统的调研整理，不仅对若干经典问题做了介绍，也提供了不少优质参考资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。</p><p>注：以下仅为图片，可以在 <a href="https://vevotse3pn.feishu.cn/file/boxcn6tQX2I5QxyLM4ZGGVu2wmd" target="_blank" rel="noopener">此处</a> 在线浏览 PPT 原件。</p><h2 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h2><p><img src="/talent-plan-raft-talk/1.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/2.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/3.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/4.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/5.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/6.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/7.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/8.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/9.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/10.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/11.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/12.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/13.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/14.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/15.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/16.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/17.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/18.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/19.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/20.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/21.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/22.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/23.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/24.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/25.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/26.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/27.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/28.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/29.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/30.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/31.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/32.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-raft-talk/33.png" srcset="/img/loading.gif" lazyload alt></p>]]></content>
     
     
     
@@ -213,9 +236,9 @@
     
     <tags>
       
-      <tag>IoTDB</tag>
-      
       <tag>年终总结</tag>
+      
+      <tag>IoTDB</tag>
       
     </tags>
     
@@ -276,9 +299,9 @@
     
     <tags>
       
-      <tag>测试</tag>
-      
       <tag>IoTDB</tag>
+      
+      <tag>测试</tag>
       
     </tags>
     

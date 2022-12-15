@@ -18,12 +18,12 @@
   <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
-  <meta name="description" content="分享一下前两天在 Talent Plan Community 做的有关分布式事务和 Distributed-Txn 代码框架的介绍。 这次分享除了对 2021 VLDB summer school 中讲授的若干重要主题进行了概述，还着重介绍了事件排序这一很本质的问题，此外也参考了不少优质资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。由于本人水平有限，如有原理错误欢迎与我沟通~ 注">
+  <meta name="description" content="背景分享一下前两天在 Talent Plan Community 做的有关分布式事务和 Distributed-Txn 代码框架的介绍。 这次分享除了对 2021 VLDB summer school 中讲授的若干重要主题进行了概述，还着重介绍了事件排序这一很本质的问题，此外也参考了不少优质资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。由于本人水平有限，如有原理错误欢迎与我沟通~">
 <meta property="og:type" content="article">
 <meta property="og:title" content="分布式事务概述和对应代码框架介绍">
 <meta property="og:url" content="https://tanxinyu.work/talent-plan-transaction-talk/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
-<meta property="og:description" content="分享一下前两天在 Talent Plan Community 做的有关分布式事务和 Distributed-Txn 代码框架的介绍。 这次分享除了对 2021 VLDB summer school 中讲授的若干重要主题进行了概述，还着重介绍了事件排序这一很本质的问题，此外也参考了不少优质资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。由于本人水平有限，如有原理错误欢迎与我沟通~ 注">
+<meta property="og:description" content="背景分享一下前两天在 Talent Plan Community 做的有关分布式事务和 Distributed-Txn 代码框架的介绍。 这次分享除了对 2021 VLDB summer school 中讲授的若干重要主题进行了概述，还着重介绍了事件排序这一很本质的问题，此外也参考了不少优质资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。由于本人水平有限，如有原理错误欢迎与我沟通~">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/talent-plan-transaction-talk/1.png">
 <meta property="og:image" content="https://tanxinyu.work/talent-plan-transaction-talk/2.png">
@@ -58,7 +58,7 @@
 <meta property="og:image" content="https://tanxinyu.work/talent-plan-transaction-talk/31.png">
 <meta property="og:image" content="https://tanxinyu.work/talent-plan-transaction-talk/32.png">
 <meta property="article:published_time" content="2022-04-21T09:44:10.000Z">
-<meta property="article:modified_time" content="2022-04-27T09:51:24.000Z">
+<meta property="article:modified_time" content="2022-12-15T02:38:37.881Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="分布式系统理论">
 <meta property="article:tag" content="分享">
@@ -233,7 +233,7 @@
   
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      211 字
+      215 字
     </span>
   
 
@@ -283,15 +283,15 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：7 个月前
+                  本文最后更新于：1 分钟前
                 
               </p>
             
             <div class="markdown-body">
-              <p>分享一下前两天在 <a href="https://tidb.net/talent-plan" target="_blank" rel="noopener">Talent Plan Community</a> 做的有关分布式事务和 Distributed-Txn 代码框架的介绍。</p>
+              <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>分享一下前两天在 <a href="https://tidb.net/talent-plan" target="_blank" rel="noopener">Talent Plan Community</a> 做的有关分布式事务和 Distributed-Txn 代码框架的介绍。</p>
 <p>这次分享除了对 2021 VLDB summer school 中讲授的若干重要主题进行了概述，还着重介绍了事件排序这一很本质的问题，此外也参考了不少优质资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。由于本人水平有限，如有原理错误欢迎与我沟通~</p>
-<p>注：以下仅为图片，可以在<a href="https://pingcap.feishu.cn/drive/folder/fldcn9zPuLSTqoL2JDQOT5jbpQd" target="_blank" rel="noopener">此处</a>在线浏览 PPT 原件和录屏。</p>
-<p><img src="/talent-plan-transaction-talk/1.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/2.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/3.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/4.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/5.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/6.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/7.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/8.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/9.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/10.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/11.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/12.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/13.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/14.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/15.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/16.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/17.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/18.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/19.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/20.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/21.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/22.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/23.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/24.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/25.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/26.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/27.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/28.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/29.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/30.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/31.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/32.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>注：以下仅为图片，可以在 <a href="https://pingcap.feishu.cn/drive/folder/fldcn9zPuLSTqoL2JDQOT5jbpQd" target="_blank" rel="noopener">此处</a> 在线浏览 PPT 原件和录屏。</p>
+<h2 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h2><p><img src="/talent-plan-transaction-talk/1.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/2.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/3.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/4.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/5.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/6.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/7.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/8.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/9.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/10.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/11.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/12.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/13.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/14.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/15.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/16.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/17.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/18.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/19.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/20.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/21.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/22.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/23.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/24.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/25.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/26.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/27.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/28.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/29.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/30.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/31.png" srcset="/img/loading.gif" lazyload alt><br><img src="/talent-plan-transaction-talk/32.png" srcset="/img/loading.gif" lazyload alt></p>
 
             </div>
             <hr>
