@@ -26,10 +26,10 @@
 <meta property="og:description" content="前言忙忙碌碌又是一年，终于到了 2022 年底。去年第一次写年终总结受到了不少的关注，我在这一年里也时常会重读自己的 2021 年终总结来鞭策自己。今年由于家里的特殊原因需要在医院过年，时间比较仓促，勉强抽出了一天的时间来简短写写年终总结。一方面是给 2022 年的自己一个交代，另一方面也是给 2023 年的自己一个警醒。希望我的经历和感悟能给大家一些启发。 首先依然是自我介绍环节，我叫谭新宇，清">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-01-19T04:00:33.000Z">
-<meta property="article:modified_time" content="2023-01-21T06:55:53.984Z">
+<meta property="article:modified_time" content="2023-01-21T08:13:59.901Z">
 <meta property="article:author" content="谭新宇">
-<meta property="article:tag" content="年终总结">
 <meta property="article:tag" content="IoTDB">
+<meta property="article:tag" content="年终总结">
 <meta name="twitter:card" content="summary_large_image">
   
   <title>2022 年终总结：定位自我，扬帆起航 - 谭新宇的博客</title>
@@ -269,7 +269,7 @@
 <p>8-10 月，我海投了很多感兴趣的数据库团队，并以没有任何职业背景的身份参加了 41 场秋招面试。虽然非常忙碌，但这些面试尤其是终面加面环节对我技术的成长和产品思维的提升有很大的帮助。在面试过程中我也有幸认识了很多大佬，并幸运地拿到了不少 offer，在这里表达对相关面试官和 HR 的真诚感谢。</p>
 <p>10 月中旬，我被评选为了 2022 软件学院科研科创年度人物，这令我诚惶诚恐。在我看来，这个奖项更适合论文发到手软的大佬例如海巨林老板。询问之后发现现在的评审规则中也包含了开源贡献，所以现在做系统做工程的同学也可以得到学院的认可。在这里也真诚感谢学院对我的认可。</p>
 <p>10 月下旬，我和祥威洪胤子阳参加了 2022 TiDB Hackathon，并最终拿到了产品组的最佳校园奖。在这次 Hackathon 中，从技术上我们为 TiKV 做了 Parallel Apply 的优化 Demo；从产品上我们在高并发批量写入热点场景会有不错的收益。我们模拟了银行清算结算等跑批业务的极致情况，在 60 并发下，不同 BatchSize 的批量写入性能提升 89.4%~119.0%。TiKV CPU 利用率从 700% 左右提升至 1500% 左右。我们也尝试了通用的批量导入热点场景，对于 TPCC prepare，在 1024 BatchSize 下，不同并发批量写入性能提升 29.8%~36.0%，TiKV CPU 利用率也从 750% 左右提升至 1000% 左右。通过这次 Hackathon，结合 OB 4.0 版本自适应日志流的设计，我们对 Raft 和 Multi-Paxos 的异同有了更深刻的理解。总体而看，一个系统的架构设计就是要在关键模块的各种 trade-off 中做出纠结的选择，并且一旦做出了某个选择，就需要基于这个选择更进一步做非常多的产品化工作和优化打磨来提升这些技术对于用户的实际价值。例如，TiDB 选了 TSO 的时间戳获取方案并不代表就不能服务跨数据中心场景了，其也做了 Local/Global TSO 的产品化工作来满足部分用户场景的跨数据中心需求。CRDB 用了 HLC 之后并不仅仅体现在获取事务时间戳更快，其至少还基于 HLC 在 Strong/Stale Follower Read 这一块做了许多工作来减少跨域流量从而降低成本。对于 OB，其选择了 Multi-Paxos 而不是 Raft，并且更进一步在 4.0 架构中提出了单机分布式一体化架构来解决其他数据库很难彻底解决的写热点缓解，大事务支持和 1PC 比例增大等难点。当然，这些技术和产品化的工作短期内很难形成事实标准，也都能够在各自的用户场景产生价值，至于孰优孰劣就很难客观判断了。</p>
-<p>11 月，我手上的秋招 offer 陆陆续续开奖了，这期间涉及到了非常复杂的心理变化。有期待，有失望，有惊喜，有反思，有迷茫，有透彻。对于最终选择去哪里，我纠结了许久，请教了很多朋友，前辈，同学，师兄，父母和导师的意见。其实选择哪条路都不会太差，主要还是需要剖析自己更喜欢怎样的工作方式，并且说服自己一旦做出选择后就不再患得患失。最终我的导师王建民老师，以及东哥乔老师都对我的就业方向和未来发展路径给予了中肯的建议，促使我选择了 Apache IoTDB 的商业化公司天谋科技继续做 IoTDB。我非常感谢研究生期间 IoTDB 这个大平台对我的帮助，也希望自己未来能够继续在这个大平台发光发热。</p>
+<p>11 月，我手上的秋招 offer 陆陆续续开奖了，这期间涉及到了非常复杂的心理变化。有期待，有失望，有惊喜，有反思，有迷茫，有透彻。对于最终选择去哪里，我纠结了许久，请教了很多朋友，前辈，同学，师兄，父母和导师的意见。其实选择哪条路都不会太差，主要还是需要剖析自己更喜欢怎样的工作方式，并且说服自己一旦做出选择后就不再患得患失。此外王老师东哥乔老师都对我的就业方向和未来发展路径给予了中肯的建议，最终我选择了 Apache IoTDB 的商业化公司天谋科技继续做 IoTDB。我非常感谢研究生期间 IoTDB 这个大平台对我的帮助，也希望自己未来能够继续在这个大平台发光发热。</p>
 <p>12 月，Apache IoTDB 的 1.0 版本发布了，这次新版本凝聚了整个社区的智慧和力量，标志着 Apache IoTDB 从此彻底拥有分布式，为后续产品快速发展奠定了良好基础。选择留下的我也和洪胤子阳湘鹏组成了系统优化小组，不断扩大我们的 scope 去和 IoTDB 一块成长了~</p>
 <p>今年我在 Apache IoTDB 社区 Review 了 187 个 PR，提交并被合并了 48 个 PR。今年的工作有很多新颖的东西，希望明年能够继续保持下去。</p>
 <p>今年我在知乎上写了几十篇博客和回答，粉丝数和点赞数相比去年同期有了接近 10 倍的增长。Github 上的 Follower 数和个人仓库 Star 数也有了 6 倍多的增长。希望自己明年还能继续坚持输出有价值有意思的知识。</p>
@@ -318,9 +318,9 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">年终总结</a>
-                    
                       <a class="hover-with-bg" href="/tags/IoTDB/">IoTDB</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">年终总结</a>
                     
                   </div>
                 
@@ -618,5 +618,20 @@
 <script  src="/js/boot.js" ></script>
 
 
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
 </html>
