@@ -15,10 +15,10 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
-  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  
+    <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
 <meta property="og:type" content="website">
 <meta property="og:title" content="谭新宇的博客">
 <meta property="og:url" content="https://tanxinyu.work/page/2/index.html">
@@ -28,15 +28,22 @@
 <meta property="article:author" content="谭新宇">
 <meta name="twitter:card" content="summary_large_image">
   
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
   <title>谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
 
 
-<!-- 主题依赖的图标库，不要自行修改 -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -45,22 +52,56 @@
 
 <link  rel="stylesheet" href="/css/main.css" />
 
-<!-- 自定义样式保持在最底部 -->
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
 
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
-<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
 </head>
 
 
 <body>
-  <header style="height: 100vh;">
-    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
       <strong>TXY</strong>
@@ -81,9 +122,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/">
+              <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
-                首页
+                <span>首页</span>
               </a>
             </li>
           
@@ -93,9 +134,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/archives/">
+              <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
-                归档
+                <span>归档</span>
               </a>
             </li>
           
@@ -105,9 +146,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/tags/">
+              <a class="nav-link" href="/tags/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
-                标签
+                <span>标签</span>
               </a>
             </li>
           
@@ -117,9 +158,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/about/">
+              <a class="nav-link" href="/about/" target="_self">
                 <i class="iconfont icon-user-fill"></i>
-                关于
+                <span>关于</span>
               </a>
             </li>
           
@@ -129,9 +170,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/links/">
+              <a class="nav-link" href="/links/" target="_self">
                 <i class="iconfont icon-link-fill"></i>
-                友链
+                <span>友链</span>
               </a>
             </li>
           
@@ -139,14 +180,16 @@
         
           <li class="nav-item" id="search-btn">
             <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+              <i class="iconfont icon-search"></i>
             </a>
           </li>
+          
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
           </li>
         
       </ul>
@@ -154,34 +197,40 @@
   </div>
 </nav>
 
-    <div class="banner" id="banner" parallax=true
-         style="background: url('/img/blog-background.jpeg') no-repeat center center;
-           background-size: cover;">
-      <div class="full-bg-img">
-        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-          <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="Make Each Day Count">
-              
-            </span>
+  
 
-            
-          </div>
-
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/blog-background.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
           
-            <div class="scroll-down-bar">
-              <i class="iconfont icon-arrowdown"></i>
-            </div>
+            <span id="subtitle" data-typed-text="Make Each Day Count"></span>
           
         </div>
+
+        
       </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
     </div>
+  </div>
+</div>
+
+</div>
+
   </header>
 
   <main>
     
       <div class="container nopadding-x-md">
-        <div class="py-5" id="board"
-          style=margin-top:0>
+        <div id="board"
+          style="margin-top: 0">
           
           <div class="container">
             <div class="row">
@@ -199,26 +248,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/talent-plan-raft-talk/" target="_self">
           Raft 算法和对应代码框架介绍
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/talent-plan-raft-talk/" target="_self">
-          
-          
-            
-          
-          背景分享一下前不久在 Talent Plan Community 做的有关 Raft 算法和 Etcd/TinyKV 代码框架的介绍。
-这次分享对 Raft 算法和对应实现做了较为系统的调研整理，不仅对若干经典问题做了介绍，也提供了不少优质参考资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。
-注：以下仅为图片，可以在 此处 在线浏览 PPT 原件。
-内容
-
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/talent-plan-raft-talk/" target="_self">
+        <div>
+          背景分享一下前不久在 Talent Plan Community 做的有关 Raft 算法和 Etcd/TinyKV 代码框架的介绍。 这次分享对 Raft 算法和对应实现做了较为系统的调研整理，不仅对若干经典问题做了介绍，也提供了不少优质参考资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。 注：以下仅为图片，可以在 此处 在线浏览 PPT 原件。 内容
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -234,11 +276,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E4%BA%AB/">#分享</a>
             
-              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E5%88%86%E4%BA%AB/">分享</a>
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
             
           </div>
         
@@ -256,23 +298,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/2021-annual-summary/" target="_self">
           2021 年终总结：记我在清华 Apache IoTDB 组的成长
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/2021-annual-summary/" target="_self">
-          
-          
-            
-          
-          前言2021 年即将结束，这一年忙忙碌碌收获许多，也认识到了定期总结定期反省的重要性。今年回家后意识到自己应该养成写年终总结的习惯了，于是断断续续用近一周的时间写了第一次年终总结，算给自己的一整年一个交代。希望我的经历和感悟能给大家一些启发。
-首先进行一个简单的自我介绍，我叫谭新宇，清华本硕，现在清华大学软件学院 Apache IoTDB 组就读研二，师从王建民/黄向东老师，我对分布式系统，时序数
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/2021-annual-summary/" target="_self">
+        <div>
+          前言2021 年即将结束，这一年忙忙碌碌收获许多，也认识到了定期总结定期反省的重要性。今年回家后意识到自己应该养成写年终总结的习惯了，于是断断续续用近一周的时间写了第一次年终总结，算给自己的一整年一个交代。希望我的经历和感悟能给大家一些启发。 首先进行一个简单的自我介绍，我叫谭新宇，清华本硕，现在清华大学软件学院 Apache IoTDB 组就读研二，师从王建民/黄向东老师，我对分布式系统，时序数
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -288,9 +326,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/IoTDB/">IoTDB</a>
+              <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">#年终总结</a>
             
-              <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">年终总结</a>
+              <a href="/tags/IoTDB/">#IoTDB</a>
             
           </div>
         
@@ -308,23 +346,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/tinykv/" target="_self">
           2021 Talent Plan KV 学习营结营总结
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/tinykv/" target="_self">
-          
-          
-            
-          
-          背景2021 年 11 月 ~ 2022 年 1 月 ，PingCAP 举办了第一届 Talent Plan KV 学习营，相关介绍可参考 推送。
-在本次比赛中，由于我们小组的两位成员之前都刷过 MIT 6.824，已经对教学级别的 raft 有一定的了解，所以参加此次比赛的目的就是去感受一下生产级别分布式 KV 的代码实现，学习实践一下 lsm, etcd, raftstore 和 percol
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/tinykv/" target="_self">
+        <div>
+          背景2021 年 11 月 ~ 2022 年 1 月 ，PingCAP 举办了第一届 Talent Plan KV 学习营，相关介绍可参考 推送。 在本次比赛中，由于我们小组的两位成员之前都刷过 MIT 6.824，已经对教学级别的 raft 有一定的了解，所以参加此次比赛的目的就是去感受一下生产级别分布式 KV 的代码实现，学习实践一下 lsm, etcd, raftstore 和 percol
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -340,11 +374,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
             
           </div>
         
@@ -362,24 +396,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/jiu-kun-parallel-program-optimization-contest/" target="_self">
           第一届九坤并行程序优化大赛总结
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/jiu-kun-parallel-program-optimization-contest/" target="_self">
-          
-          
-            
-          
-          背景2021 年 9 月，量化头部公司九坤举办了其第一届并行程序优化大赛，相关介绍可参考 推送。赛题如下：
-
-赛题是 C/C++ 的 codebase，然而我与一起组队的两位同学基本都对 C/C++ 不太熟悉，于是我们起名叫做了”只会 JAVA 队”。作为三个在体系结构几乎一窍不通的小白，在一个多月断断续续的不到 10 次线下沟通中，我们逐渐对体系结构入了门，在 192 个队伍脱颖而出，并在决赛取
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/jiu-kun-parallel-program-optimization-contest/" target="_self">
+        <div>
+          背景2021 年 9 月，量化头部公司九坤举办了其第一届并行程序优化大赛，相关介绍可参考 推送。赛题如下：  赛题是 C/C++ 的 codebase，然而我与一起组队的两位同学基本都对 C/C++ 不太熟悉，于是我们起名叫做了”只会 JAVA 队”。作为三个在体系结构几乎一窍不通的小白，在一个多月断断续续的不到 10 次线下沟通中，我们逐渐对体系结构入了门，在 192 个队伍脱颖而出，并在决赛取
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -395,7 +424,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E9%AB%98%E6%80%A7%E8%83%BD%E8%AE%A1%E7%AE%97/">高性能计算</a>
+              <a href="/tags/%E9%AB%98%E6%80%A7%E8%83%BD%E8%AE%A1%E7%AE%97/">#高性能计算</a>
             
           </div>
         
@@ -413,25 +442,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/2021-summer-of-code/" target="_self">
           2021 中科院开源之夏总结
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/2021-summer-of-code/" target="_self">
-          
-          
-            
-          
-          2021 年暑假，我参与了中科院组织的开源之夏活动，题目为 《Apache IoTDB 分布式混沌测试框架》。
-有关该项目的详细信息可以查看该 文档。
-从结果来看，这份工作发现了 Apache IoTDB 当前分布式版本存在的很多问题，有一些容易解决的问题已经得到了修复，然而也有一些较复杂的问题到今天依然存在，这也多多少少间接引起了我们的一次大规模重构，勉强算是一件有意义的工作吧。
-令人略感遗憾的
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/2021-summer-of-code/" target="_self">
+        <div>
+          2021 年暑假，我参与了中科院组织的开源之夏活动，题目为 《Apache IoTDB 分布式混沌测试框架》。 有关该项目的详细信息可以查看该 文档。 从结果来看，这份工作发现了 Apache IoTDB 当前分布式版本存在的很多问题，有一些容易解决的问题已经得到了修复，然而也有一些较复杂的问题到今天依然存在，这也多多少少间接引起了我们的一次大规模重构，勉强算是一件有意义的工作吧。 令人略感遗憾的
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -447,9 +470,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E6%B5%8B%E8%AF%95/">测试</a>
+              <a href="/tags/IoTDB/">#IoTDB</a>
             
-              <a href="/tags/IoTDB/">IoTDB</a>
+              <a href="/tags/%E6%B5%8B%E8%AF%95/">#测试</a>
             
           </div>
         
@@ -467,23 +490,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/15-445/" target="_self">
           15-445 数据库课程学习总结
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/15-445/" target="_self">
-          
-          
-            
-          
-          背景众所周知，CMU 15-445/721 是数据库的入门神课，类似于 MIT 6.824 之于分布式系统一样。由于前半年学习了 MIT 6.824 课程后感觉个人收获很大，因此在今年暑假，我抽时间学习完了 CMU 15-445 的网课，现做一概要总结。
-总结15-445 可以当做数据库的入门课程，授课老师是著名网红教授 Andy Pavlo，以下是他的 Google Scholar 主页，还是非
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/15-445/" target="_self">
+        <div>
+          背景众所周知，CMU 15-445/721 是数据库的入门神课，类似于 MIT 6.824 之于分布式系统一样。由于前半年学习了 MIT 6.824 课程后感觉个人收获很大，因此在今年暑假，我抽时间学习完了 CMU 15-445 的网课，现做一概要总结。 总结15-445 可以当做数据库的入门课程，授课老师是著名网红教授 Andy Pavlo，以下是他的 Google Scholar 主页，还是非
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -499,9 +518,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">#数据库</a>
             
-              <a href="/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/">网红课</a>
+              <a href="/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/">#网红课</a>
             
           </div>
         
@@ -519,31 +538,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/awesome-blog/" target="_self">
           Awesome 学习资料分享
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/awesome-blog/" target="_self">
-          
-          
-            
-          
-          计划长期维护一个自己学习过且觉得不错的资料列表，希望自己不断更新：
-
-重学 Java 设计模式
-什么是“凤凰架构”
-程序员的自我修养
-为什么系列
-DDIA
-线上故障排查全套路
-
-
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/awesome-blog/" target="_self">
+        <div>
+          计划长期维护一个自己学习过且觉得不错的资料列表，希望自己不断更新：  重学 Java 设计模式 什么是“凤凰架构” 程序员的自我修养 为什么系列 DDIA 线上故障排查全套路
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -559,7 +566,7 @@ DDIA
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%BC%80%E6%BA%90/">开源</a>
+              <a href="/tags/%E5%BC%80%E6%BA%90/">#开源</a>
             
           </div>
         
@@ -577,26 +584,19 @@ DDIA
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/6-824/" target="_self">
           6.824 分布式系统课程学习总结
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/6-824/" target="_self">
-          
-          
-            
-          
-          Lab2021 年 6 月 30 日，本人总算刷完了 6.824 的 lab 并整理完了文档，发篇博客庆祝一下！！！
-目前能够稳定通过 6.824 lab 所有的测试，并尽可能的提升了代码可读性。
-不保证绝对的 bug-free，但每个 lab 均测试 500 次以上，无一 fail。
-为了遵守课程代码开放协议，只开源了文档，具体可参考 repo。
-配合 raft 博士论文翻译 和 raft 算法
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/6-824/" target="_self">
+        <div>
+          Lab2021 年 6 月 30 日，本人总算刷完了 6.824 的 lab 并整理完了文档，发篇博客庆祝一下！！！ 目前能够稳定通过 6.824 lab 所有的测试，并尽可能的提升了代码可读性。 不保证绝对的 bug-free，但每个 lab 均测试 500 次以上，无一 fail。 为了遵守课程代码开放协议，只开源了文档，具体可参考 repo。 配合 raft 博士论文翻译 和 raft 算法
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -612,13 +612,13 @@ DDIA
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/">网红课</a>
+              <a href="/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/">#网红课</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
             
           </div>
         
@@ -636,28 +636,19 @@ DDIA
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/cops-thesis/" target="_self">
           COPS 论文阅读
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/cops-thesis/" target="_self">
-          
-          
-            
-          
-          背景考虑这么一个问题：对于大型网站的异地复制，公司存在多个数据中心，每个数据中心拥有全量数据，读均为本地读。那么写应该怎么实现？一致性应该如何取舍？
-对于以上背景，Spanner 和 Facebook/Memcached 已经给出了他们自己的解决方案：
-
-Spanner： 
-线性一致性。
-通过 Paxos 和 2PC 实现分布式写事务。
-写入需要等待 quorum 的数据中心返回 ack，性能较低
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/cops-thesis/" target="_self">
+        <div>
+          背景考虑这么一个问题：对于大型网站的异地复制，公司存在多个数据中心，每个数据中心拥有全量数据，读均为本地读。那么写应该怎么实现？一致性应该如何取舍？ 对于以上背景，Spanner 和 Facebook/Memcached 已经给出了他们自己的解决方案：  Spanner：  线性一致性。 通过 Paxos 和 2PC 实现分布式写事务。 写入需要等待 quorum 的数据中心返回 ack，性能较低
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -673,9 +664,9 @@ Spanner：
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
             
           </div>
         
@@ -693,24 +684,19 @@ Spanner：
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/scaling-memcached-thesis/" target="_self">
           Facebook 的 Memcached 系统扩展论文阅读
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/scaling-memcached-thesis/" target="_self">
-          
-          
-            
-          
-          背景本篇论文由 Facebook 2013 年在 NSDI 上发表，其系统地介绍了 Facebook 公司内部对于大规模缓存系统的使用实践。
-这篇论文没有太多新的想法，但却传达了一个很重要的理念：不同的场景有不同的系统需求。在成本有限的情况下，并不一定线性一致性就是最好的，对于有些场景，最终一致性带来的收益远超我们的想像。
-对于大部分 2C 应用，随着用户数量的逐渐增加，其后台数据存储系统大致是如
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/scaling-memcached-thesis/" target="_self">
+        <div>
+          背景本篇论文由 Facebook 2013 年在 NSDI 上发表，其系统地介绍了 Facebook 公司内部对于大规模缓存系统的使用实践。 这篇论文没有太多新的想法，但却传达了一个很重要的理念：不同的场景有不同的系统需求。在成本有限的情况下，并不一定线性一致性就是最好的，对于有些场景，最终一致性带来的收益远超我们的想像。 对于大部分 2C 应用，随着用户数量的逐渐增加，其后台数据存储系统大致是如
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -726,9 +712,9 @@ Spanner：
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
             
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
             
           </div>
         
@@ -773,56 +759,58 @@ Spanner：
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v"
-                 for="local-search-input">关键词</label>
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
     </div>
   </div>
 </div>
+
     
 
     
   </main>
 
-  <footer class="text-center mt-5 py-3">
-  <div class="footer-content">
-     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-  </div>
+  <footer>
+    <div class="footer-inner">
   
-  <div class="statistics">
-    
-    
-
-    
-      
-        <!-- 不蒜子统计PV -->
-        <span id="busuanzi_container_site_pv" style="display: none">
-            总访问量 
-            <span id="busuanzi_value_site_pv"></span>
-             次
-          </span>
-      
-      
-        <!-- 不蒜子统计UV -->
-        <span id="busuanzi_container_site_uv" style="display: none">
-            总访客数 
-            <span id="busuanzi_value_site_uv"></span>
-             人
-          </span>
-      
-    
-  </div>
-
-
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
   
 
   
-</footer>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
 
+  
+  
+  
+</div>
 
-  <!-- SCRIPTS -->
+  </footer>
+
+  <!-- Scripts -->
   
   <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
@@ -841,10 +829,22 @@ Spanner：
 <script  src="/js/events.js" ></script>
 <script  src="/js/plugins.js" ></script>
 
-<!-- Plugins -->
 
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
 
-  <script  src="/js/local-search.js" ></script>
 
 
 
@@ -854,59 +854,25 @@ Spanner：
 
 
 
-  
 
-
-
-
+  <script  src="/js/local-search.js" ></script>
 
   <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var title = document.getElementById('subtitle').title;
-      
-      typing(title)
-      
-    })(window, document);
-  </script>
 
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-
-
-
-
-<!-- 主题的启动项 保持在最底部 -->
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
 <script  src="/js/boot.js" ></script>
 
 
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         tex2jax: {

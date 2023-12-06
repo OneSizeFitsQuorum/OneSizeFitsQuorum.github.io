@@ -15,70 +15,47 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
-  <meta name="description" content="版本 官网版本  前期准备Rust 学习  半小时学习 Rust Rustling 及 解答 Rust 语言圣经 及 习题 Rust 官方文档  Percolator 学习  论文 TinyKV lab4 文档  过关思路在基本环境搭建好之后，观察发现 lab 只有 13 个测试，测试全部 AC 即可通过项目。实际上一个生产级别的 Percolator 实现这些测试是远远不够的，需要考虑和测试的">
+  
+    <meta name="description" content="版本 官网版本  前期准备Rust 学习  半小时学习 Rust Rustling 及 解答 Rust 语言圣经 及 习题 Rust 官方文档  Percolator 学习  论文 TinyKV lab4 文档  过关思路在基本环境搭建好之后，观察发现 lab 只有 13 个测试，测试全部 AC 即可通过项目。实际上一个生产级别的 Percolator 实现这些测试是远远不够的，需要考虑和测试的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Talent-Plan：用 Rust 实现 Percolator 算法">
 <meta property="og:url" content="https://tanxinyu.work/percolator-in-rust/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="版本 官网版本  前期准备Rust 学习  半小时学习 Rust Rustling 及 解答 Rust 语言圣经 及 习题 Rust 官方文档  Percolator 学习  论文 TinyKV lab4 文档  过关思路在基本环境搭建好之后，观察发现 lab 只有 13 个测试，测试全部 AC 即可通过项目。实际上一个生产级别的 Percolator 实现这些测试是远远不够的，需要考虑和测试的">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/0.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/1.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/2.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/3.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/4.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/5.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/6.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/7.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/8.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/9.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/10.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/11.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/12.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/13.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/14.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/15.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/16.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/17.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/18.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/19.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/20.png">
-<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/21.png">
+<meta property="og:image" content="https://tanxinyu.work/percolator-in-rust/talent-plan-logo.png">
 <meta property="article:published_time" content="2022-08-25T03:36:53.000Z">
 <meta property="article:modified_time" content="2023-01-18T15:19:18.277Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="分布式系统理论">
 <meta property="article:tag" content="Rust">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://tanxinyu.work/percolator-in-rust/0.png">
+<meta name="twitter:image" content="https://tanxinyu.work/percolator-in-rust/talent-plan-logo.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
   
   <title>Talent-Plan：用 Rust 实现 Percolator 算法 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
 
+
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+
   <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-  
-    
-    
-      
-      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
-    
-  
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
 
-  
-    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
-  
 
 
 <!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -87,22 +64,56 @@
 
 <link  rel="stylesheet" href="/css/main.css" />
 
-<!-- 自定义样式保持在最底部 -->
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
 
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
-<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
 </head>
 
 
 <body>
-  <header style="height: 70vh;">
-    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
       <strong>TXY</strong>
@@ -123,9 +134,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/">
+              <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
-                首页
+                <span>首页</span>
               </a>
             </li>
           
@@ -135,9 +146,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/archives/">
+              <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
-                归档
+                <span>归档</span>
               </a>
             </li>
           
@@ -147,9 +158,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/tags/">
+              <a class="nav-link" href="/tags/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
-                标签
+                <span>标签</span>
               </a>
             </li>
           
@@ -159,9 +170,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/about/">
+              <a class="nav-link" href="/about/" target="_self">
                 <i class="iconfont icon-user-fill"></i>
-                关于
+                <span>关于</span>
               </a>
             </li>
           
@@ -171,9 +182,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/links/">
+              <a class="nav-link" href="/links/" target="_self">
                 <i class="iconfont icon-link-fill"></i>
-                友链
+                <span>友链</span>
               </a>
             </li>
           
@@ -181,14 +192,16 @@
         
           <li class="nav-item" id="search-btn">
             <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+              <i class="iconfont icon-search"></i>
             </a>
           </li>
+          
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
           </li>
         
       </ul>
@@ -196,65 +209,79 @@
   </div>
 </nav>
 
-    <div class="banner" id="banner" parallax=true
-         style="background: url('/img/blog-background.jpeg') no-repeat center center;
-           background-size: cover;">
-      <div class="full-bg-img">
-        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-          <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="Talent-Plan：用 Rust 实现 Percolator 算法">
-              
-            </span>
-
-            
-              <div class="mt-3">
-  
-  
-    <span class="post-meta">
-      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2022-08-25 11:36" pubdate>
-        2022年8月25日 中午
-      </time>
-    </span>
-  
-</div>
-
-<div class="mt-1">
-  
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-chart"></i>
-      2.1k 字
-    </span>
   
 
-  
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-clock-fill"></i>
-      
-      
-      7 分钟
-    </span>
-  
-
-  
-  
-    
-      <!-- 不蒜子统计文章PV -->
-      <span id="busuanzi_container_page_pv" style="display: none">
-        <i class="iconfont icon-eye" aria-hidden="true"></i>
-        <span id="busuanzi_value_page_pv"></span> 次
-      </span>
-    
-  
-</div>
-
-            
-          </div>
-
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/blog-background.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Talent-Plan：用 Rust 实现 Percolator 算法"></span>
           
         </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-08-25 11:36" pubdate>
+          2022年8月25日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          685 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          3 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
       </div>
+
+      
     </div>
+  </div>
+</div>
+
+</div>
+
   </header>
 
   <main>
@@ -263,35 +290,43 @@
 
 <div class="container-fluid nopadding-x">
   <div class="row nomargin-x">
-    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
     <div class="col-lg-8 nopadding-x-md">
       <div class="container nopadding-x-md" id="board-ctn">
-        <div class="py-5" id="board">
+        <div id="board">
           <article class="post-content mx-auto">
-            <!-- SEO header -->
-            <h1 style="display: none">Talent-Plan：用 Rust 实现 Percolator 算法</h1>
+            <h1 id="seo-header">Talent-Plan：用 Rust 实现 Percolator 算法</h1>
             
               <p class="note note-info">
                 
-                  本文最后更新于：1 年前
+                  
+                    <!-- compatible with older versions-->
+                    本文最后更新于：1 年前
+                  
                 
               </p>
             
-            <div class="markdown-body">
-              <h2 id="版本"><a href="#版本" class="headerlink" title="版本"></a>版本</h2><ul>
-<li><a href="https://github.com/pingcap/talent-plan/tree/master/courses/dss/percolator" target="_blank" rel="noopener">官网版本</a></li>
+            
+              <div class="markdown-body">
+                
+                <h2 id="版本"><a href="#版本" class="headerlink" title="版本"></a>版本</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/pingcap/talent-plan/tree/master/courses/dss/percolator">官网版本</a></li>
 </ul>
 <h2 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h2><p>Rust 学习</p>
 <ul>
-<li><a href="https://fasterthanli.me/articles/a-half-hour-to-learn-rust" target="_blank" rel="noopener">半小时学习 Rust</a></li>
-<li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustling</a> 及 <a href="https://github.com/OneSizeFitsQuorum/rustlings/pull/1" target="_blank" rel="noopener">解答</a></li>
-<li><a href="https://course.rs/about-book.html" target="_blank" rel="noopener">Rust 语言圣经</a> 及 <a href="https://zh.practice.rs/why-exercise.html" target="_blank" rel="noopener">习题</a></li>
-<li><a href="https://kaisery.github.io/trpl-zh-cn/title-page.html" target="_blank" rel="noopener">Rust 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://fasterthanli.me/articles/a-half-hour-to-learn-rust">半小时学习 Rust</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/rust-lang/rustlings">Rustling</a> 及 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/rustlings/pull/1">解答</a></li>
+<li><a target="_blank" rel="noopener" href="https://course.rs/about-book.html">Rust 语言圣经</a> 及 <a target="_blank" rel="noopener" href="https://zh.practice.rs/why-exercise.html">习题</a></li>
+<li><a target="_blank" rel="noopener" href="https://kaisery.github.io/trpl-zh-cn/title-page.html">Rust 官方文档</a></li>
 </ul>
 <p>Percolator 学习</p>
 <ul>
-<li><a href="https://storage.googleapis.com/pub-tools-public-publication-data/pdf/36726.pdf" target="_blank" rel="noopener">论文</a></li>
-<li><a href="https://github.com/OneSizeFitsQuorum/tinykv/blob/test/solution/lab4.md" target="_blank" rel="noopener">TinyKV lab4 文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://storage.googleapis.com/pub-tools-public-publication-data/pdf/36726.pdf">论文</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/tinykv/blob/test/solution/lab4.md">TinyKV lab4 文档</a></li>
 </ul>
 <h2 id="过关思路"><a href="#过关思路" class="headerlink" title="过关思路"></a>过关思路</h2><p>在基本环境搭建好之后，观察发现 lab 只有 13 个测试，测试全部 AC 即可通过项目。实际上一个生产级别的 Percolator 实现这些测试是远远不够的，需要考虑和测试的 case 很多。</p>
 <p>由于本 lab 的主要目标是帮助学习 Rust，因此本次过关思路便是通过 TDD 的方式通关，将主要精力放在通过测试以及对应 Rust 语法的学习和练习上，对于实现的 Percolator 算法满足论文要求和当前的测试 case 即可，不再去新增更多的 test case 和并发情况。</p>
@@ -302,7 +337,7 @@
 <p>该测试期望在不稳定网络下 client 的 get_timestamp 接口在超时重试时可以满足 backoff 幂增重试属性。<br><img src="/percolator-in-rust/1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>因此一方面在 TSO Server 端的 get_timestamp 接口处提供一个空实现，另一方面在 Client 中维护对应初始化时传入的 rpc client 字段并在 get_timestamp 函数中增加幂增 sleep 逻辑即可。<br><img src="/percolator-in-rust/2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>有关 async 和 await 的原理需要进一步理解学习，但仅就完成本 lab 而言，可以查看 labrpc example 中的使用样例来模仿使用，即使用 await 来驱动 async 的代码块执行，使用 block_on 达到同步执行的效果。<br><img src="/percolator-in-rust/3.png" srcset="/img/loading.gif" lazyload alt></p>
-<p>通过本测试的新增代码可查看 <a href="https://github.com/OneSizeFitsQuorum/talent-plan/commit/2deab4fec9c2c6a925963dd65cd690507cd7f565" target="_blank" rel="noopener">commit</a></p>
+<p>通过本测试的新增代码可查看 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/talent-plan/commit/2deab4fec9c2c6a925963dd65cd690507cd7f565">commit</a></p>
 <h3 id="TXN-正常测试"><a href="#TXN-正常测试" class="headerlink" title="TXN 正常测试"></a>TXN 正常测试</h3><ul>
 <li>test_predicate_many_preceders_read_predicates</li>
 <li>test_predicate_many_preceders_write_predicates</li>
@@ -320,7 +355,7 @@
 <p>对于 Client 的 set 函数，直接缓存到 mem_buffer 中即可。</p>
 <p>对于 Client 的 commit 函数，开始 Percolator 的提交流程，即先 prewrite 再 commit。注意不论是 prewrite 还是 commit 都是先对 primary 进行处理再对 secondary 处理。</p>
 <p><img src="/percolator-in-rust/5.png" srcset="/img/loading.gif" lazyload alt></p>
-<h4 id="proto"><a href="#proto" class="headerlink" title="proto"></a>proto</h4><p>参照论文写出了对应的 proto 文件如下，以下将分别分析四种 RPC 请求：<br><figure class="highlight plain"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs proto">message TimestampRequest &#123;&#125;<br><br>message TimestampResponse &#123;<br>    uint64 timestamp &#x3D; 1;<br>&#125;<br><br>message GetRequest &#123;<br>    bytes key &#x3D; 1;<br>    uint64 start_ts &#x3D; 2;<br>&#125;<br><br>message GetResponse &#123;<br>    bytes value &#x3D; 1;<br>&#125;<br><br>message PrewriteRequest &#123;<br>    uint64 start_ts &#x3D; 1;<br>    bytes primary &#x3D; 2;<br>    bytes key &#x3D; 3;<br>    bytes value &#x3D; 4;<br>&#125;<br><br>message PrewriteResponse &#123;<br>    bool success &#x3D; 1;<br>&#125;<br><br>message CommitRequest &#123;<br>    bool is_primary &#x3D; 1;<br>    uint64 start_ts &#x3D; 2;<br>    uint64 commit_ts &#x3D; 3;<br>    bytes key &#x3D; 4;<br>&#125;<br><br>message CommitResponse &#123;<br>    bool success &#x3D; 1;<br>&#125;<br></code></pre></div></td></tr></table></figure></p>
+<h4 id="proto"><a href="#proto" class="headerlink" title="proto"></a>proto</h4><p>参照论文写出了对应的 proto 文件如下，以下将分别分析四种 RPC 请求：<br><figure class="highlight proto"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs proto"><span class="hljs-keyword">message </span><span class="hljs-title class_">TimestampRequest</span> &#123;&#125;<br><br><span class="hljs-keyword">message </span><span class="hljs-title class_">TimestampResponse</span> &#123;<br>    <span class="hljs-type">uint64</span> timestamp = <span class="hljs-number">1</span>;<br>&#125;<br><br><span class="hljs-keyword">message </span><span class="hljs-title class_">GetRequest</span> &#123;<br>    <span class="hljs-type">bytes</span> key = <span class="hljs-number">1</span>;<br>    <span class="hljs-type">uint64</span> start_ts = <span class="hljs-number">2</span>;<br>&#125;<br><br><span class="hljs-keyword">message </span><span class="hljs-title class_">GetResponse</span> &#123;<br>    <span class="hljs-type">bytes</span> value = <span class="hljs-number">1</span>;<br>&#125;<br><br><span class="hljs-keyword">message </span><span class="hljs-title class_">PrewriteRequest</span> &#123;<br>    <span class="hljs-type">uint64</span> start_ts = <span class="hljs-number">1</span>;<br>    <span class="hljs-type">bytes</span> primary = <span class="hljs-number">2</span>;<br>    <span class="hljs-type">bytes</span> key = <span class="hljs-number">3</span>;<br>    <span class="hljs-type">bytes</span> value = <span class="hljs-number">4</span>;<br>&#125;<br><br><span class="hljs-keyword">message </span><span class="hljs-title class_">PrewriteResponse</span> &#123;<br>    <span class="hljs-type">bool</span> success = <span class="hljs-number">1</span>;<br>&#125;<br><br><span class="hljs-keyword">message </span><span class="hljs-title class_">CommitRequest</span> &#123;<br>    <span class="hljs-type">bool</span> is_primary = <span class="hljs-number">1</span>;<br>    <span class="hljs-type">uint64</span> start_ts = <span class="hljs-number">2</span>;<br>    <span class="hljs-type">uint64</span> commit_ts = <span class="hljs-number">3</span>;<br>    <span class="hljs-type">bytes</span> key = <span class="hljs-number">4</span>;<br>&#125;<br><br><span class="hljs-keyword">message </span><span class="hljs-title class_">CommitResponse</span> &#123;<br>    <span class="hljs-type">bool</span> success = <span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure></p>
 <h4 id="get-timestamp"><a href="#get-timestamp" class="headerlink" title="get_timestamp"></a>get_timestamp</h4><p>对于 TSO 请求，此时需要使用一个全局唯一 ID 的递增生成器而不能硬编码成 0 了。最暴力的方法便是采用 wall clock time 来生成，然而在高并发情况下 wall clock time 可能产生重复的 ID，因此一般需要 HLC 结合物理时间戳和逻辑时间戳的方式来保证全局唯一。出于时间原因，我直接采用了逻辑递增 ID 的方式来生成全局唯一的递增 ID。为了性能考虑，我采用了 Arc<AtmoicU64> 而不是 Arc<Mutex<u64>&gt; 来生成 id，这样实现的理论性能会更高，同时由于此处仅仅需要生成 ID 没有其他逻辑，因此 Ordering 采用 Relaxed 即可。<br><img src="/percolator-in-rust/6.png" srcset="/img/loading.gif" lazyload alt></Mutex<u64></AtmoicU64></p>
 <h4 id="get"><a href="#get" class="headerlink" title="get"></a>get</h4><p>对于 Get 请求，需要携带 key 和对应的 start_ts 来针对某一全局快照读取。因此客户端构建好 request 后向服务端发送即可，注意此时依然实现了超时重试的逻辑。<br><img src="/percolator-in-rust/7.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>在服务端的 RPC handler 里，首先使用 lock 进入临界区，接着判断 lock 列中是否存在与本事务冲突的其他事务，如果存在则 backoff 等待并在稍后重试。接着查找 write 列中该 key 最接近当前事务 start_ts 的 commit_ts，如果不存在则返回空字符串，否则获取到其 start_ts 将其从 data 列读出来即可。<br><img src="/percolator-in-rust/8.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -333,7 +368,7 @@
 <p>在服务端，首先使用 lock 进入临界区，接着判断 lock 列是否存在自己的锁，如果不存在则说明发生了不符合预期的错误（比如此次 RPC 延期到达，或者本事务已经被其他事务 abort 且清理），此时只能返回失败让应用层处理。如果自己的锁存在，则可以向 write 列写入 ((key, commit_ts), start_ts) 以让 data 列的数据可见，接着移除掉 lock 列写入的锁即可。<br><img src="/percolator-in-rust/14.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>在 KVTable 的 erase 函数中，使用 BTreeMap 的 remove 接口来移除对应的 entry。<br><img src="/percolator-in-rust/15.png" srcset="/img/loading.gif" lazyload alt></p>
 <h4 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h4><p>以上逻辑通过了事务正常提交时的测试，然而网络异常或者协调者异常时的测试还未完全 AC，因此还需要进一步处理。<br><img src="/percolator-in-rust/16.png" srcset="/img/loading.gif" lazyload alt></p>
-<p>通过本测试的新增代码可查看 <a href="https://github.com/OneSizeFitsQuorum/talent-plan/commit/5ca761e06f7eefe5da901ca2e37c7c3fb7c2a3b7" target="_blank" rel="noopener">commit</a></p>
+<p>通过本测试的新增代码可查看 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/talent-plan/commit/5ca761e06f7eefe5da901ca2e37c7c3fb7c2a3b7">commit</a></p>
 <h3 id="TXN-异常测试"><a href="#TXN-异常测试" class="headerlink" title="TXN 异常测试"></a>TXN 异常测试</h3><ul>
 <li>test_commit_primary_drop_secondary_requests</li>
 <li>test_commit_primary_success</li>
@@ -347,39 +382,81 @@
 <p>代码如下，需要注意在进入 back_off_maybe_clean_up_lock 函数前需要 drop 掉锁，back_off_maybe_clean_up_lock 函数在 sleep 完之后需要先拿到锁再进行操作。<br><img src="/percolator-in-rust/18.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>contains_in_write_column 函数遍历 write 列寻找 (primarykey，0) 和 (primarykey， u64::MAX) 范围内是否有指向 start_ts 的记录，如果存在则返回 commit_ts，否则返回 None。<br><img src="/percolator-in-rust/19.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>此外 kvtable 中的 erase 函数的参数之前是 commit_ts，但由于在 lock 列中记录的是 start_ts，不论是正常 commit 还是 rollback 均需要按照 (key, start_ts) 去清理而不是 (key, commit_ts)，因而感觉这里应该是论文中的笔误被照抄过来了，在此处从 commit_ts 改为了 start_ts。<br><img src="/percolator-in-rust/20.png" srcset="/img/loading.gif" lazyload alt></p>
-<p>通过本测试的新增代码可查看 <a href="https://github.com/OneSizeFitsQuorum/talent-plan/commit/8a62c5bc6096408433bfb0e0b6e04d9040b4082a" target="_blank" rel="noopener">commit</a>。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>最终所有测试通过如下，本人过关代码可参考该 <a href="https://github.com/OneSizeFitsQuorum/talent-plan/pull/1" target="_blank" rel="noopener">PR</a>。<br><img src="/percolator-in-rust/21.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>通过本测试的新增代码可查看 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/talent-plan/commit/8a62c5bc6096408433bfb0e0b6e04d9040b4082a">commit</a>。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>最终所有测试通过如下，本人过关代码可参考该 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/talent-plan/pull/1">PR</a>。<br><img src="/percolator-in-rust/21.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>通过本 lab，对 Rust 编程的若干关键工具和重要知识点有了一定的实践，包括但不限于 cargo 管理，模式匹配，流程控制，错误处理，所有权与借用，迭代器，宏编程等等。希望未来能够深入理解 rust 的异步编程，成为一名有经验的 Rustacean。</p>
 
-            </div>
-            <hr>
-            <div>
-              <div class="post-metas mb-3">
-                
-                
-                  <div class="post-meta">
-                    <i class="iconfont icon-tags"></i>
-                    
-                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
-                    
-                      <a class="hover-with-bg" href="/tags/Rust/">Rust</a>
-                    
-                  </div>
                 
               </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/" class="print-no-link">#分布式系统理论</a>
+      
+        <a href="/tags/Rust/" class="print-no-link">#Rust</a>
+      
+    </div>
+  
+</div>
+
+
               
-                <p class="note note-warning">
-                  
-                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
-                  
-                </p>
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Talent-Plan：用 Rust 实现 Percolator 算法</div>
+      <div>https://tanxinyu.work/percolator-in-rust/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>谭新宇</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年8月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
               
               
-                <div class="post-prevnext">
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/naive-kvengine-in-rust/">
+                      <a href="/naive-kvengine-in-rust/" title="Talent-Plan：用 Rust 实现简易 KV 引擎">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">Talent-Plan：用 Rust 实现简易 KV 引擎</span>
                         <span class="visible-mobile">上一篇</span>
@@ -389,7 +466,7 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/talent-plan-transaction-talk/">
+                      <a href="/talent-plan-transaction-talk/" title="分布式事务概述和对应代码框架介绍">
                         <span class="hidden-mobile">分布式事务概述和对应代码框架介绍</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
@@ -401,12 +478,10 @@
             </div>
 
             
-              <!-- Comments -->
-              <article class="comments" id="comments" lazyload>
-                
-                  
-                
-                
+  
+  
+    <article id="comments" lazyload>
+      
   <script type="text/javascript">
     Fluid.utils.loadComments('#comments', function() {
       var light = 'github-light';
@@ -434,25 +509,67 @@
   <noscript>Please enable JavaScript to view the comments</noscript>
 
 
-              </article>
-            
+    </article>
+  
+
+
           </article>
         </div>
       </div>
     </div>
-    
-      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
-        <div id="toc">
-  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
   <div class="toc-body" id="toc-body"></div>
 </div>
 
-      </div>
-    
+
+
+  </aside>
+
+
+    </div>
   </div>
 </div>
 
-<!-- Custom -->
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
 
 
     
@@ -477,56 +594,58 @@
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v"
-                 for="local-search-input">关键词</label>
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
     </div>
   </div>
 </div>
+
     
 
     
   </main>
 
-  <footer class="text-center mt-5 py-3">
-  <div class="footer-content">
-     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-  </div>
+  <footer>
+    <div class="footer-inner">
   
-  <div class="statistics">
-    
-    
-
-    
-      
-        <!-- 不蒜子统计PV -->
-        <span id="busuanzi_container_site_pv" style="display: none">
-            总访问量 
-            <span id="busuanzi_value_site_pv"></span>
-             次
-          </span>
-      
-      
-        <!-- 不蒜子统计UV -->
-        <span id="busuanzi_container_site_uv" style="display: none">
-            总访客数 
-            <span id="busuanzi_value_site_uv"></span>
-             人
-          </span>
-      
-    
-  </div>
-
-
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
   
 
   
-</footer>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
 
+  
+  
+  
+</div>
 
-  <!-- SCRIPTS -->
+  </footer>
+
+  <!-- Scripts -->
   
   <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
@@ -545,10 +664,22 @@
 <script  src="/js/events.js" ></script>
 <script  src="/js/plugins.js" ></script>
 
-<!-- Plugins -->
 
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
 
-  <script  src="/js/local-search.js" ></script>
 
 
 
@@ -558,114 +689,161 @@
 
 
 
-  
-
-
 
   
-    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
-  
-  
-    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
-  
-  
-    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
-  
-  
-    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
-  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
 
 
+  <script src=https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
 
   <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var title = document.getElementById('subtitle').title;
-      
-      typing(title)
-      
-    })(window, document);
-  </script>
 
-
-
-
-
-  
-
-  
-    <!-- MathJax -->
-    <script>
-      MathJax = {
-        tex: {
-          inlineMath: [['$', '$'], ['\\(', '\\)']]
-        },
-        loader: {
-          load: ['ui/lazy']
-        },
-        options: {
-          renderActions: {
-            findScript: [10, doc => {
-              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
-                const display = !!node.type.match(/; *mode=display/);
-                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
-                const text = document.createTextNode('');
-                node.parentNode.replaceChild(text, node);
-                math.start = { node: text, delim: '', n: 0 };
-                math.end = { node: text, delim: '', n: 0 };
-                doc.math.push(math);
-              });
-            }, '', false],
-            insertedScript: [200, () => {
-              document.querySelectorAll('mjx-container').forEach(node => {
-                let target = node.parentNode;
-                if (target.nodeName.toLowerCase() === 'li') {
-                  target.parentNode.classList.add('has-jax');
-                }
-              });
-            }, '', false]
-          }
-        }
-      };
-    </script>
-
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
-
-  
-
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-
-
-
-
-<!-- 主题的启动项 保持在最底部 -->
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
 <script  src="/js/boot.js" ></script>
 
 
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         tex2jax: {

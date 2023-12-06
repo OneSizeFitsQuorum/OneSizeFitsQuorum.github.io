@@ -15,10 +15,10 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
-  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  
+    <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
 <meta property="og:type" content="website">
 <meta property="og:title" content="谭新宇的博客">
 <meta property="og:url" content="https://tanxinyu.work/index.html">
@@ -28,15 +28,22 @@
 <meta property="article:author" content="谭新宇">
 <meta name="twitter:card" content="summary_large_image">
   
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
   <title>谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
 
 
-<!-- 主题依赖的图标库，不要自行修改 -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -45,22 +52,56 @@
 
 <link  rel="stylesheet" href="/css/main.css" />
 
-<!-- 自定义样式保持在最底部 -->
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
 
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
-<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
 </head>
 
 
 <body>
-  <header style="height: 100vh;">
-    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
       <strong>TXY</strong>
@@ -81,9 +122,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/">
+              <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
-                首页
+                <span>首页</span>
               </a>
             </li>
           
@@ -93,9 +134,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/archives/">
+              <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
-                归档
+                <span>归档</span>
               </a>
             </li>
           
@@ -105,9 +146,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/tags/">
+              <a class="nav-link" href="/tags/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
-                标签
+                <span>标签</span>
               </a>
             </li>
           
@@ -117,9 +158,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/about/">
+              <a class="nav-link" href="/about/" target="_self">
                 <i class="iconfont icon-user-fill"></i>
-                关于
+                <span>关于</span>
               </a>
             </li>
           
@@ -129,9 +170,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/links/">
+              <a class="nav-link" href="/links/" target="_self">
                 <i class="iconfont icon-link-fill"></i>
-                友链
+                <span>友链</span>
               </a>
             </li>
           
@@ -139,14 +180,16 @@
         
           <li class="nav-item" id="search-btn">
             <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+              <i class="iconfont icon-search"></i>
             </a>
           </li>
+          
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
           </li>
         
       </ul>
@@ -154,34 +197,40 @@
   </div>
 </nav>
 
-    <div class="banner" id="banner" parallax=true
-         style="background: url('/img/blog-background.jpeg') no-repeat center center;
-           background-size: cover;">
-      <div class="full-bg-img">
-        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-          <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="Make Each Day Count">
-              
-            </span>
+  
 
-            
-          </div>
-
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/blog-background.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
           
-            <div class="scroll-down-bar">
-              <i class="iconfont icon-arrowdown"></i>
-            </div>
+            <span id="subtitle" data-typed-text="Make Each Day Count"></span>
           
         </div>
+
+        
       </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
     </div>
+  </div>
+</div>
+
+</div>
+
   </header>
 
   <main>
     
       <div class="container nopadding-x-md">
-        <div class="py-5" id="board"
-          style=margin-top:0>
+        <div id="board"
+          style="margin-top: 0">
           
           <div class="container">
             <div class="row">
@@ -199,23 +248,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/2022-annual-summary/" target="_self">
           2022 年终总结：记清华硕士的秋招之年
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/2022-annual-summary/" target="_self">
-          
-          
-            
-          
-          前言忙忙碌碌又是一年，终于到了 2022 年底。去年第一次写年终总结受到了不少的关注，我在这一年里也时常会重读自己的 2021 年终总结来鞭策自己。今年由于家里的特殊原因需要在医院过年，时间比较仓促，勉强抽出了一天的时间来简短写写年终总结。一方面是给 2022 年的自己一个交代，另一方面也是给 2023 年的自己一个警醒。希望我的经历和感悟能给大家一些启发。
-首先依然是自我介绍环节，我叫谭新宇，清
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/2022-annual-summary/" target="_self">
+        <div>
+          前言忙忙碌碌又是一年，终于到了 2022 年底。去年第一次写年终总结受到了不少的关注，我在这一年里也时常会重读自己的 2021 年终总结来鞭策自己。今年由于家里的特殊原因需要在医院过年，时间比较仓促，勉强抽出了一天的时间来简短写写年终总结。一方面是给 2022 年的自己一个交代，另一方面也是给 2023 年的自己一个警醒。希望我的经历和感悟能给大家一些启发。 首先依然是自我介绍环节，我叫谭新宇，清
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -231,9 +276,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/IoTDB/">IoTDB</a>
+              <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">#年终总结</a>
             
-              <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">年终总结</a>
+              <a href="/tags/IoTDB/">#IoTDB</a>
             
           </div>
         
@@ -251,46 +296,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/2022-internet-job-hunting-experience-sharing/" target="_self">
           2022 互联网求职经验分享
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/2022-internet-job-hunting-experience-sharing/" target="_self">
-          
-          
-            
-          
-          背景在前前后后忙活了接近四个月后，我的秋招终于结束了。
-这篇 回答 分享了我几乎所有技术面的面经，本博客将结合本人在今年秋招中的经验和在院系就业分享会中的分享内容介绍一下实习和秋招各个环节的注意事项，希望能够帮助到对分布式数据库内核研发岗感兴趣的同学。
-注：本文内容仅代表个人看法。
-内容
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/2022-internet-job-hunting-experience-sharing/" target="_self">
+        <div>
+          背景在前前后后忙活了接近四个月后，我的秋招终于结束了。 这篇 回答 分享了我几乎所有技术面的面经，本博客将结合本人在今年秋招中的经验和在院系就业分享会中的分享内容介绍一下实习和秋招各个环节的注意事项，希望能够帮助到对分布式数据库内核研发岗感兴趣的同学。 注：本文内容仅代表个人看法。 内容
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -306,9 +324,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">#数据库</a>
             
-              <a href="/tags/%E5%88%86%E4%BA%AB/">分享</a>
+              <a href="/tags/%E5%88%86%E4%BA%AB/">#分享</a>
             
           </div>
         
@@ -326,24 +344,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/2022-tidb-hackathon/" target="_self">
           2022 TiDB Hackathon 产品组最佳校园奖总结
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/2022-tidb-hackathon/" target="_self">
-          
-          
-            
-          
-          背景2022 年 10 月，2022 TiDB Hackathon Possibility at Scale 成功举办。
-作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。
-非常感谢 Hackathon 期间队友
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/2022-tidb-hackathon/" target="_self">
+        <div>
+          背景2022 年 10 月，2022 TiDB Hackathon Possibility at Scale 成功举办。 作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。 非常感谢 Hackathon 期间队友
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -359,11 +372,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
             
           </div>
         
@@ -381,24 +394,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/have-we-reached-consensus-on-consensus/" target="_self">
           Have we reached consensus on consensus？
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/have-we-reached-consensus-on-consensus/" target="_self">
-          
-          
-            
-          
-          背景分享一下前不久在 PingCAP 实习时做的有关共识算法及其应用的介绍（已经删除了部分不便公开的内容）。
-这次分享主要针对 Raft 和 Paxos 做了相对详细的介绍，并从学术界和工业界的不同视角对比了他们的异同，最后也基于 TiKV 当前架构现状和其他系统的架构设计从一个 intern 的视角拍脑袋介绍了几个可能的演进方向。
-回到 Raft 和 Multi Paxos 孰优孰劣这一圣战问题
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/have-we-reached-consensus-on-consensus/" target="_self">
+        <div>
+          背景分享一下前不久在 PingCAP 实习时做的有关共识算法及其应用的介绍（已经删除了部分不便公开的内容）。 这次分享主要针对 Raft 和 Paxos 做了相对详细的介绍，并从学术界和工业界的不同视角对比了他们的异同，最后也基于 TiKV 当前架构现状和其他系统的架构设计从一个 intern 的视角拍脑袋介绍了几个可能的演进方向。 回到 Raft 和 Multi Paxos 孰优孰劣这一圣战问题
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -414,11 +422,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E4%BA%AB/">#分享</a>
             
-              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E5%88%86%E4%BA%AB/">分享</a>
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
             
           </div>
         
@@ -436,24 +444,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/tikv-source-code-reading-write/" target="_self">
           TiKV 源码阅读三部曲（三）写流程
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/tikv-source-code-reading-write/" target="_self">
-          
-          
-            
-          
-          背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。
-作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。
-TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/tikv-source-code-reading-write/" target="_self">
+        <div>
+          背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。 TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -469,11 +472,11 @@ TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的�
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
             
-              <a href="/tags/TiKV/">TiKV</a>
+              <a href="/tags/TiKV/">#TiKV</a>
             
           </div>
         
@@ -491,24 +494,19 @@ TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的�
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/tikv-source-code-reading-read/" target="_self">
           TiKV 源码阅读三部曲（二）读流程
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/tikv-source-code-reading-read/" target="_self">
-          
-          
-            
-          
-          背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。
-作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。
-TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/tikv-source-code-reading-read/" target="_self">
+        <div>
+          背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。 TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -524,11 +522,11 @@ TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的�
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
             
-              <a href="/tags/TiKV/">TiKV</a>
+              <a href="/tags/TiKV/">#TiKV</a>
             
           </div>
         
@@ -546,24 +544,19 @@ TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的�
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/tikv-source-code-reading-module/" target="_self">
           TiKV 源码阅读三部曲（一）重要模块
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/tikv-source-code-reading-module/" target="_self">
-          
-          
-            
-          
-          背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。
-作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。
-TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/tikv-source-code-reading-module/" target="_self">
+        <div>
+          背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。 TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -579,11 +572,11 @@ TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的�
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
             
-              <a href="/tags/TiKV/">TiKV</a>
+              <a href="/tags/TiKV/">#TiKV</a>
             
           </div>
         
@@ -601,34 +594,19 @@ TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的�
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/naive-kvengine-in-rust/" target="_self">
           Talent-Plan：用 Rust 实现简易 KV 引擎
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/naive-kvengine-in-rust/" target="_self">
-          
-          
-            
-          
-          版本
-官网版本
-
-前期准备Rust 学习
-
-半小时学习 Rust
-Rustling 及 解答
-Rust 语言圣经 及 习题
-Rust 官方文档
-Talent Plan Percolator Lab
-
-过关过程Rust Project 1: The Rust toolbox本 project 过关代码可参考该 commit。
-主要参照了 README 来完成本 project，具体过程比较 triv
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/naive-kvengine-in-rust/" target="_self">
+        <div>
+          版本 官网版本  前期准备Rust 学习  半小时学习 Rust Rustling 及 解答 Rust 语言圣经 及 习题 Rust 官方文档 Talent Plan Percolator Lab  过关过程Rust Project 1: The Rust toolbox本 project 过关代码可参考该 commit。 主要参照了 README 来完成本 project，具体过程比较 triv
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -644,9 +622,9 @@ Talent Plan Percolator Lab
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/">存储引擎</a>
+              <a href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/">#存储引擎</a>
             
-              <a href="/tags/Rust/">Rust</a>
+              <a href="/tags/Rust/">#Rust</a>
             
           </div>
         
@@ -664,37 +642,19 @@ Talent Plan Percolator Lab
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/percolator-in-rust/" target="_self">
           Talent-Plan：用 Rust 实现 Percolator 算法
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/percolator-in-rust/" target="_self">
-          
-          
-            
-          
-          版本
-官网版本
-
-前期准备Rust 学习
-
-半小时学习 Rust
-Rustling 及 解答
-Rust 语言圣经 及 习题
-Rust 官方文档
-
-Percolator 学习
-
-论文
-TinyKV lab4 文档
-
-过关思路在基本环境搭建好之后，观察发现 lab 只有 13 个测试，测试全部 AC 即可通过项目。实际上一个生产级别的 Percolator 实现这些测试是远远不够的，需要考虑和测试的 
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/percolator-in-rust/" target="_self">
+        <div>
+          版本 官网版本  前期准备Rust 学习  半小时学习 Rust Rustling 及 解答 Rust 语言圣经 及 习题 Rust 官方文档  Percolator 学习  论文 TinyKV lab4 文档  过关思路在基本环境搭建好之后，观察发现 lab 只有 13 个测试，测试全部 AC 即可通过项目。实际上一个生产级别的 Percolator 实现这些测试是远远不够的，需要考虑和测试的
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -710,9 +670,9 @@ TinyKV lab4 文档
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/Rust/">Rust</a>
+              <a href="/tags/Rust/">#Rust</a>
             
           </div>
         
@@ -730,23 +690,19 @@ TinyKV lab4 文档
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/talent-plan-transaction-talk/" target="_self">
           分布式事务概述和对应代码框架介绍
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/talent-plan-transaction-talk/" target="_self">
-          
-          
-            
-          
-          背景分享一下前两天在 Talent Plan Community 做的有关分布式事务和 Distributed-Txn 代码框架的介绍。
-这次分享除了对 2021 VLDB summer school 中讲授的若干重要主题进行了概述，还着重介绍了事件排序这一很本质的问题，此外也参考了不少优质资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。由于本人水平有限，如有原理错误欢迎与我沟通~
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/talent-plan-transaction-talk/" target="_self">
+        <div>
+          背景分享一下前两天在 Talent Plan Community 做的有关分布式事务和 Distributed-Txn 代码框架的介绍。 这次分享除了对 2021 VLDB summer school 中讲授的若干重要主题进行了概述，还着重介绍了事件排序这一很本质的问题，此外也参考了不少优质资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。由于本人水平有限，如有原理错误欢迎与我沟通~
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -762,9 +718,9 @@ TinyKV lab4 文档
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E4%BA%AB/">#分享</a>
             
-              <a href="/tags/%E5%88%86%E4%BA%AB/">分享</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
           </div>
         
@@ -809,56 +765,58 @@ TinyKV lab4 文档
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v"
-                 for="local-search-input">关键词</label>
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
     </div>
   </div>
 </div>
+
     
 
     
   </main>
 
-  <footer class="text-center mt-5 py-3">
-  <div class="footer-content">
-     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-  </div>
+  <footer>
+    <div class="footer-inner">
   
-  <div class="statistics">
-    
-    
-
-    
-      
-        <!-- 不蒜子统计PV -->
-        <span id="busuanzi_container_site_pv" style="display: none">
-            总访问量 
-            <span id="busuanzi_value_site_pv"></span>
-             次
-          </span>
-      
-      
-        <!-- 不蒜子统计UV -->
-        <span id="busuanzi_container_site_uv" style="display: none">
-            总访客数 
-            <span id="busuanzi_value_site_uv"></span>
-             人
-          </span>
-      
-    
-  </div>
-
-
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
   
 
   
-</footer>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
 
+  
+  
+  
+</div>
 
-  <!-- SCRIPTS -->
+  </footer>
+
+  <!-- Scripts -->
   
   <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
@@ -877,10 +835,22 @@ TinyKV lab4 文档
 <script  src="/js/events.js" ></script>
 <script  src="/js/plugins.js" ></script>
 
-<!-- Plugins -->
 
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
 
-  <script  src="/js/local-search.js" ></script>
 
 
 
@@ -890,59 +860,25 @@ TinyKV lab4 文档
 
 
 
-  
 
-
-
-
+  <script  src="/js/local-search.js" ></script>
 
   <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var title = document.getElementById('subtitle').title;
-      
-      typing(title)
-      
-    })(window, document);
-  </script>
 
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-
-
-
-
-<!-- 主题的启动项 保持在最底部 -->
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
 <script  src="/js/boot.js" ></script>
 
 
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         tex2jax: {

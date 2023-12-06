@@ -15,21 +15,17 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
-  <meta name="description" content="背景2021 年 11 月 ~ 2022 年 1 月 ，PingCAP 举办了第一届 Talent Plan KV 学习营，相关介绍可参考 推送。 在本次比赛中，由于我们小组的两位成员之前都刷过 MIT 6.824，已经对教学级别的 raft 有一定的了解，所以参加此次比赛的目的就是去感受一下生产级别分布式 KV 的代码实现，学习实践一下 lsm, etcd, raftstore 和 percol">
+  
+    <meta name="description" content="背景2021 年 11 月 ~ 2022 年 1 月 ，PingCAP 举办了第一届 Talent Plan KV 学习营，相关介绍可参考 推送。 在本次比赛中，由于我们小组的两位成员之前都刷过 MIT 6.824，已经对教学级别的 raft 有一定的了解，所以参加此次比赛的目的就是去感受一下生产级别分布式 KV 的代码实现，学习实践一下 lsm, etcd, raftstore 和 percol">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2021 Talent Plan KV 学习营结营总结">
 <meta property="og:url" content="https://tanxinyu.work/tinykv/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="背景2021 年 11 月 ~ 2022 年 1 月 ，PingCAP 举办了第一届 Talent Plan KV 学习营，相关介绍可参考 推送。 在本次比赛中，由于我们小组的两位成员之前都刷过 MIT 6.824，已经对教学级别的 raft 有一定的了解，所以参加此次比赛的目的就是去感受一下生产级别分布式 KV 的代码实现，学习实践一下 lsm, etcd, raftstore 和 percol">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://tanxinyu.work/tinykv/grade.png">
-<meta property="og:image" content="https://tanxinyu.work/tinykv/leader%20election.jpg">
-<meta property="og:image" content="https://tanxinyu.work/tinykv/log%20replication.jpg">
-<meta property="og:image" content="https://tanxinyu.work/tinykv/gc%20raftLog.png">
-<meta property="og:image" content="https://tanxinyu.work/tinykv/send%20and%20apply%20Snapshot.png">
+<meta property="og:image" content="https://tanxinyu.work/tinykv/overview.png">
 <meta property="article:published_time" content="2022-01-14T09:23:13.000Z">
 <meta property="article:modified_time" content="2022-08-28T04:29:42.965Z">
 <meta property="article:author" content="谭新宇">
@@ -37,32 +33,30 @@
 <meta property="article:tag" content="共识算法">
 <meta property="article:tag" content="分布式存储">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://tanxinyu.work/tinykv/grade.png">
+<meta name="twitter:image" content="https://tanxinyu.work/tinykv/overview.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
   
   <title>2021 Talent Plan KV 学习营结营总结 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
 
+
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+
   <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-  
-    
-    
-      
-      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
-    
-  
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
 
-  
-    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
-  
 
 
 <!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -71,22 +65,56 @@
 
 <link  rel="stylesheet" href="/css/main.css" />
 
-<!-- 自定义样式保持在最底部 -->
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
 
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
-<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
 </head>
 
 
 <body>
-  <header style="height: 70vh;">
-    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
       <strong>TXY</strong>
@@ -107,9 +135,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/">
+              <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
-                首页
+                <span>首页</span>
               </a>
             </li>
           
@@ -119,9 +147,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/archives/">
+              <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
-                归档
+                <span>归档</span>
               </a>
             </li>
           
@@ -131,9 +159,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/tags/">
+              <a class="nav-link" href="/tags/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
-                标签
+                <span>标签</span>
               </a>
             </li>
           
@@ -143,9 +171,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/about/">
+              <a class="nav-link" href="/about/" target="_self">
                 <i class="iconfont icon-user-fill"></i>
-                关于
+                <span>关于</span>
               </a>
             </li>
           
@@ -155,9 +183,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/links/">
+              <a class="nav-link" href="/links/" target="_self">
                 <i class="iconfont icon-link-fill"></i>
-                友链
+                <span>友链</span>
               </a>
             </li>
           
@@ -165,14 +193,16 @@
         
           <li class="nav-item" id="search-btn">
             <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+              <i class="iconfont icon-search"></i>
             </a>
           </li>
+          
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
           </li>
         
       </ul>
@@ -180,65 +210,79 @@
   </div>
 </nav>
 
-    <div class="banner" id="banner" parallax=true
-         style="background: url('/img/blog-background.jpeg') no-repeat center center;
-           background-size: cover;">
-      <div class="full-bg-img">
-        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-          <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="2021 Talent Plan KV 学习营结营总结">
-              
-            </span>
-
-            
-              <div class="mt-3">
-  
-  
-    <span class="post-meta">
-      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2022-01-14 17:23" pubdate>
-        2022年1月14日 下午
-      </time>
-    </span>
-  
-</div>
-
-<div class="mt-1">
-  
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-chart"></i>
-      17k 字
-    </span>
   
 
-  
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-clock-fill"></i>
-      
-      
-      52 分钟
-    </span>
-  
-
-  
-  
-    
-      <!-- 不蒜子统计文章PV -->
-      <span id="busuanzi_container_page_pv" style="display: none">
-        <i class="iconfont icon-eye" aria-hidden="true"></i>
-        <span id="busuanzi_value_page_pv"></span> 次
-      </span>
-    
-  
-</div>
-
-            
-          </div>
-
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/blog-background.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2021 Talent Plan KV 学习营结营总结"></span>
           
         </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-01-14 17:23" pubdate>
+          2022年1月14日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
       </div>
+
+      
     </div>
+  </div>
+</div>
+
+</div>
+
   </header>
 
   <main>
@@ -247,27 +291,35 @@
 
 <div class="container-fluid nopadding-x">
   <div class="row nomargin-x">
-    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
     <div class="col-lg-8 nopadding-x-md">
       <div class="container nopadding-x-md" id="board-ctn">
-        <div class="py-5" id="board">
+        <div id="board">
           <article class="post-content mx-auto">
-            <!-- SEO header -->
-            <h1 style="display: none">2021 Talent Plan KV 学习营结营总结</h1>
+            <h1 id="seo-header">2021 Talent Plan KV 学习营结营总结</h1>
             
               <p class="note note-info">
                 
-                  本文最后更新于：1 年前
+                  
+                    <!-- compatible with older versions-->
+                    本文最后更新于：1 年前
+                  
                 
               </p>
             
-            <div class="markdown-body">
-              <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>2021 年 11 月 ~ 2022 年 1 月 ，<strong>PingCAP </strong>举办了第一届 <strong>Talent Plan KV 学习营</strong>，相关介绍可参考 <a href="https://m.creatby.com/v2/manage/book/oa4occ/?from=singlemessage" target="_blank" rel="noopener">推送</a>。</p>
+            
+              <div class="markdown-body">
+                
+                <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>2021 年 11 月 ~ 2022 年 1 月 ，<strong>PingCAP </strong>举办了第一届 <strong>Talent Plan KV 学习营</strong>，相关介绍可参考 <a target="_blank" rel="noopener" href="https://m.creatby.com/v2/manage/book/oa4occ/?from=singlemessage">推送</a>。</p>
 <p>在本次比赛中，由于我们小组的两位成员之前都刷过 MIT 6.824，已经对教学级别的 raft 有一定的了解，所以参加此次比赛的目的就是去感受一下生产级别分布式 KV 的代码实现，学习实践一下 lsm, etcd, raftstore 和 percolator 的理论知识和 codebase。</p>
 <p>u1s1，刷 lab 的过程十分曲折，我们俩所在的实验室到年底的时候都非常忙，前几周基本每周都只能抽出顶多一两天的时间来写代码，而理解 lab2b/lab3b raftstore 的难度是非常大的，我们用了一周多的时间才勉强看懂 raftstore 的代码。这使得到还剩两周时间的时候，我们才刷到 lab2c。最后两周我们利用中午午休时间和晚上睡觉时间疯狂加班，在 lab 上花了更多的时间，最后才堪堪刷完。</p>
 <p>在刷 lab 的过程中，由于时间有限，我们始终秉持着<code>学习优先，成绩第二</code>的原则。即以 <strong>了解 codebase，学习知识，做最容易做且最有用的优化</strong> 为主，并没有去卷很多功能点。在处理 bug 的态度上，对于 safety 的问题比如错误读写的 bug 等，我们对这类问题进行了重点关注和解决；对于 liveness 的问题比如 request timeout 等，我们则是在有限的时间内尽力做了优化，但并没有投入太多精力，因为这种工作没有上限，tikv 的 raftstore 也一定在持续做这些工作，时间不够的情况下去卷这些就没有太大意义了。</p>
 <p><img src="/tinykv/grade.png" srcset="/img/loading.gif" lazyload alt></p>
-<p>出人意料的是，我们得了第二名的好成绩，具体可参考 <a href="https://asktug.com/t/topic/393068" target="_blank" rel="noopener">官宣</a>。事后反省一下，在 safety 上我们遇到的问题都解决了；在 liveness 上我们没投入太多精力；在文档上，我们简单介绍了代码实现，但将重点放在了我们对相关知识的理解和思考上；在性能上，我们重点做了最容易做的 batching 优化，其本质上是使用 raft 的优化而不是 raft 自身的优化，但对性能的提升却异常关键，比如 tidb 对于一个事务打包的一堆写请求，到 tikv 的 region 之后，这些写请求同步成一条还是多条 raftlog 对于性能的影响是巨大的。</p>
+<p>出人意料的是，我们得了第二名的好成绩，具体可参考 <a target="_blank" rel="noopener" href="https://asktug.com/t/topic/393068">官宣</a>。事后反省一下，在 safety 上我们遇到的问题都解决了；在 liveness 上我们没投入太多精力；在文档上，我们简单介绍了代码实现，但将重点放在了我们对相关知识的理解和思考上；在性能上，我们重点做了最容易做的 batching 优化，其本质上是使用 raft 的优化而不是 raft 自身的优化，但对性能的提升却异常关键，比如 tidb 对于一个事务打包的一堆写请求，到 tikv 的 region 之后，这些写请求同步成一条还是多条 raftlog 对于性能的影响是巨大的。</p>
 <p>从结果来看，我们的策略是正确的，我们在很有限的时间内拿到了很高的收益。</p>
 <p>最后，出于对课程的保护，也出于跟大家分享一些刷 lab 的经验，让大家少踩坑，在此处我仅将文档公开，希望能为大家提供一些思路，欢迎一起交流。</p>
 <h1 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h1><h2 id="lab1"><a href="#lab1" class="headerlink" title="lab1"></a>lab1</h2><h3 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h3><h4 id="Part-1-Implement-a-standalone-storage-engine"><a href="#Part-1-Implement-a-standalone-storage-engine" class="headerlink" title="Part 1 : Implement a standalone storage engine"></a>Part 1 : Implement a standalone storage engine</h4><p>本部分是对底层 badger api 的包装，主要涉及修改的代码文件是 standalone_storage.go, 需要实现 Storage 接口的 Write 和 Reader 方法，来实现对底层 badger 数据库的读写。</p>
@@ -282,9 +334,9 @@
 <p>针对 RawScan，<br>同样地调用 storage 的 Reader 函数返回一个 Reader，然后调用其 IterCF 函数返回一个迭代器，然后使用迭代器读取即可。</p>
 <p>针对 RawPut 和 RawDelete，<br>声明对应的 Modify 后，调用 storage.Write 函数即可。</p>
 <h3 id="相关知识学习"><a href="#相关知识学习" class="headerlink" title="相关知识学习"></a>相关知识学习</h3><p>LSM 是一个伴随 NoSQL 运动一起流行的存储引擎，相比 B+ 树以牺牲读性能的代价在写入性能上获得了较大的提升。</p>
-<p>近年来，工业界和学术界均对 LSM 树进行了一定的研究，具体可以阅读 VLDB2018 有关 LSM 的综述：<a href="https://arxiv.org/pdf/1812.07527.pdf" target="_blank" rel="noopener">LSM-based Storage Techniques: A Survey</a>, 也可直接阅读针对该论文我认为还不错的一篇 <a href="https://blog.shunzi.tech/post/vldbj-2018lsm-based-storage-techniques-a-survey/" target="_blank" rel="noopener">中文概要总结</a>。</p>
-<p>介绍完了 LSM 综述，可以简单聊聊 badger，这是一个纯 go 实现的 LSM 存储引擎，参照了 FAST2016 有关 KV 分离 LSM 的设计： <a href="https://www.usenix.org/system/files/conference/fast16/fast16-papers-lu.pdf" target="_blank" rel="noopener">WiscKey</a> 。有关其项目的动机和一些 benchmark 结果可以参照其创始人的 <a href="https://dgraph.io/blog/post/badger/" target="_blank" rel="noopener">博客</a>。</p>
-<p>对于 Wisckey 这篇论文，除了阅读论文以外，也可以参考此 <a href="https://www.scienjus.com/wisckey/" target="_blank" rel="noopener">阅读笔记</a> 和此 <a href="https://www.skyzh.dev/posts/articles/2021-08-07-lsm-kv-separation-overview/" target="_blank" rel="noopener">总结博客</a>。这两篇资料较为系统地介绍了现在学术界和工业界对于 KV 分离 LSM 的一些设计和实现。</p>
+<p>近年来，工业界和学术界均对 LSM 树进行了一定的研究，具体可以阅读 VLDB2018 有关 LSM 的综述：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1812.07527.pdf">LSM-based Storage Techniques: A Survey</a>, 也可直接阅读针对该论文我认为还不错的一篇 <a target="_blank" rel="noopener" href="https://blog.shunzi.tech/post/vldbj-2018lsm-based-storage-techniques-a-survey/">中文概要总结</a>。</p>
+<p>介绍完了 LSM 综述，可以简单聊聊 badger，这是一个纯 go 实现的 LSM 存储引擎，参照了 FAST2016 有关 KV 分离 LSM 的设计： <a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/conference/fast16/fast16-papers-lu.pdf">WiscKey</a> 。有关其项目的动机和一些 benchmark 结果可以参照其创始人的 <a target="_blank" rel="noopener" href="https://dgraph.io/blog/post/badger/">博客</a>。</p>
+<p>对于 Wisckey 这篇论文，除了阅读论文以外，也可以参考此 <a target="_blank" rel="noopener" href="https://www.scienjus.com/wisckey/">阅读笔记</a> 和此 <a target="_blank" rel="noopener" href="https://www.skyzh.dev/posts/articles/2021-08-07-lsm-kv-separation-overview/">总结博客</a>。这两篇资料较为系统地介绍了现在学术界和工业界对于 KV 分离 LSM 的一些设计和实现。</p>
 <p>实际上对于目前的 NewSQL 数据库，其底层大多数都是一个分布式 KV 存储系统。对于 OLTP 业务，其往往采用行存的方式，即 key 对应的 value 便是一个 tuple。在这样的架构下，value 往往很大，因而采用 KV 分离的设计往往能够减少大量的写放大，从而提升性能。</p>
 <p>之前和腾讯云的一个大佬聊过，他有说 TiKV 的社区版和商业版存储引擎性能差异很大。目前想一下，KV 分离可能便是 RocksDB 和 Titan 的最大区别吧。</p>
 <h2 id="lab2"><a href="#lab2" class="headerlink" title="lab2"></a>lab2</h2><h3 id="解题思路-1"><a href="#解题思路-1" class="headerlink" title="解题思路"></a>解题思路</h3><h4 id="lab2a"><a href="#lab2a" class="headerlink" title="lab2a"></a>lab2a</h4><h5 id="Leader-election"><a href="#Leader-election" class="headerlink" title="Leader election"></a>Leader election</h5><p>本部分是对 raft 模块 leader 选举功能的实现，主要涉及修改的代码文件是 raft.go、log.go</p>
@@ -392,12 +444,12 @@
 <h3 id="相关知识学习-1"><a href="#相关知识学习-1" class="headerlink" title="相关知识学习"></a>相关知识学习</h3><h4 id="Raft"><a href="#Raft" class="headerlink" title="Raft"></a>Raft</h4><p>Raft 是 2015 年以来最受人瞩目的共识算法，有关其前世今生可以参考我们总结的 <a href="https://tanxinyu.work/raft/">博客</a>，此处不再赘述。</p>
 <p>etcd 是一个生产级别的 Raft 实现，我们在实现 lab2a 的时候大量参考了 etcd 的代码。这个过程不仅帮助我们进一步了解了 etcd 的 codebase，也让我们进一步意识到一个工程级别的 raft 实现需要考虑多少 corner case。整个学习过程收获还是很大的，这里贴一些 etcd 的优质博客以供学习。</p>
 <ul>
-<li><a href="https://www.codedump.info/post/20180922-etcd-raft/" target="_blank" rel="noopener">etcd Raft 库解析</a></li>
-<li><a href="https://www.codedump.info/post/20181125-etcd-server/" target="_blank" rel="noopener">Etcd 存储的实现</a></li>
-<li><a href="https://www.codedump.info/post/20210515-raft" target="_blank" rel="noopener">Etcd Raft 库的工程化实现</a></li>
-<li><a href="https://www.codedump.info/post/20210628-etcd-wal/" target="_blank" rel="noopener">Etcd Raft 库的日志存储</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.codedump.info/post/20180922-etcd-raft/">etcd Raft 库解析</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.codedump.info/post/20181125-etcd-server/">Etcd 存储的实现</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.codedump.info/post/20210515-raft">Etcd Raft 库的工程化实现</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.codedump.info/post/20210628-etcd-wal/">Etcd Raft 库的日志存储</a></li>
 </ul>
-<h4 id="KVRaft"><a href="#KVRaft" class="headerlink" title="KVRaft"></a>KVRaft</h4><p>在 Raft 层完成后，下一步需要做的便是基于 Raft 层搭建一个高可用的 KV 层。这里依然参考了 etcd KV 层驱动 Raft 层的方式。<br>即总体的思路如下所示：<br><figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs Go"><span class="hljs-keyword">for</span> &#123;<br>  <span class="hljs-keyword">select</span> &#123;<br>  <span class="hljs-keyword">case</span> &lt;-s.Ticker:<br>    Node.Tick()<br>  <span class="hljs-keyword">default</span>:<br>    <span class="hljs-keyword">if</span> Node.HasReady() &#123;<br>      rd := Node.Ready()<br>      saveToStorage(rd.State, rd.Entries, rd.Snapshot)<br>      send(rd.Messages)<br>      <span class="hljs-keyword">for</span> _, entry := <span class="hljs-keyword">range</span> rd.CommittedEntries &#123;<br>        process(entry)<br>      &#125;<br>      s.Node.Advance(rd)<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure></p>
+<h4 id="KVRaft"><a href="#KVRaft" class="headerlink" title="KVRaft"></a>KVRaft</h4><p>在 Raft 层完成后，下一步需要做的便是基于 Raft 层搭建一个高可用的 KV 层。这里依然参考了 etcd KV 层驱动 Raft 层的方式。<br>即总体的思路如下所示：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs Go"><span class="hljs-keyword">for</span> &#123;<br>  <span class="hljs-keyword">select</span> &#123;<br>  <span class="hljs-keyword">case</span> &lt;-s.Ticker:<br>    Node.Tick()<br>  <span class="hljs-keyword">default</span>:<br>    <span class="hljs-keyword">if</span> Node.HasReady() &#123;<br>      rd := Node.Ready()<br>      saveToStorage(rd.State, rd.Entries, rd.Snapshot)<br>      send(rd.Messages)<br>      <span class="hljs-keyword">for</span> _, entry := <span class="hljs-keyword">range</span> rd.CommittedEntries &#123;<br>        process(entry)<br>      &#125;<br>      s.Node.Advance(rd)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure></p>
 <p>做过 tinykv 的同学应该都能够感觉到 lab2b 的难度与之前有一个大 gap，我认为主要原因是需要看的代码实现是太多了。</p>
 <p>如今回首，建议分三个步骤来做，这样效率可能会高一些：</p>
 <ul>
@@ -412,7 +464,7 @@
 <li><p>apply 时的 safety：要想实现基于 Raft 的 KV 服务，一大难点便是如何保证 applyIndex 和状态机数据的原子性。比如在 6.824 的框架中，Raft 层对于上层状态机的假设是易失的，即重启后状态机为空，那么 applyIndex 便可以不被持久化记录，因为一旦发生重启 Raft 实例可以从 0 开始重新 apply 日志，对于状态机来说这个过程保证不会重复。然而这样的实现虽然保证了 safety，但却不是一个生产可用的实现。对于 tinykv，其状态机为非易失的 LSM 引擎，一旦要记录 applyIndex 就可能出现与状态机数据不一致的原子性问题，即重启后可能会存在日志被重复 apply 到状态机的现象。为了解决这一问题，我们将每个 Index 下 entry 的应用和对应 applyIndex 的更新放到了一个事务中来保证他们之间的原子性，巧妙地解决了该过程的 safety 问题。</p>
 </li>
 </ul>
-<h4 id="Snapshot"><a href="#Snapshot" class="headerlink" title="Snapshot"></a>Snapshot</h4><p>tinykv 的 Snapshot 几乎是一个纯异步的方案，在架构上有很多讲究，这里可以仔细阅读文档和一位社区同学分享的 <a href="https://asktug.com/t/topic/273859" target="_blank" rel="noopener">Snapshot 流程</a> 后再开始编码。</p>
+<h4 id="Snapshot"><a href="#Snapshot" class="headerlink" title="Snapshot"></a>Snapshot</h4><p>tinykv 的 Snapshot 几乎是一个纯异步的方案，在架构上有很多讲究，这里可以仔细阅读文档和一位社区同学分享的 <a target="_blank" rel="noopener" href="https://asktug.com/t/topic/273859">Snapshot 流程</a> 后再开始编码。</p>
 <p>一旦了解了以下两个流程，代码便可以自然而然地写出来了。</p>
 <ul>
 <li>log gc 流程</li>
@@ -428,7 +480,7 @@
 <p>对于 conf change，注意以下几点即可：</p>
 <ul>
 <li>只对还在共识组配置中的 raftnode 进行 tick。</li>
-<li>新当选的 leader 需要保证之前任期的所有 log 都被 apply 后才能进行新的 conf change 变更，这有关 raft 单步配置变更的 safety，可以参照 <a href="https://groups.google.com/g/raft-dev/c/t4xj6dJTP6E/m/d2D9LrWRza8J" target="_blank" rel="noopener">邮件</a> 和相关 <a href="https://zhuanlan.zhihu.com/p/342319702" target="_blank" rel="noopener">博客</a>。</li>
+<li>新当选的 leader 需要保证之前任期的所有 log 都被 apply 后才能进行新的 conf change 变更，这有关 raft 单步配置变更的 safety，可以参照 <a target="_blank" rel="noopener" href="https://groups.google.com/g/raft-dev/c/t4xj6dJTP6E/m/d2D9LrWRza8J">邮件</a> 和相关 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/342319702">博客</a>。</li>
 <li>只有当前共识组的最新配置变更日志被 apply 后才可以接收新的配置变更日志。</li>
 <li>增删节点时需要维护 PeerTracker。</li>
 </ul>
@@ -480,9 +532,9 @@
 <li>如果两个 store 都能够寻找到，则在新 store 上申请一个该 region 的 peer，创建对应的 MovePeerOperator 即可。</li>
 </ul>
 <h3 id="相关知识学习-2"><a href="#相关知识学习-2" class="headerlink" title="相关知识学习"></a>相关知识学习</h3><h4 id="Multi-Raft"><a href="#Multi-Raft" class="headerlink" title="Multi-Raft"></a>Multi-Raft</h4><p>Multi-Raft 是分布式 KV 可以 scale out 的基石。TiKV 对每个 region 的 conf change 和 transfer leader 功能能够将 region 动态的在所有 store 上进行负载均衡，对 region 的 split 和 merge 则是能够解决单 region 热点并无用工作损耗资源的问题。不得不说，后两者尽管道理上理解起来很简单，但工程实现上有太多细节要考虑了（据说贵司写了好几年才稳定），分析可能的异常情况实在是太痛苦了，为贵司能够啃下这块硬骨头点赞。</p>
-<p>最近看到有一个基于 TiKV 的 hackathon <a href="https://github.com/TPC-TiKV/rfc" target="_blank" rel="noopener">议题</a>，其本质是想通过更改线程模型来优化 TiKV 的写入性能、性能稳定性和自适应能力。这里可以简单提提一些想法，其实就我们在时序数据库方向的一些经验来说，每个 TSM（TimeSeries Merge Tree）大概能够用满一个核的 CPU 资源。只要我们将 TSM 引擎额个数与 CPU 核数绑定，写入性能基本是能够随着核数增加而线性提升的。那么对于 KV 场景，是否开启 CPU 个数的 LSM 引擎能够更好的利用 CPU 资源呢？即对于 raftstore，是否启动 CPU 个数的 Rocksdb 实例能够更好的利用资源呢？感觉这里也可以做做测试尝试一下。</p>
+<p>最近看到有一个基于 TiKV 的 hackathon <a target="_blank" rel="noopener" href="https://github.com/TPC-TiKV/rfc">议题</a>，其本质是想通过更改线程模型来优化 TiKV 的写入性能、性能稳定性和自适应能力。这里可以简单提提一些想法，其实就我们在时序数据库方向的一些经验来说，每个 TSM（TimeSeries Merge Tree）大概能够用满一个核的 CPU 资源。只要我们将 TSM 引擎额个数与 CPU 核数绑定，写入性能基本是能够随着核数增加而线性提升的。那么对于 KV 场景，是否开启 CPU 个数的 LSM 引擎能够更好的利用 CPU 资源呢？即对于 raftstore，是否启动 CPU 个数的 Rocksdb 实例能够更好的利用资源呢？感觉这里也可以做做测试尝试一下。</p>
 <h4 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h4><p>负载均衡是分布式系统中的一大难题，不同系统均有不同的策略实现，不同的策略可能在不同的 workload 中更有效。</p>
-<p>相比 pd 的实现，我们在 lab3c 实现的策略实际上很 trivial，因此我们简单学习了 pd 调度 region 的 <a href="https://asktug.com/t/topic/242808" target="_blank" rel="noopener">策略</a>。尽管这些策略道理上理解起来都比较简单，但如何将所有统计信息准确的量化成一个动态模型却是一件很难尽善尽美的事，这中间的很多指标也只能是经验值，没有严谨的依据。</p>
+<p>相比 pd 的实现，我们在 lab3c 实现的策略实际上很 trivial，因此我们简单学习了 pd 调度 region 的 <a target="_blank" rel="noopener" href="https://asktug.com/t/topic/242808">策略</a>。尽管这些策略道理上理解起来都比较简单，但如何将所有统计信息准确的量化成一个动态模型却是一件很难尽善尽美的事，这中间的很多指标也只能是经验值，没有严谨的依据。</p>
 <p>有关负载均衡我们对学术界的相关工作还不够了解，之后有时间会进行一些关注。</p>
 <h2 id="lab4"><a href="#lab4" class="headerlink" title="lab4"></a>lab4</h2><h3 id="解题思路-3"><a href="#解题思路-3" class="headerlink" title="解题思路"></a>解题思路</h3><p>本 Lab 整体相对简单，在基本了解 MVCC, 2PC 和 Percolator 后便可动手了，面向测试用例编程即可。</p>
 <h4 id="lab4a"><a href="#lab4a" class="headerlink" title="lab4a"></a>lab4a</h4><p>本部分是对 mvcc 模块的实现，主要涉及修改的代码文件是 transaction.go。需要利用对 CFLock, CFDefault 和 CFWrite 三个 CF 的一些操作来实现 mvcc。</p>
@@ -523,50 +575,92 @@
 <li>KvScan：利用 Scanner 扫描到没有 key 或达到 limit 阈值即可。针对 scanner，需要注意不能读有锁的 key，不能读未来的版本，不能读已删除或者已 rollback 的 key。</li>
 </ul>
 <h4 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h4><p>为了使得 server.go 逻辑代码清晰，在分别完成三个 lab 后对代码进行了进一步整理，针对读写请求分别抽象出来了接口，这样可以使得逻辑更为清晰。</p>
-<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs Go"><span class="hljs-keyword">type</span> BaseCommand <span class="hljs-keyword">interface</span> &#123;<br>	Context() *kvrpcpb.Context<br>	StartTs() <span class="hljs-keyword">uint64</span><br>&#125;<br><br><span class="hljs-keyword">type</span> Base <span class="hljs-keyword">struct</span> &#123;<br>	context *kvrpcpb.Context<br>	startTs <span class="hljs-keyword">uint64</span><br>&#125;<br><br><span class="hljs-keyword">type</span> QueryCommand <span class="hljs-keyword">interface</span> &#123;<br>	BaseCommand<br>	Read(txn *mvcc.MvccTxn) (<span class="hljs-keyword">interface</span>&#123;&#125;, error)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">ExecuteQuery</span><span class="hljs-params">(cmd QueryCommand, storage storage.Storage)</span> <span class="hljs-params">(<span class="hljs-keyword">interface</span>&#123;&#125;, error)</span></span> &#123;<br>	ctx := cmd.Context()<br>	reader, err := storage.Reader(ctx)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> &amp;kvrpcpb.ScanResponse&#123;RegionError: util.RaftstoreErrToPbError(err)&#125;, <span class="hljs-literal">nil</span><br>	&#125;<br>	<span class="hljs-keyword">defer</span> reader.Close()<br>	<span class="hljs-keyword">return</span> cmd.Read(mvcc.NewMvccTxn(reader, cmd.StartTs()))<br>&#125;<br><br><span class="hljs-keyword">type</span> NonQueryCommand <span class="hljs-keyword">interface</span> &#123;<br>	BaseCommand<br>	IsEmpty() <span class="hljs-keyword">bool</span><br>	GetEmptyResponse() <span class="hljs-keyword">interface</span>&#123;&#125;<br>	WriteKeys(txn *mvcc.MvccTxn) ([][]<span class="hljs-keyword">byte</span>, error)<br>	Write(txn *mvcc.MvccTxn) (<span class="hljs-keyword">interface</span>&#123;&#125;, error)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">ExecuteNonQuery</span><span class="hljs-params">(cmd NonQueryCommand, storage storage.Storage, latches *latches.Latches)</span> <span class="hljs-params">(<span class="hljs-keyword">interface</span>&#123;&#125;, error)</span></span> &#123;<br>	<span class="hljs-keyword">if</span> cmd.IsEmpty() &#123;<br>		<span class="hljs-keyword">return</span> cmd.GetEmptyResponse(), <span class="hljs-literal">nil</span><br>	&#125;<br><br>	ctx := cmd.Context()<br>	reader, err := storage.Reader(ctx)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> &amp;kvrpcpb.ScanResponse&#123;RegionError: util.RaftstoreErrToPbError(err)&#125;, <span class="hljs-literal">nil</span><br>	&#125;<br>	<span class="hljs-keyword">defer</span> reader.Close()<br>	txn := mvcc.NewMvccTxn(reader, cmd.StartTs())<br><br>	keys, err := cmd.WriteKeys(txn)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>	&#125;<br><br>	latches.WaitForLatches(keys)<br>	<span class="hljs-keyword">defer</span> latches.ReleaseLatches(keys)<br><br>	response, err := cmd.Write(txn)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>	&#125;<br><br>	err = storage.Write(ctx, txn.Writes())<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>	&#125;<br><br>	latches.Validation(txn, keys)<br><br>	<span class="hljs-keyword">return</span> response, <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs Go"><span class="hljs-keyword">type</span> BaseCommand <span class="hljs-keyword">interface</span> &#123;<br>	Context() *kvrpcpb.Context<br>	StartTs() <span class="hljs-type">uint64</span><br>&#125;<br><br><span class="hljs-keyword">type</span> Base <span class="hljs-keyword">struct</span> &#123;<br>	context *kvrpcpb.Context<br>	startTs <span class="hljs-type">uint64</span><br>&#125;<br><br><span class="hljs-keyword">type</span> QueryCommand <span class="hljs-keyword">interface</span> &#123;<br>	BaseCommand<br>	Read(txn *mvcc.MvccTxn) (<span class="hljs-keyword">interface</span>&#123;&#125;, <span class="hljs-type">error</span>)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">ExecuteQuery</span><span class="hljs-params">(cmd QueryCommand, storage storage.Storage)</span></span> (<span class="hljs-keyword">interface</span>&#123;&#125;, <span class="hljs-type">error</span>) &#123;<br>	ctx := cmd.Context()<br>	reader, err := storage.Reader(ctx)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> &amp;kvrpcpb.ScanResponse&#123;RegionError: util.RaftstoreErrToPbError(err)&#125;, <span class="hljs-literal">nil</span><br>	&#125;<br>	<span class="hljs-keyword">defer</span> reader.Close()<br>	<span class="hljs-keyword">return</span> cmd.Read(mvcc.NewMvccTxn(reader, cmd.StartTs()))<br>&#125;<br><br><span class="hljs-keyword">type</span> NonQueryCommand <span class="hljs-keyword">interface</span> &#123;<br>	BaseCommand<br>	IsEmpty() <span class="hljs-type">bool</span><br>	GetEmptyResponse() <span class="hljs-keyword">interface</span>&#123;&#125;<br>	WriteKeys(txn *mvcc.MvccTxn) ([][]<span class="hljs-type">byte</span>, <span class="hljs-type">error</span>)<br>	Write(txn *mvcc.MvccTxn) (<span class="hljs-keyword">interface</span>&#123;&#125;, <span class="hljs-type">error</span>)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">ExecuteNonQuery</span><span class="hljs-params">(cmd NonQueryCommand, storage storage.Storage, latches *latches.Latches)</span></span> (<span class="hljs-keyword">interface</span>&#123;&#125;, <span class="hljs-type">error</span>) &#123;<br>	<span class="hljs-keyword">if</span> cmd.IsEmpty() &#123;<br>		<span class="hljs-keyword">return</span> cmd.GetEmptyResponse(), <span class="hljs-literal">nil</span><br>	&#125;<br><br>	ctx := cmd.Context()<br>	reader, err := storage.Reader(ctx)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> &amp;kvrpcpb.ScanResponse&#123;RegionError: util.RaftstoreErrToPbError(err)&#125;, <span class="hljs-literal">nil</span><br>	&#125;<br>	<span class="hljs-keyword">defer</span> reader.Close()<br>	txn := mvcc.NewMvccTxn(reader, cmd.StartTs())<br><br>	keys, err := cmd.WriteKeys(txn)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>	&#125;<br><br>	latches.WaitForLatches(keys)<br>	<span class="hljs-keyword">defer</span> latches.ReleaseLatches(keys)<br><br>	response, err := cmd.Write(txn)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>	&#125;<br><br>	err = storage.Write(ctx, txn.Writes())<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>	&#125;<br><br>	latches.Validation(txn, keys)<br><br>	<span class="hljs-keyword">return</span> response, <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <h3 id="相关知识学习-3"><a href="#相关知识学习-3" class="headerlink" title="相关知识学习"></a>相关知识学习</h3><p>有关分布式事务，我们之前有过简单的 <a href="https://tanxinyu.work/distributed-transactions/">学习</a>，对 2PL, 2PC 均有简单的了解，因此此次在实现 Percolator 时只需要关注 2PC 与 MVCC 的结合即可，这里重点参考了以下博客：</p>
 <ul>
-<li><a href="https://zhuanlan.zhihu.com/p/77846678" target="_blank" rel="noopener">TiKV 源码解析系列文章（十二）分布式事务</a></li>
-<li><a href="https://pingcap.com/zh/blog/tidb-transaction-model" target="_blank" rel="noopener">TiKV 事务模型概览，Google Spanner 开源实现</a></li>
-<li><a href="http://mysql.taobao.org/monthly/2018/11/02/" target="_blank" rel="noopener">Google Percolator 分布式事务实现原理解读</a></li>
-<li><a href="https://pingcap.com/zh/blog/async-commit-principle" target="_blank" rel="noopener">Async Commit 原理介绍</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/77846678">TiKV 源码解析系列文章（十二）分布式事务</a></li>
+<li><a target="_blank" rel="noopener" href="https://pingcap.com/zh/blog/tidb-transaction-model">TiKV 事务模型概览，Google Spanner 开源实现</a></li>
+<li><a target="_blank" rel="noopener" href="http://mysql.taobao.org/monthly/2018/11/02/">Google Percolator 分布式事务实现原理解读</a></li>
+<li><a target="_blank" rel="noopener" href="https://pingcap.com/zh/blog/async-commit-principle">Async Commit 原理介绍</a></li>
 </ul>
 <p>实现完后，我们进一步被 Google 的聪明所折服，Percolator 基于单行事务实现了多行事务，基于 MVCC 实现了 SI 隔离级别。尽管其事务恢复流程相对复杂，但其本质上是在 CAP 定理中通过牺牲恢复时的 A 来优化了协调者正常写入时的 A，即协调者单点在 SQL 层不用高可用来保证最终执行 commit 或者 abort。因为一旦协调者节点挂掉，该事务在超过 TTL （TTL 的超时也是由 TSO 的时间戳来判断，对于各个 TiKV 节点来说均为逻辑时钟，这样的设计也避免了 Wall Clock 的同步难题）后会被其他事务 rollback，总体上来看 Percolator 比较优雅的解决了 2PC 的 safety 问题。</p>
 <p>当然，分布式事务可以深究的地方还很多，并且很多思想都与 Lamport 那篇最著名的论文 <a href="https://tanxinyu.work/time-clock-order-in-distributed-system-thesis/"><code>Time, Clocks, and the Ordering of Events in a Distributed System</code></a> 有关。除了 TiDB 外，Spanner，YugaByte，CockroachDB 等 NewSQL 数据库均有自己的大杀器，比如 TrueTime，HLC 等等。总之这块儿挺有意思的，虽然在这儿告一段落，但希望以后有机会能深入做一些相关工作。</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>实现一个稳定的分布式系统实在是太有挑战太有意思啦。</p>
 <p>感谢 PingCAP 社区提供如此优秀的课程！</p>
 
-            </div>
-            <hr>
-            <div>
-              <div class="post-metas mb-3">
-                
-                
-                  <div class="post-meta">
-                    <i class="iconfont icon-tags"></i>
-                    
-                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
-                    
-                      <a class="hover-with-bg" href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
-                    
-                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
-                    
-                  </div>
                 
               </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/" class="print-no-link">#分布式系统理论</a>
+      
+        <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/" class="print-no-link">#共识算法</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/" class="print-no-link">#分布式存储</a>
+      
+    </div>
+  
+</div>
+
+
               
-                <p class="note note-warning">
-                  
-                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
-                  
-                </p>
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2021 Talent Plan KV 学习营结营总结</div>
+      <div>https://tanxinyu.work/tinykv/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>谭新宇</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年1月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
               
               
-                <div class="post-prevnext">
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2021-annual-summary/">
+                      <a href="/2021-annual-summary/" title="2021 年终总结：记我在清华 Apache IoTDB 组的成长">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">2021 年终总结：记我在清华 Apache IoTDB 组的成长</span>
                         <span class="visible-mobile">上一篇</span>
@@ -576,7 +670,7 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/jiu-kun-parallel-program-optimization-contest/">
+                      <a href="/jiu-kun-parallel-program-optimization-contest/" title="第一届九坤并行程序优化大赛总结">
                         <span class="hidden-mobile">第一届九坤并行程序优化大赛总结</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
@@ -588,12 +682,10 @@
             </div>
 
             
-              <!-- Comments -->
-              <article class="comments" id="comments" lazyload>
-                
-                  
-                
-                
+  
+  
+    <article id="comments" lazyload>
+      
   <script type="text/javascript">
     Fluid.utils.loadComments('#comments', function() {
       var light = 'github-light';
@@ -621,25 +713,67 @@
   <noscript>Please enable JavaScript to view the comments</noscript>
 
 
-              </article>
-            
+    </article>
+  
+
+
           </article>
         </div>
       </div>
     </div>
-    
-      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
-        <div id="toc">
-  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
   <div class="toc-body" id="toc-body"></div>
 </div>
 
-      </div>
-    
+
+
+  </aside>
+
+
+    </div>
   </div>
 </div>
 
-<!-- Custom -->
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
 
 
     
@@ -664,56 +798,58 @@
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v"
-                 for="local-search-input">关键词</label>
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
     </div>
   </div>
 </div>
+
     
 
     
   </main>
 
-  <footer class="text-center mt-5 py-3">
-  <div class="footer-content">
-     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-  </div>
+  <footer>
+    <div class="footer-inner">
   
-  <div class="statistics">
-    
-    
-
-    
-      
-        <!-- 不蒜子统计PV -->
-        <span id="busuanzi_container_site_pv" style="display: none">
-            总访问量 
-            <span id="busuanzi_value_site_pv"></span>
-             次
-          </span>
-      
-      
-        <!-- 不蒜子统计UV -->
-        <span id="busuanzi_container_site_uv" style="display: none">
-            总访客数 
-            <span id="busuanzi_value_site_uv"></span>
-             人
-          </span>
-      
-    
-  </div>
-
-
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
   
 
   
-</footer>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
 
+  
+  
+  
+</div>
 
-  <!-- SCRIPTS -->
+  </footer>
+
+  <!-- Scripts -->
   
   <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
@@ -732,10 +868,22 @@
 <script  src="/js/events.js" ></script>
 <script  src="/js/plugins.js" ></script>
 
-<!-- Plugins -->
 
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
 
-  <script  src="/js/local-search.js" ></script>
 
 
 
@@ -745,114 +893,161 @@
 
 
 
-  
-
-
 
   
-    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
-  
-  
-    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
-  
-  
-    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
-  
-  
-    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
-  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
 
 
+  <script src=https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
 
   <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var title = document.getElementById('subtitle').title;
-      
-      typing(title)
-      
-    })(window, document);
-  </script>
 
-
-
-
-
-  
-
-  
-    <!-- MathJax -->
-    <script>
-      MathJax = {
-        tex: {
-          inlineMath: [['$', '$'], ['\\(', '\\)']]
-        },
-        loader: {
-          load: ['ui/lazy']
-        },
-        options: {
-          renderActions: {
-            findScript: [10, doc => {
-              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
-                const display = !!node.type.match(/; *mode=display/);
-                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
-                const text = document.createTextNode('');
-                node.parentNode.replaceChild(text, node);
-                math.start = { node: text, delim: '', n: 0 };
-                math.end = { node: text, delim: '', n: 0 };
-                doc.math.push(math);
-              });
-            }, '', false],
-            insertedScript: [200, () => {
-              document.querySelectorAll('mjx-container').forEach(node => {
-                let target = node.parentNode;
-                if (target.nodeName.toLowerCase() === 'li') {
-                  target.parentNode.classList.add('has-jax');
-                }
-              });
-            }, '', false]
-          }
-        }
-      };
-    </script>
-
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
-
-  
-
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-
-
-
-
-<!-- 主题的启动项 保持在最底部 -->
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
 <script  src="/js/boot.js" ></script>
 
 
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         tex2jax: {

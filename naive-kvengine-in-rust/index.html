@@ -15,121 +15,47 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
-  <meta name="description" content="版本 官网版本  前期准备Rust 学习  半小时学习 Rust Rustling 及 解答 Rust 语言圣经 及 习题 Rust 官方文档 Talent Plan Percolator Lab  过关过程Rust Project 1: The Rust toolbox本 project 过关代码可参考该 commit。 主要参照了 README 来完成本 project，具体过程比较 triv">
+  
+    <meta name="description" content="版本 官网版本  前期准备Rust 学习  半小时学习 Rust Rustling 及 解答 Rust 语言圣经 及 习题 Rust 官方文档 Talent Plan Percolator Lab  过关过程Rust Project 1: The Rust toolbox本 project 过关代码可参考该 commit。 主要参照了 README 来完成本 project，具体过程比较 triv">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Talent-Plan：用 Rust 实现简易 KV 引擎">
 <meta property="og:url" content="https://tanxinyu.work/naive-kvengine-in-rust/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="版本 官网版本  前期准备Rust 学习  半小时学习 Rust Rustling 及 解答 Rust 语言圣经 及 习题 Rust 官方文档 Talent Plan Percolator Lab  过关过程Rust Project 1: The Rust toolbox本 project 过关代码可参考该 commit。 主要参照了 README 来完成本 project，具体过程比较 triv">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnvQkj4GJmiTwJeV21SmMeFf.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnYwXTYAHx39aKM0Pljd8R7b.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnnTJ4rUCXtxN59nGmDPclRc.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnwOPKgrmNT5kp3zgO5UB2Tc.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn1GHZz1EW2O6yQvws5Xz0Ah.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn4BhJAA4AnwlfT6ksZkY7Ye.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnFEf4FsRUzUJXg3v9CORCQc.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnY6aDLMIS6gKAnE8vWIz1Gh.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnQyOZ7qGBDfLOSbKLQdpKXg.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnRZrLuatQsEySdLCweP9hJf.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnvogcxYCj6ePDFug2C3BYUg.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnjPcxYncr6MzPFaF5vITIFf.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnxthxhEe0zV8eIkzz9VYGOf.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnBf5TfEwrTv7qGI7BqvI1Lh.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnLi3nwF781srG69oyMI22Dh.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnBDm1Ma5cBgjhEakKRxtvMe.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnwANdnQiduaMqWuTfuqYqtf.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnfOG27BeMg3VNRx3DnIOySb.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnlWsXGHwpQAAaeTPofjL0Kd.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn6NSpWGbC9UEkuyXIACdTJf.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnI8W6PH9TwZcCP0DC53yUub.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn0ExuHszDnabB7fosTNAXXq.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnzfeeo29RWnUZNdMlRtSNKg.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnyJQWFUM6irMEkN22WYrW7c.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcncl0pVAsp6LqYau0QRjXAbc.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnGwjWKxNs7ZmeiWebu1lIoc.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnEArkStGv1C1Us4ew1SguPf.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnUw2Q2c0Bvoe3GjIFMHSE05.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnPj0lx11Jj3YB6h1REJY7Zf.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn5rZYcmvMfYnXcat5LSeCos.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnG99bQVGuok6gTqhr05Kmkn.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnzQkpPos1qxbygU4KvMx7Xc.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcniO3GQy0JnxunBBQ3rH7ewg.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnkIOzLCHIFKMU89CnoFKRMc.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnH9edzFxF6Ey7CpeEELfj3d.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnjxp5q574LIf0hidMFs4E7d.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnq23CIUQa25i4rf4mFEbk5b.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcno48X01i1c9r5i1aeN1XUQh.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnZcbACyBVBV9JlUYqicx0we.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnkG00kSYp5ZcIaGm4TmiKpe.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnb0wlmKE1MrtOLIjPnjaiBd.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnkPconSZtYcnSV1O8K4loPk.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn1WUh1RyixFp1UHgsRv44TV.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnsmyPz8LfrnLhML6AksCPDc.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnnVupdcBFwenEaIuUvFhWDh.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn0lodECLFH3AjTT7CGOFGLg.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnJFwgaF5IXUqkq7iPFqorWd.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnzGfVRmcZ2kjZyKatOZ9uHb.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnPZjYAEANb7Z9O28Zm5rfIg.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnW993QBlpNeVJ1vocEYpCwe.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnaTmdxQINxNh6bgoVnbVpIh.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn35QJnz7gVjIWmD7xrNrTCh.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnlZ4coU7mWqKybLfYC7pqgp.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnrM7s7ntdUZwS41euVNO2af.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnFBgZG4DdIytqlfeqrlmqxe.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnDij7HnjT3xTO0tBYJBmyEg.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnPQEGztT4pID88lJEVIpTKJ.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnRs4vfkVcwiEJoQLIJpHM7o.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn9YBWH6fWTEqZroFFEmjfQd.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnj3SztibcQ3dVtk80AgHB5r.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnkFizeIlIHOkdtLdjiJXa1b.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnbIWT6ofbomscJjhYDsI3og.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn2a3QFIu6KvawbPR6I8lb0d.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcncFWYwfER6WT9yFEYNoIIud.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnjhiY2nLL2YcXE6hcSQvbqg.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnUGMyrZgPdodAwns1WyUrwc.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnWKzKDZwn4IZ1VuXbeuicbg.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnrpuZM9Ienhb4A3R8PGHdAd.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn4HmL8lEVkATOr4kedonK3f.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnqWEQYmfb87Ku1fwAHwutEg.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcn31tkUHW2shoqZ4XO6Mx3dR.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnAgA1VT5aM02gLqyi9YHJ6d.png">
-<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnoPA82ks3t9N0DQJDlpDcIf.png">
+<meta property="og:image" content="https://tanxinyu.work/naive-kvengine-in-rust/talent-plan-logo.png">
 <meta property="article:published_time" content="2022-08-28T14:48:16.000Z">
 <meta property="article:modified_time" content="2022-08-28T15:01:40.099Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="存储引擎">
 <meta property="article:tag" content="Rust">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://tanxinyu.work/naive-kvengine-in-rust/boxcnvQkj4GJmiTwJeV21SmMeFf.png">
+<meta name="twitter:image" content="https://tanxinyu.work/naive-kvengine-in-rust/talent-plan-logo.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
   
   <title>Talent-Plan：用 Rust 实现简易 KV 引擎 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
 
+
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+
   <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-  
-    
-    
-      
-      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
-    
-  
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
 
-  
-    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
-  
 
 
 <!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -138,22 +64,56 @@
 
 <link  rel="stylesheet" href="/css/main.css" />
 
-<!-- 自定义样式保持在最底部 -->
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
 
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
-<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
 </head>
 
 
 <body>
-  <header style="height: 70vh;">
-    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
       <strong>TXY</strong>
@@ -174,9 +134,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/">
+              <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
-                首页
+                <span>首页</span>
               </a>
             </li>
           
@@ -186,9 +146,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/archives/">
+              <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
-                归档
+                <span>归档</span>
               </a>
             </li>
           
@@ -198,9 +158,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/tags/">
+              <a class="nav-link" href="/tags/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
-                标签
+                <span>标签</span>
               </a>
             </li>
           
@@ -210,9 +170,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/about/">
+              <a class="nav-link" href="/about/" target="_self">
                 <i class="iconfont icon-user-fill"></i>
-                关于
+                <span>关于</span>
               </a>
             </li>
           
@@ -222,9 +182,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/links/">
+              <a class="nav-link" href="/links/" target="_self">
                 <i class="iconfont icon-link-fill"></i>
-                友链
+                <span>友链</span>
               </a>
             </li>
           
@@ -232,14 +192,16 @@
         
           <li class="nav-item" id="search-btn">
             <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+              <i class="iconfont icon-search"></i>
             </a>
           </li>
+          
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
           </li>
         
       </ul>
@@ -247,65 +209,79 @@
   </div>
 </nav>
 
-    <div class="banner" id="banner" parallax=true
-         style="background: url('/img/blog-background.jpeg') no-repeat center center;
-           background-size: cover;">
-      <div class="full-bg-img">
-        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-          <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="Talent-Plan：用 Rust 实现简易 KV 引擎">
-              
-            </span>
-
-            
-              <div class="mt-3">
-  
-  
-    <span class="post-meta">
-      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2022-08-28 22:48" pubdate>
-        2022年8月28日 晚上
-      </time>
-    </span>
-  
-</div>
-
-<div class="mt-1">
-  
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-chart"></i>
-      5.4k 字
-    </span>
   
 
-  
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-clock-fill"></i>
-      
-      
-      17 分钟
-    </span>
-  
-
-  
-  
-    
-      <!-- 不蒜子统计文章PV -->
-      <span id="busuanzi_container_page_pv" style="display: none">
-        <i class="iconfont icon-eye" aria-hidden="true"></i>
-        <span id="busuanzi_value_page_pv"></span> 次
-      </span>
-    
-  
-</div>
-
-            
-          </div>
-
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/blog-background.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Talent-Plan：用 Rust 实现简易 KV 引擎"></span>
           
         </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-08-28 22:48" pubdate>
+          2022年8月28日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          10 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
       </div>
+
+      
     </div>
+  </div>
+</div>
+
+</div>
+
   </header>
 
   <main>
@@ -314,44 +290,52 @@
 
 <div class="container-fluid nopadding-x">
   <div class="row nomargin-x">
-    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
     <div class="col-lg-8 nopadding-x-md">
       <div class="container nopadding-x-md" id="board-ctn">
-        <div class="py-5" id="board">
+        <div id="board">
           <article class="post-content mx-auto">
-            <!-- SEO header -->
-            <h1 style="display: none">Talent-Plan：用 Rust 实现简易 KV 引擎</h1>
+            <h1 id="seo-header">Talent-Plan：用 Rust 实现简易 KV 引擎</h1>
             
               <p class="note note-info">
                 
-                  本文最后更新于：1 年前
+                  
+                    <!-- compatible with older versions-->
+                    本文最后更新于：1 年前
+                  
                 
               </p>
             
-            <div class="markdown-body">
-              <h2 id="版本"><a href="#版本" class="headerlink" title="版本"></a>版本</h2><ul>
-<li><a href="https://github.com/pingcap/talent-plan/tree/master/courses/rust" target="_blank" rel="noopener">官网版本</a></li>
+            
+              <div class="markdown-body">
+                
+                <h2 id="版本"><a href="#版本" class="headerlink" title="版本"></a>版本</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/pingcap/talent-plan/tree/master/courses/rust">官网版本</a></li>
 </ul>
 <h2 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h2><p>Rust 学习</p>
 <ul>
-<li><a href="https://fasterthanli.me/articles/a-half-hour-to-learn-rust" target="_blank" rel="noopener">半小时学习 Rust</a></li>
-<li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustling</a> 及 <a href="https://github.com/OneSizeFitsQuorum/rustlings/pull/1" target="_blank" rel="noopener">解答</a></li>
-<li><a href="https://course.rs/about-book.html" target="_blank" rel="noopener">Rust 语言圣经</a> 及 <a href="https://zh.practice.rs/why-exercise.html" target="_blank" rel="noopener">习题</a></li>
-<li><a href="https://kaisery.github.io/trpl-zh-cn/title-page.html" target="_blank" rel="noopener">Rust 官方文档</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/558415847" target="_blank" rel="noopener">Talent Plan Percolator Lab</a></li>
+<li><a target="_blank" rel="noopener" href="https://fasterthanli.me/articles/a-half-hour-to-learn-rust">半小时学习 Rust</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/rust-lang/rustlings">Rustling</a> 及 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/rustlings/pull/1">解答</a></li>
+<li><a target="_blank" rel="noopener" href="https://course.rs/about-book.html">Rust 语言圣经</a> 及 <a target="_blank" rel="noopener" href="https://zh.practice.rs/why-exercise.html">习题</a></li>
+<li><a target="_blank" rel="noopener" href="https://kaisery.github.io/trpl-zh-cn/title-page.html">Rust 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/558415847">Talent Plan Percolator Lab</a></li>
 </ul>
-<h2 id="过关过程"><a href="#过关过程" class="headerlink" title="过关过程"></a>过关过程</h2><h3 id="Rust-Project-1-The-Rust-toolbox"><a href="#Rust-Project-1-The-Rust-toolbox" class="headerlink" title="Rust Project 1: The Rust toolbox"></a>Rust Project 1: The Rust toolbox</h3><p>本 project 过关代码可参考该 <a href="https://github.com/OneSizeFitsQuorum/PracticalNetworkedApplications/commit/1a0ca3eb1af93c33a3bb9881dec782dbd623aa49" target="_blank" rel="noopener">commit</a>。</p>
-<p>主要参照了 <a href="https://github.com/OneSizeFitsQuorum/talent-plan/blob/master/courses/rust/projects/project-1/README.md" target="_blank" rel="noopener">README</a> 来完成本 project，具体过程比较 trivial 不再细述。主要工作如下：</p>
+<h2 id="过关过程"><a href="#过关过程" class="headerlink" title="过关过程"></a>过关过程</h2><h3 id="Rust-Project-1-The-Rust-toolbox"><a href="#Rust-Project-1-The-Rust-toolbox" class="headerlink" title="Rust Project 1: The Rust toolbox"></a>Rust Project 1: The Rust toolbox</h3><p>本 project 过关代码可参考该 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/PracticalNetworkedApplications/commit/1a0ca3eb1af93c33a3bb9881dec782dbd623aa49">commit</a>。</p>
+<p>主要参照了 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/talent-plan/blob/master/courses/rust/projects/project-1/README.md">README</a> 来完成本 project，具体过程比较 trivial 不再细述。主要工作如下：</p>
 <ul>
 <li>搭建项目基本目录结构。</li>
-<li>使用 <a href="https://docs.rs/clap/3.2.15/clap/" target="_blank" rel="noopener">clap</a> 来解析命令行参数，根据官方文档学习 crate 的具体使用方法。</li>
+<li>使用 <a target="_blank" rel="noopener" href="https://docs.rs/clap/3.2.15/clap/">clap</a> 来解析命令行参数，根据官方文档学习 crate 的具体使用方法。</li>
 <li>使用 cargo.toml 中的若干参数，包括 dev-dependencies，条件编译等等。</li>
 <li>完成基于内存 hashmap 的 KvStore 的增删改查接口。</li>
 <li>增加包文档和函数文档并在文档中添加了文档测试</li>
 <li>使用 cargo fmt 和 cargo clippy 来提升代码质量</li>
 </ul>
-<h3 id="Rust-Project-2-Log-structured-file-I-O"><a href="#Rust-Project-2-Log-structured-file-I-O" class="headerlink" title="Rust Project 2: Log-structured file I/O"></a>Rust Project 2: Log-structured file I/O</h3><p>本 project 过关代码可参考该 <a href="https://github.com/OneSizeFitsQuorum/PracticalNetworkedApplications/commit/fb097b172c46784ed7ebe24afdec0a8ab5d3d399" target="_blank" rel="noopener">commit</a>。</p>
-<h4 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h4><p>在阅读 failure crate 的 <a href="https://boats.gitlab.io/failure/" target="_blank" rel="noopener">文档</a> 之后，在本 project 中采用了第二种错误处理方式——自定义错误结构。通过定义 KVStoreError 结构体并使用 failure crate 提供的能力，可以很轻易地捕捉不同的错误并列举他们的表示，调用者也可以直接通过模式匹配的方式得到错误类型。</p>
+<h3 id="Rust-Project-2-Log-structured-file-I-O"><a href="#Rust-Project-2-Log-structured-file-I-O" class="headerlink" title="Rust Project 2: Log-structured file I/O"></a>Rust Project 2: Log-structured file I/O</h3><p>本 project 过关代码可参考该 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/PracticalNetworkedApplications/commit/fb097b172c46784ed7ebe24afdec0a8ab5d3d399">commit</a>。</p>
+<h4 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h4><p>在阅读 failure crate 的 <a target="_blank" rel="noopener" href="https://boats.gitlab.io/failure/">文档</a> 之后，在本 project 中采用了第二种错误处理方式——自定义错误结构。通过定义 KVStoreError 结构体并使用 failure crate 提供的能力，可以很轻易地捕捉不同的错误并列举他们的表示，调用者也可以直接通过模式匹配的方式得到错误类型。</p>
 <p>此外，通过为 io:Error 和 serde_json:Error 添加转换到 KVStoreError 的函数，在主逻辑中可以轻松的使用 ? 来向上传递错误，从而避免对 Result 类型的暴力 unwrap。</p>
 <p>此外，还定义了 Result<T> 类型别名来统一本项目中所有的 Result 返回类型。</T></p>
 <p><img src="/naive-kvengine-in-rust/boxcnvQkj4GJmiTwJeV21SmMeFf.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -396,7 +380,7 @@
 <p>需要注意按照这个流程即使在合并的写文件过程中出现了重启也不会出现正确性问题。如果新文件的所有数据尚未 flush 成功，老文件并不会被删除，那么只要重启时会按照 file_number 从小到大的顺序进行重放，数据便不会丢失。</p>
 <p><img src="/naive-kvengine-in-rust/boxcnwANdnQiduaMqWuTfuqYqtf.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="/naive-kvengine-in-rust/boxcnfOG27BeMg3VNRx3DnIOySb.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="Rust-Project-3-Synchronous-client-server-networking"><a href="#Rust-Project-3-Synchronous-client-server-networking" class="headerlink" title="Rust Project 3: Synchronous client-server networking"></a>Rust Project 3: Synchronous client-server networking</h3><p>本 project 过关代码可参考该 <a href="https://github.com/OneSizeFitsQuorum/PracticalNetworkedApplications/commit/4bf43135e3f662bd7f3a40078d2e648f436ce632" target="_blank" rel="noopener">commit</a>。</p>
+<h3 id="Rust-Project-3-Synchronous-client-server-networking"><a href="#Rust-Project-3-Synchronous-client-server-networking" class="headerlink" title="Rust Project 3: Synchronous client-server networking"></a>Rust Project 3: Synchronous client-server networking</h3><p>本 project 过关代码可参考该 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/PracticalNetworkedApplications/commit/4bf43135e3f662bd7f3a40078d2e648f436ce632">commit</a>。</p>
 <h4 id="命令行解析"><a href="#命令行解析" class="headerlink" title="命令行解析"></a>命令行解析</h4><p>在本 project 中，命令行分为了客户端 kvs-client 和服务端 kvs-server 两处，因此需要分别进行解析。</p>
 <p>对于 kvs-client，基本继承了 project2 的命令行解析工具，仅仅增加了 addr 的解析。此外也按照题意将正常输出打印在了 stdout 中，将错误输出打印在了 stderr 中并以非 0 值结束进程</p>
 <p><img src="/naive-kvengine-in-rust/boxcnlWsXGHwpQAAaeTPofjL0Kd.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -406,7 +390,7 @@
 <p><img src="/naive-kvengine-in-rust/boxcn0ExuHszDnabB7fosTNAXXq.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="/naive-kvengine-in-rust/boxcnzfeeo29RWnUZNdMlRtSNKg.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="/naive-kvengine-in-rust/boxcnyJQWFUM6irMEkN22WYrW7c.png" srcset="/img/loading.gif" lazyload alt></p>
-<h4 id="日志打印"><a href="#日志打印" class="headerlink" title="日志打印"></a>日志打印</h4><p>在本 project 中对日志采用了集成轻量的 env_logger，参照 <a href="https://docs.rs/env_logger/0.9.0/env_logger/" target="_blank" rel="noopener">文档</a> 仅仅需要在进程启动时指定日志的最低级别即可。</p>
+<h4 id="日志打印"><a href="#日志打印" class="headerlink" title="日志打印"></a>日志打印</h4><p>在本 project 中对日志采用了集成轻量的 env_logger，参照 <a target="_blank" rel="noopener" href="https://docs.rs/env_logger/0.9.0/env_logger/">文档</a> 仅仅需要在进程启动时指定日志的最低级别即可。</p>
 <p><img src="/naive-kvengine-in-rust/boxcncl0pVAsp6LqYau0QRjXAbc.png" srcset="/img/loading.gif" lazyload alt></p>
 <h4 id="命令传输"><a href="#命令传输" class="headerlink" title="命令传输"></a>命令传输</h4><p>本 project 直接使用了 tcp 级别的网络接口来传输命令，因而会有黏包的问题需要处理。</p>
 <p>一般的解决方案是在流上发送每段数据前先写入长度，再写入真实的数据；这样在流上读数据时便可以先读长度，再读对应长度的数据后解除阻塞返回了。</p>
@@ -424,12 +408,12 @@
 <p>对于 Sled，同样实现了 KvsEngine 的三个方法。需要注意其默认接口的语义和格式与 KvsEngine 不一致，因而需要增加对应的转换。</p>
 <p>此外在 set 时注释掉对应的 flush 操作是由于增加上之后性能过于慢，无法在之后的 bench 阶段跑出结果。</p>
 <p><img src="/naive-kvengine-in-rust/boxcniO3GQy0JnxunBBQ3rH7ewg.png" srcset="/img/loading.gif" lazyload alt></p>
-<h4 id="性能测试"><a href="#性能测试" class="headerlink" title="性能测试"></a>性能测试</h4><p>参照 <a href="https://github.com/OneSizeFitsQuorum/talent-plan/blob/master/courses/rust/projects/project-3/README.md" target="_blank" rel="noopener">Project3 文档</a> 中的介绍创建了 benches/benches 文件并参照 criterion 的 <a href="https://bheisler.github.io/criterion.rs/book/getting_started.html" target="_blank" rel="noopener">用户手册</a> 开始构建性能测试。</p>
+<h4 id="性能测试"><a href="#性能测试" class="headerlink" title="性能测试"></a>性能测试</h4><p>参照 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/talent-plan/blob/master/courses/rust/projects/project-3/README.md">Project3 文档</a> 中的介绍创建了 benches/benches 文件并参照 criterion 的 <a target="_blank" rel="noopener" href="https://bheisler.github.io/criterion.rs/book/getting_started.html">用户手册</a> 开始构建性能测试。</p>
 <p><img src="/naive-kvengine-in-rust/boxcnkIOzLCHIFKMU89CnoFKRMc.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>对于性能测试中的三个问题：</p>
 <ul>
-<li>如何精准测量想要测量的时间，而不包括初始化和清理的时间：参照 <a href="https://bheisler.github.io/criterion.rs/book/user_guide/timing_loops.html" target="_blank" rel="noopener">criterion 计时迭代的文档</a> 选择了 iter_batched 接口来精准测量读写的时间，初始化的清理的时间并不会被包括在内。</li>
-<li>尽管使用了 rand，如何使得每次迭代都确定性：这里通过在迭代之前利用 rand 的 <a href="https://rust-random.github.io/book/guide-seq.html" target="_blank" rel="noopener">choose_multiple</a> 函数创建好对应的写入数据，使得每次迭代的操作数都具有相同的集合。</li>
+<li>如何精准测量想要测量的时间，而不包括初始化和清理的时间：参照 <a target="_blank" rel="noopener" href="https://bheisler.github.io/criterion.rs/book/user_guide/timing_loops.html">criterion 计时迭代的文档</a> 选择了 iter_batched 接口来精准测量读写的时间，初始化的清理的时间并不会被包括在内。</li>
+<li>尽管使用了 rand，如何使得每次迭代都确定性：这里通过在迭代之前利用 rand 的 <a target="_blank" rel="noopener" href="https://rust-random.github.io/book/guide-seq.html">choose_multiple</a> 函数创建好对应的写入数据，使得每次迭代的操作数都具有相同的集合。</li>
 <li>在读 benchmark 中，如何保证选到的读集合是写集合的子集：这里采用了同样的方法，读集合是在写集合的集成上去随机选择，从而保证了读取必然能够读到。</li>
 </ul>
 <p><img src="/naive-kvengine-in-rust/boxcnH9edzFxF6Ey7CpeEELfj3d.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -443,17 +427,17 @@
 <li>Sled 本质上是一种树状结构，其相比 hash 结构能够提供高效的范围查询，也能够在海量数据场景与磁盘结合起来提供稳定的读延时，因而在小数据量的单点查询场景相比 hash 结构并不占优势。</li>
 <li>当前自写 bitcask 模型还没有引入并发处理的开销，而 sled 是并发安全的，如此对比并不公平。</li>
 </ul>
-<p>本来想用一些 profile 工具测量一下 sled 的火焰图查找一下原因，由于本人的电脑芯片是 M1Pro，许多 profile 工具类如 perf 安装还不是很方便。在参照 <a href="https://github.com/tikv/pprof-rs/blob/master/examples/criterion.rs" target="_blank" rel="noopener"> pprof-rs 的文档</a> 为 criterion 配置之后依然无法打出火焰图，猜测可能跟环境有关系，便没有进一步再研究了，之后有机会在 Linux 下再进行 profile 吧。</p>
-<h3 id="Rust-Project-4-Concurrency-and-parallelism"><a href="#Rust-Project-4-Concurrency-and-parallelism" class="headerlink" title="Rust Project 4: Concurrency and parallelism"></a>Rust Project 4: Concurrency and parallelism</h3><p>本 project 过关代码可参考该 <a href="https://github.com/OneSizeFitsQuorum/PracticalNetworkedApplications/commit/3d31896e832cef31e78380794f768375fc1bfc70" target="_blank" rel="noopener">commit</a>。</p>
+<p>本来想用一些 profile 工具测量一下 sled 的火焰图查找一下原因，由于本人的电脑芯片是 M1Pro，许多 profile 工具类如 perf 安装还不是很方便。在参照 <a target="_blank" rel="noopener" href="https://github.com/tikv/pprof-rs/blob/master/examples/criterion.rs"> pprof-rs 的文档</a> 为 criterion 配置之后依然无法打出火焰图，猜测可能跟环境有关系，便没有进一步再研究了，之后有机会在 Linux 下再进行 profile 吧。</p>
+<h3 id="Rust-Project-4-Concurrency-and-parallelism"><a href="#Rust-Project-4-Concurrency-and-parallelism" class="headerlink" title="Rust Project 4: Concurrency and parallelism"></a>Rust Project 4: Concurrency and parallelism</h3><p>本 project 过关代码可参考该 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/PracticalNetworkedApplications/commit/3d31896e832cef31e78380794f768375fc1bfc70">commit</a>。</p>
 <h4 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h4><p>为了多线程需要抽象出线程池的概念，ThreadPool trait 定义如下：spawn 函数中的闭包 F 不仅需要满足 FnOnce() 的 bound 来满足近执行一次的语义，还要实现 Send + ‘static 的 bound 来实现线程安全的发送接收和足够长的生命周期。</p>
 <p><img src="/naive-kvengine-in-rust/boxcnZcbACyBVBV9JlUYqicx0we.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>对于最简单的 NaiveThreadPool，仅仅需要在 spawn 的时候创建一个线程让其执行即可。</p>
 <p><img src="/naive-kvengine-in-rust/boxcnkG00kSYp5ZcIaGm4TmiKpe.png" srcset="/img/loading.gif" lazyload alt></p>
-<p>对于共享队列的 ThreadPool，参照 RustBook 中的 <a href="https://kaisery.github.io/trpl-zh-cn/ch20-02-multithreaded.html" target="_blank" rel="noopener">举例</a> 即可实现。大体思路是用 channel 做通信，让多个子线程竞争 job 去执行即可。需要注意以下三点：</p>
+<p>对于共享队列的 ThreadPool，参照 RustBook 中的 <a target="_blank" rel="noopener" href="https://kaisery.github.io/trpl-zh-cn/ch20-02-multithreaded.html">举例</a> 即可实现。大体思路是用 channel 做通信，让多个子线程竞争 job 去执行即可。需要注意以下三点：</p>
 <ul>
-<li>std 库自带的 channel 是 MPSC 类型，因而可以支持并发写但不支持并发读。因而要想实现多个子 thread 对 channel 的监听便需要用 Arc<Mutex<receiver>&gt; 来保证不存在并发读。此外也可以使用 crossbeam 的 <a href="https://github.com/crossbeam-rs/crossbeam/tree/master/crossbeam-channel" target="_blank" rel="noopener">mpsc channel</a> 来支持并发读，那样便直接 clone 即可。</Mutex<receiver></li>
+<li>std 库自带的 channel 是 MPSC 类型，因而可以支持并发写但不支持并发读。因而要想实现多个子 thread 对 channel 的监听便需要用 Arc<Mutex<receiver>&gt; 来保证不存在并发读。此外也可以使用 crossbeam 的 <a target="_blank" rel="noopener" href="https://github.com/crossbeam-rs/crossbeam/tree/master/crossbeam-channel">mpsc channel</a> 来支持并发读，那样便直接 clone 即可。</Mutex<receiver></li>
 <li>为了优雅停机，对于 Job 又包装了一层枚举和 Terminate 类型来支持子 thread 的优雅退出，此外还需要利用 Box 将闭包 F 放在堆上来支持线程安全的传递闭包。</li>
-<li>由于单元测试中传入的闭包可能会 panic 但不想看到线程池中的线程减少，一种方案是检测到线程 panic 退出之后新增新的线程，另一种方式则是捕获可能得 panic。例如在 Java 中可以使用 try catch 捕捉一个 throwable 的错误，在 go 中可以 defer recover 一个 panic。在 rust 中类似的语法是 <a href="https://doc.rust-lang.org/std/panic/fn.catch_unwind.html" target="_blank" rel="noopener">catch_unwind</a>，因而在执行真正的 job 闭包时，会使用 panic::catch_unwind(AssertUnwindSafe(job)) 的方式来确保该线程不会由于执行闭包而 panic。</li>
+<li>由于单元测试中传入的闭包可能会 panic 但不想看到线程池中的线程减少，一种方案是检测到线程 panic 退出之后新增新的线程，另一种方式则是捕获可能得 panic。例如在 Java 中可以使用 try catch 捕捉一个 throwable 的错误，在 go 中可以 defer recover 一个 panic。在 rust 中类似的语法是 <a target="_blank" rel="noopener" href="https://doc.rust-lang.org/std/panic/fn.catch_unwind.html">catch_unwind</a>，因而在执行真正的 job 闭包时，会使用 panic::catch_unwind(AssertUnwindSafe(job)) 的方式来确保该线程不会由于执行闭包而 panic。</li>
 </ul>
 <p><img src="/naive-kvengine-in-rust/boxcnb0wlmKE1MrtOLIjPnjaiBd.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="/naive-kvengine-in-rust/boxcnkPconSZtYcnSV1O8K4loPk.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -505,7 +489,7 @@
 </ul>
 <p><img src="/naive-kvengine-in-rust/boxcn2a3QFIu6KvawbPR6I8lb0d.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
-<li>使用了 <a href="https://bheisler.github.io/criterion.rs/book/user_guide/benchmarking_with_inputs.html" target="_blank" rel="noopener">bench_with_input</a> 接口来支持不同线程数的对比</li>
+<li>使用了 <a target="_blank" rel="noopener" href="https://bheisler.github.io/criterion.rs/book/user_guide/benchmarking_with_inputs.html">bench_with_input</a> 接口来支持不同线程数的对比</li>
 </ul>
 <p><img src="/naive-kvengine-in-rust/boxcncFWYwfER6WT9yFEYNoIIud.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
@@ -554,35 +538,77 @@
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过本 Rust Lab，总共写了大约 2000+ 行的 Rust 代码。从 Cargo 包管理到 Rust 的所有权机制，然后到错误管理和若干标准库三方库的使用，再到线程池和并发引擎的设计以及异步 Runtime 的学习，虽然在性能测试和对比部分做的并不完善，但这些内容已经涵盖了开发大型 Rust 项目的方方面面。</p>
 <p>下一步计划开始从 TiKV 的小 issue 入手，进一步深入学习 Rust。</p>
 
-            </div>
-            <hr>
-            <div>
-              <div class="post-metas mb-3">
-                
-                
-                  <div class="post-meta">
-                    <i class="iconfont icon-tags"></i>
-                    
-                      <a class="hover-with-bg" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/">存储引擎</a>
-                    
-                      <a class="hover-with-bg" href="/tags/Rust/">Rust</a>
-                    
-                  </div>
                 
               </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" class="print-no-link">#存储引擎</a>
+      
+        <a href="/tags/Rust/" class="print-no-link">#Rust</a>
+      
+    </div>
+  
+</div>
+
+
               
-                <p class="note note-warning">
-                  
-                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
-                  
-                </p>
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Talent-Plan：用 Rust 实现简易 KV 引擎</div>
+      <div>https://tanxinyu.work/naive-kvengine-in-rust/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>谭新宇</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年8月28日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
               
               
-                <div class="post-prevnext">
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/tikv-source-code-reading-module/">
+                      <a href="/tikv-source-code-reading-module/" title="TiKV 源码阅读三部曲（一）重要模块">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">TiKV 源码阅读三部曲（一）重要模块</span>
                         <span class="visible-mobile">上一篇</span>
@@ -592,7 +618,7 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/percolator-in-rust/">
+                      <a href="/percolator-in-rust/" title="Talent-Plan：用 Rust 实现 Percolator 算法">
                         <span class="hidden-mobile">Talent-Plan：用 Rust 实现 Percolator 算法</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
@@ -604,12 +630,10 @@
             </div>
 
             
-              <!-- Comments -->
-              <article class="comments" id="comments" lazyload>
-                
-                  
-                
-                
+  
+  
+    <article id="comments" lazyload>
+      
   <script type="text/javascript">
     Fluid.utils.loadComments('#comments', function() {
       var light = 'github-light';
@@ -637,25 +661,67 @@
   <noscript>Please enable JavaScript to view the comments</noscript>
 
 
-              </article>
-            
+    </article>
+  
+
+
           </article>
         </div>
       </div>
     </div>
-    
-      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
-        <div id="toc">
-  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
   <div class="toc-body" id="toc-body"></div>
 </div>
 
-      </div>
-    
+
+
+  </aside>
+
+
+    </div>
   </div>
 </div>
 
-<!-- Custom -->
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
 
 
     
@@ -680,56 +746,58 @@
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v"
-                 for="local-search-input">关键词</label>
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
     </div>
   </div>
 </div>
+
     
 
     
   </main>
 
-  <footer class="text-center mt-5 py-3">
-  <div class="footer-content">
-     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-  </div>
+  <footer>
+    <div class="footer-inner">
   
-  <div class="statistics">
-    
-    
-
-    
-      
-        <!-- 不蒜子统计PV -->
-        <span id="busuanzi_container_site_pv" style="display: none">
-            总访问量 
-            <span id="busuanzi_value_site_pv"></span>
-             次
-          </span>
-      
-      
-        <!-- 不蒜子统计UV -->
-        <span id="busuanzi_container_site_uv" style="display: none">
-            总访客数 
-            <span id="busuanzi_value_site_uv"></span>
-             人
-          </span>
-      
-    
-  </div>
-
-
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
   
 
   
-</footer>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
 
+  
+  
+  
+</div>
 
-  <!-- SCRIPTS -->
+  </footer>
+
+  <!-- Scripts -->
   
   <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
@@ -748,10 +816,22 @@
 <script  src="/js/events.js" ></script>
 <script  src="/js/plugins.js" ></script>
 
-<!-- Plugins -->
 
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
 
-  <script  src="/js/local-search.js" ></script>
 
 
 
@@ -761,114 +841,161 @@
 
 
 
-  
-
-
 
   
-    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
-  
-  
-    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
-  
-  
-    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
-  
-  
-    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
-  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
 
 
+  <script src=https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
 
   <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var title = document.getElementById('subtitle').title;
-      
-      typing(title)
-      
-    })(window, document);
-  </script>
 
-
-
-
-
-  
-
-  
-    <!-- MathJax -->
-    <script>
-      MathJax = {
-        tex: {
-          inlineMath: [['$', '$'], ['\\(', '\\)']]
-        },
-        loader: {
-          load: ['ui/lazy']
-        },
-        options: {
-          renderActions: {
-            findScript: [10, doc => {
-              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
-                const display = !!node.type.match(/; *mode=display/);
-                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
-                const text = document.createTextNode('');
-                node.parentNode.replaceChild(text, node);
-                math.start = { node: text, delim: '', n: 0 };
-                math.end = { node: text, delim: '', n: 0 };
-                doc.math.push(math);
-              });
-            }, '', false],
-            insertedScript: [200, () => {
-              document.querySelectorAll('mjx-container').forEach(node => {
-                let target = node.parentNode;
-                if (target.nodeName.toLowerCase() === 'li') {
-                  target.parentNode.classList.add('has-jax');
-                }
-              });
-            }, '', false]
-          }
-        }
-      };
-    </script>
-
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
-
-  
-
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-
-
-
-
-<!-- 主题的启动项 保持在最底部 -->
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
 <script  src="/js/boot.js" ></script>
 
 
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         tex2jax: {

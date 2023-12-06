@@ -15,38 +15,17 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
-  <meta name="description" content="背景2022 年 10 月，2022 TiDB Hackathon Possibility at Scale 成功举办。 作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。 非常感谢 Hackathon 期间队友">
+  
+    <meta name="description" content="背景2022 年 10 月，2022 TiDB Hackathon Possibility at Scale 成功举办。 作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。 非常感谢 Hackathon 期间队友">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2022 TiDB Hackathon 产品组最佳校园奖总结">
 <meta property="og:url" content="https://tanxinyu.work/2022-tidb-hackathon/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="背景2022 年 10 月，2022 TiDB Hackathon Possibility at Scale 成功举办。 作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。 非常感谢 Hackathon 期间队友">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/1.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/2.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/3.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/4.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/5.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/6.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/7.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/8.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/9.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/10.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/11.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/12.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/13.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/14.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/15.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/16.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/17.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/18.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/19.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/20.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/21.png">
-<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/22.png">
+<meta property="og:image" content="https://tanxinyu.work/2022-tidb-hackathon/overview.png">
 <meta property="article:published_time" content="2022-12-08T12:28:07.000Z">
 <meta property="article:modified_time" content="2022-12-15T02:24:52.089Z">
 <meta property="article:author" content="谭新宇">
@@ -54,32 +33,30 @@
 <meta property="article:tag" content="共识算法">
 <meta property="article:tag" content="分布式存储">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://tanxinyu.work/2022-tidb-hackathon/1.png">
+<meta name="twitter:image" content="https://tanxinyu.work/2022-tidb-hackathon/overview.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
   
   <title>2022 TiDB Hackathon 产品组最佳校园奖总结 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
 
+
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+
   <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-  
-    
-    
-      
-      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
-    
-  
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
 
-  
-    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
-  
 
 
 <!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -88,22 +65,56 @@
 
 <link  rel="stylesheet" href="/css/main.css" />
 
-<!-- 自定义样式保持在最底部 -->
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
 
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
-<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
 </head>
 
 
 <body>
-  <header style="height: 70vh;">
-    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
       <strong>TXY</strong>
@@ -124,9 +135,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/">
+              <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
-                首页
+                <span>首页</span>
               </a>
             </li>
           
@@ -136,9 +147,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/archives/">
+              <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
-                归档
+                <span>归档</span>
               </a>
             </li>
           
@@ -148,9 +159,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/tags/">
+              <a class="nav-link" href="/tags/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
-                标签
+                <span>标签</span>
               </a>
             </li>
           
@@ -160,9 +171,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/about/">
+              <a class="nav-link" href="/about/" target="_self">
                 <i class="iconfont icon-user-fill"></i>
-                关于
+                <span>关于</span>
               </a>
             </li>
           
@@ -172,9 +183,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/links/">
+              <a class="nav-link" href="/links/" target="_self">
                 <i class="iconfont icon-link-fill"></i>
-                友链
+                <span>友链</span>
               </a>
             </li>
           
@@ -182,14 +193,16 @@
         
           <li class="nav-item" id="search-btn">
             <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+              <i class="iconfont icon-search"></i>
             </a>
           </li>
+          
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
           </li>
         
       </ul>
@@ -197,65 +210,79 @@
   </div>
 </nav>
 
-    <div class="banner" id="banner" parallax=true
-         style="background: url('/img/blog-background.jpeg') no-repeat center center;
-           background-size: cover;">
-      <div class="full-bg-img">
-        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-          <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="2022 TiDB Hackathon 产品组最佳校园奖总结">
-              
-            </span>
-
-            
-              <div class="mt-3">
-  
-  
-    <span class="post-meta">
-      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2022-12-08 20:28" pubdate>
-        2022年12月8日 晚上
-      </time>
-    </span>
-  
-</div>
-
-<div class="mt-1">
-  
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-chart"></i>
-      5.5k 字
-    </span>
   
 
-  
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-clock-fill"></i>
-      
-      
-      17 分钟
-    </span>
-  
-
-  
-  
-    
-      <!-- 不蒜子统计文章PV -->
-      <span id="busuanzi_container_page_pv" style="display: none">
-        <i class="iconfont icon-eye" aria-hidden="true"></i>
-        <span id="busuanzi_value_page_pv"></span> 次
-      </span>
-    
-  
-</div>
-
-            
-          </div>
-
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/blog-background.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2022 TiDB Hackathon 产品组最佳校园奖总结"></span>
           
         </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-12-08 20:28" pubdate>
+          2022年12月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          12 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
       </div>
+
+      
     </div>
+  </div>
+</div>
+
+</div>
+
   </header>
 
   <main>
@@ -264,30 +291,38 @@
 
 <div class="container-fluid nopadding-x">
   <div class="row nomargin-x">
-    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
     <div class="col-lg-8 nopadding-x-md">
       <div class="container nopadding-x-md" id="board-ctn">
-        <div class="py-5" id="board">
+        <div id="board">
           <article class="post-content mx-auto">
-            <!-- SEO header -->
-            <h1 style="display: none">2022 TiDB Hackathon 产品组最佳校园奖总结</h1>
+            <h1 id="seo-header">2022 TiDB Hackathon 产品组最佳校园奖总结</h1>
             
               <p class="note note-info">
                 
-                  本文最后更新于：1 年前
+                  
+                    <!-- compatible with older versions-->
+                    本文最后更新于：1 年前
+                  
                 
               </p>
             
-            <div class="markdown-body">
-              <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>2022 年 10 月，<a href="https://tidb.net/events/hackathon2022" target="_blank" rel="noopener">2022 TiDB Hackathon Possibility at Scale</a> 成功举办。</p>
+            
+              <div class="markdown-body">
+                
+                <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>2022 年 10 月，<a target="_blank" rel="noopener" href="https://tidb.net/events/hackathon2022">2022 TiDB Hackathon Possibility at Scale</a> 成功举办。</p>
 <p>作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。</p>
 <p>非常感谢 Hackathon 期间队友，mentor，组织者和评委对我们组的帮助和认可。</p>
 <p>本文将简单介绍我们组的工作和思考以做回顾。</p>
 <p>以下是我们项目的一些相关资料，欢迎点击了解：</p>
 <ul>
-<li><a href="https://github.com/orgs/FWH-TiKV/repositories" target="_blank" rel="noopener">代码</a></li>
-<li><a href="https://github.com/FWH-TiKV/RFC" target="_blank" rel="noopener">RFC</a></li>
-<li><a href="https://www.bilibili.com/video/BV1cP4y1S7Xo/" target="_blank" rel="noopener">答辩视频</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/orgs/FWH-TiKV/repositories">代码</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/FWH-TiKV/RFC">RFC</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1cP4y1S7Xo/">答辩视频</a></li>
 </ul>
 <p>注：本文仅代表个人看法。</p>
 <h2 id="工作"><a href="#工作" class="headerlink" title="工作"></a>工作</h2><p>本小节将沿着答辩 PPT 的思路介绍我们的工作。</p>
@@ -336,8 +371,8 @@
 <h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h2><p>本小节将更随心的介绍一些我们的思考。</p>
 <p>在这次 Hackathon 中，从技术上我们为 TiKV 做了 Parallel Apply 的优化；从产品上我们在高并发批量写入热点场景会有不错的收益。</p>
 <p>上小节已经介绍了基于 region split 的方式来缓解热点问题的局限性，那么如何解决这种局限性呢？这就要回到一个圣战问题了：Raft 和 Multi-Paxos 有什么区别？</p>
-<p>如同我在 <a href="https://github.com/FWH-TiKV/RFC" target="_blank" rel="noopener">RFC</a> 中介绍的一样，相比 Multi-Paxos，Raft 不能乱序 ack，不能乱序 commit，不能乱序 apply，因而有同学认为 Raft 不如 Multi-Paxos。</p>
-<p>dragonboat 的作者对此观点进行了 <a href="https://www.zhihu.com/question/278984902/answer/404439990" target="_blank" rel="noopener">反驳</a>，其主要有两个观点：</p>
+<p>如同我在 <a target="_blank" rel="noopener" href="https://github.com/FWH-TiKV/RFC">RFC</a> 中介绍的一样，相比 Multi-Paxos，Raft 不能乱序 ack，不能乱序 commit，不能乱序 apply，因而有同学认为 Raft 不如 Multi-Paxos。</p>
+<p>dragonboat 的作者对此观点进行了 <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/278984902/answer/404439990">反驳</a>，其主要有两个观点：</p>
 <ul>
 <li>乱序并行 apply 不如拆分出更多的 raft 组来并行。</li>
 <li>对于一个通用的共识库，不能乱序 apply 是受限于 RSM 模型本身的限制，并不是 Raft 本身的问题。对于特定场景，乱序 apply 可以达到一定效果，但并不是一个通用性的优化。</li>
@@ -347,7 +382,7 @@
 <p>事实上，如果不支持乱序 apply，那共识算法的乱序 ack 和乱序 commit 可能没太大意义，因为整个共识组的瓶颈受限于最慢的模块。如果只能顺序 apply，那即使乱序 commit 了一批日志，如果这些日志之前存在空洞，那么这批日志也只能在内存中等待而不能被 apply。然而如果支持了乱序 apply，那结合乱序 ack 和乱序 commit 就更可能提高共识组的吞吐上限。比如一旦支持乱序 commit，那可以使用多个 IO depth 来持久化不同批的日志，这样每次 IO 的大小减少了，也可能能够减少每次 IO 的平均时间。此外支持乱序 commit 后也可以将前面存在空洞但确保与空洞日志无依赖关系的一批乱序 commit 日志提前 apply 处理，进而抬高 apply 的瓶颈天花板。</p>
 <p>总体来看，Parallel Apply 能够解决 region 写热点在多核上的扩展性问题，Multi-Paxos 能够解决 region 写热点在现代硬盘上的扩展性问题。因此，Multi-Paxos + Parallel Apply 理论上能够解决写入热点在现代硬件上的扩展性问题。预计能够在写热点场景更充分的利用硬件资源，从而提升性能。</p>
 <p>在写 Hackathon RFC 的时候我更多的关注了对于写热点场景下 Raft 与 Multi-Paxos 的区别，然而对于其他场景，我意外的发现 Raft 和 Multi-Paxos 也能体现不同的价值。</p>
-<p>在 OB 社区 4.0 版本的 <a href="https://mp.weixin.qq.com/s/zKZrl26TIfkCK5EECLURzg" target="_blank" rel="noopener">介绍</a> 中，专门提到了一个很大的变动：自适应日志流，即将分片与共识解耦。在不考虑 leader 打散情况下，每个租户在一个进程中可以有多个分片但只会有一个共识组。</p>
+<p>在 OB 社区 4.0 版本的 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/zKZrl26TIfkCK5EECLURzg">介绍</a> 中，专门提到了一个很大的变动：自适应日志流，即将分片与共识解耦。在不考虑 leader 打散情况下，每个租户在一个进程中可以有多个分片但只会有一个共识组。</p>
 <p><img src="/2022-tidb-hackathon/19.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>基于传统 Raft 的方案是很难去做出这样的架构设计的，但 Multi-Paxos 可以做到。</p>
 <p><img src="/2022-tidb-hackathon/20.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -355,41 +390,83 @@
 <p><img src="/2022-tidb-hackathon/21.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>总体而看，一个系统的架构设计就是要在关键模块的各种 trade-off 中做出纠结的选择，并且一旦做出了某个选择，就需要基于这个选择更进一步做非常多的产品化工作和优化打磨来提升这些技术对于用户的实际价值。例如，TiDB 选了 TSO 的时间戳获取方案并不代表就不能服务跨数据中心场景了，其也做了 Local/Global TSO 的产品化工作来满足部分用户场景的跨数据中心需求。CRDB 用了 HLC 之后并不仅仅体现在获取事务时间戳更快，其至少还基于 HLC 在 Strong/Stale Follower Read 这一块做了许多工作来减少跨域流量从而降低成本。对于 OB，其选择了 Multi-Paxos 而不是 Raft，并且更进一步在 4.0 架构中提出了单机分布式一体化架构来解决其他数据库很难彻底解决的写热点缓解，大事务支持和 1PC 比例增大等难点。当然，这些技术和产品化的工作短期内很难形成事实标准，也都能够在各自的用户场景产生价值，至于孰优孰劣就很难客观判断了。</p>
 <p><img src="/2022-tidb-hackathon/22.png" srcset="/img/loading.gif" lazyload alt></p>
-<p>仅就技术而言，如同我在之前有关 <a href="https://zhuanlan.zhihu.com/p/581125699" target="_blank" rel="noopener">共识算法综述博客</a> 开头中介绍的一样，对于 Raft 和 Multi Paxos 孰优孰劣这一圣战问题，我的主观看法是对于普通 KV，很可能区别不大。对于结合共识和事务模块的 NewSQL 数据库，Multi-Paxos 能够在整体上为一些难点问题提供一点不一样的思路（例如增大 1PC 比例，缓解写热点问题，大事务支持等等），可能有更高的性能天花板。</p>
+<p>仅就技术而言，如同我在之前有关 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/581125699">共识算法综述博客</a> 开头中介绍的一样，对于 Raft 和 Multi Paxos 孰优孰劣这一圣战问题，我的主观看法是对于普通 KV，很可能区别不大。对于结合共识和事务模块的 NewSQL 数据库，Multi-Paxos 能够在整体上为一些难点问题提供一点不一样的思路（例如增大 1PC 比例，缓解写热点问题，大事务支持等等），可能有更高的性能天花板。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文简要总结了 2022 TiDB Hackathon 产品组最佳校园奖热点清零队的工作，并简要分享了本人对 Raft 和 Multi-Paxos 异同的看法，希望能够引起更多的讨论。</p>
 <p>感谢您的阅读~</p>
 
-            </div>
-            <hr>
-            <div>
-              <div class="post-metas mb-3">
-                
-                
-                  <div class="post-meta">
-                    <i class="iconfont icon-tags"></i>
-                    
-                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
-                    
-                      <a class="hover-with-bg" href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
-                    
-                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
-                    
-                  </div>
                 
               </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/" class="print-no-link">#分布式系统理论</a>
+      
+        <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/" class="print-no-link">#共识算法</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/" class="print-no-link">#分布式存储</a>
+      
+    </div>
+  
+</div>
+
+
               
-                <p class="note note-warning">
-                  
-                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
-                  
-                </p>
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2022 TiDB Hackathon 产品组最佳校园奖总结</div>
+      <div>https://tanxinyu.work/2022-tidb-hackathon/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>谭新宇</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年12月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
               
               
-                <div class="post-prevnext">
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022-internet-job-hunting-experience-sharing/">
+                      <a href="/2022-internet-job-hunting-experience-sharing/" title="2022 互联网求职经验分享">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">2022 互联网求职经验分享</span>
                         <span class="visible-mobile">上一篇</span>
@@ -399,7 +476,7 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/have-we-reached-consensus-on-consensus/">
+                      <a href="/have-we-reached-consensus-on-consensus/" title="Have we reached consensus on consensus？">
                         <span class="hidden-mobile">Have we reached consensus on consensus？</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
@@ -411,12 +488,10 @@
             </div>
 
             
-              <!-- Comments -->
-              <article class="comments" id="comments" lazyload>
-                
-                  
-                
-                
+  
+  
+    <article id="comments" lazyload>
+      
   <script type="text/javascript">
     Fluid.utils.loadComments('#comments', function() {
       var light = 'github-light';
@@ -444,25 +519,67 @@
   <noscript>Please enable JavaScript to view the comments</noscript>
 
 
-              </article>
-            
+    </article>
+  
+
+
           </article>
         </div>
       </div>
     </div>
-    
-      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
-        <div id="toc">
-  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
   <div class="toc-body" id="toc-body"></div>
 </div>
 
-      </div>
-    
+
+
+  </aside>
+
+
+    </div>
   </div>
 </div>
 
-<!-- Custom -->
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
 
 
     
@@ -487,56 +604,58 @@
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v"
-                 for="local-search-input">关键词</label>
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
     </div>
   </div>
 </div>
+
     
 
     
   </main>
 
-  <footer class="text-center mt-5 py-3">
-  <div class="footer-content">
-     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-  </div>
+  <footer>
+    <div class="footer-inner">
   
-  <div class="statistics">
-    
-    
-
-    
-      
-        <!-- 不蒜子统计PV -->
-        <span id="busuanzi_container_site_pv" style="display: none">
-            总访问量 
-            <span id="busuanzi_value_site_pv"></span>
-             次
-          </span>
-      
-      
-        <!-- 不蒜子统计UV -->
-        <span id="busuanzi_container_site_uv" style="display: none">
-            总访客数 
-            <span id="busuanzi_value_site_uv"></span>
-             人
-          </span>
-      
-    
-  </div>
-
-
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
   
 
   
-</footer>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
 
+  
+  
+  
+</div>
 
-  <!-- SCRIPTS -->
+  </footer>
+
+  <!-- Scripts -->
   
   <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
@@ -555,10 +674,22 @@
 <script  src="/js/events.js" ></script>
 <script  src="/js/plugins.js" ></script>
 
-<!-- Plugins -->
 
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
 
-  <script  src="/js/local-search.js" ></script>
 
 
 
@@ -568,114 +699,161 @@
 
 
 
-  
-
-
 
   
-    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
-  
-  
-    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
-  
-  
-    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
-  
-  
-    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
-  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
 
 
+  <script src=https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
 
   <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var title = document.getElementById('subtitle').title;
-      
-      typing(title)
-      
-    })(window, document);
-  </script>
 
-
-
-
-
-  
-
-  
-    <!-- MathJax -->
-    <script>
-      MathJax = {
-        tex: {
-          inlineMath: [['$', '$'], ['\\(', '\\)']]
-        },
-        loader: {
-          load: ['ui/lazy']
-        },
-        options: {
-          renderActions: {
-            findScript: [10, doc => {
-              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
-                const display = !!node.type.match(/; *mode=display/);
-                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
-                const text = document.createTextNode('');
-                node.parentNode.replaceChild(text, node);
-                math.start = { node: text, delim: '', n: 0 };
-                math.end = { node: text, delim: '', n: 0 };
-                doc.math.push(math);
-              });
-            }, '', false],
-            insertedScript: [200, () => {
-              document.querySelectorAll('mjx-container').forEach(node => {
-                let target = node.parentNode;
-                if (target.nodeName.toLowerCase() === 'li') {
-                  target.parentNode.classList.add('has-jax');
-                }
-              });
-            }, '', false]
-          }
-        }
-      };
-    </script>
-
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
-
-  
-
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-
-
-
-
-<!-- 主题的启动项 保持在最底部 -->
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
 <script  src="/js/boot.js" ></script>
 
 
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         tex2jax: {

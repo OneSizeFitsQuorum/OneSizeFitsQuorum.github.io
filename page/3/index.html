@@ -15,10 +15,10 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
-  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
+  
+    <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
 <meta property="og:type" content="website">
 <meta property="og:title" content="谭新宇的博客">
 <meta property="og:url" content="https://tanxinyu.work/page/3/index.html">
@@ -28,15 +28,22 @@
 <meta property="article:author" content="谭新宇">
 <meta name="twitter:card" content="summary_large_image">
   
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
   <title>谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
 
 
-<!-- 主题依赖的图标库，不要自行修改 -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -45,22 +52,56 @@
 
 <link  rel="stylesheet" href="/css/main.css" />
 
-<!-- 自定义样式保持在最底部 -->
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
 
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
-<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
 </head>
 
 
 <body>
-  <header style="height: 100vh;">
-    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
       <strong>TXY</strong>
@@ -81,9 +122,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/">
+              <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
-                首页
+                <span>首页</span>
               </a>
             </li>
           
@@ -93,9 +134,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/archives/">
+              <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
-                归档
+                <span>归档</span>
               </a>
             </li>
           
@@ -105,9 +146,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/tags/">
+              <a class="nav-link" href="/tags/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
-                标签
+                <span>标签</span>
               </a>
             </li>
           
@@ -117,9 +158,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/about/">
+              <a class="nav-link" href="/about/" target="_self">
                 <i class="iconfont icon-user-fill"></i>
-                关于
+                <span>关于</span>
               </a>
             </li>
           
@@ -129,9 +170,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/links/">
+              <a class="nav-link" href="/links/" target="_self">
                 <i class="iconfont icon-link-fill"></i>
-                友链
+                <span>友链</span>
               </a>
             </li>
           
@@ -139,14 +180,16 @@
         
           <li class="nav-item" id="search-btn">
             <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+              <i class="iconfont icon-search"></i>
             </a>
           </li>
+          
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
           </li>
         
       </ul>
@@ -154,34 +197,40 @@
   </div>
 </nav>
 
-    <div class="banner" id="banner" parallax=true
-         style="background: url('/img/blog-background.jpeg') no-repeat center center;
-           background-size: cover;">
-      <div class="full-bg-img">
-        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-          <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="Make Each Day Count">
-              
-            </span>
+  
 
-            
-          </div>
-
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/blog-background.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
           
-            <div class="scroll-down-bar">
-              <i class="iconfont icon-arrowdown"></i>
-            </div>
+            <span id="subtitle" data-typed-text="Make Each Day Count"></span>
           
         </div>
+
+        
       </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
     </div>
+  </div>
+</div>
+
+</div>
+
   </header>
 
   <main>
     
       <div class="container nopadding-x-md">
-        <div class="py-5" id="board"
-          style=margin-top:0>
+        <div id="board"
+          style="margin-top: 0">
           
           <div class="container">
             <div class="row">
@@ -199,26 +248,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/bitcoin/" target="_self">
           Bitcoin 论文阅读
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/bitcoin/" target="_self">
-          
-          
-            
-          
-          相关背景2008 年，中本聪设计出了比特币和区块链。在今天，区块链成为了热门的技术，其通过分布式账本技术和共识机制，构建了低成本互信机制。
-区块链三个根本特性是去中心化、实现点对点的价值传递和低成本信任机制。
-介绍区块链是一个划时代的技术，其使得我们能够不假装相信一个中央机构而实现可信的交易。
-下面简单讨论一下一些设计要点：
-首先，在公网的 P2P 系统中，我们必须设计出支持拜占庭容错的共识算法。
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/bitcoin/" target="_self">
+        <div>
+          相关背景2008 年，中本聪设计出了比特币和区块链。在今天，区块链成为了热门的技术，其通过分布式账本技术和共识机制，构建了低成本互信机制。 区块链三个根本特性是去中心化、实现点对点的价值传递和低成本信任机制。 介绍区块链是一个划时代的技术，其使得我们能够不假装相信一个中央机构而实现可信的交易。 下面简单讨论一下一些设计要点： 首先，在公网的 P2P 系统中，我们必须设计出支持拜占庭容错的共识算法。
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -234,7 +276,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
             
           </div>
         
@@ -252,35 +294,19 @@
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/spanner-thesis/" target="_self">
           Spanner 论文阅读
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/spanner-thesis/" target="_self">
-          
-          
-            
-          
-          相关背景Google Spanner 是 Google 一篇跨时代的论文，开启了 NewSQL 时代的序幕。
-其主要有三点特色：
-
-2PC + 共识组来避免 2PC 的无限超时阻塞。
-GPS 原子钟同步技术以支持快速的只读事务。
-支持 ACID 的全球型 NewSQL 数据库。
-
-介绍暂仅搬运一些资料，之后有时间再补。
-
-6.824 讲义
-6.824 视频
-论文
-Spanner 白皮书
-Spann
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/spanner-thesis/" target="_self">
+        <div>
+          相关背景Google Spanner 是 Google 一篇跨时代的论文，开启了 NewSQL 时代的序幕。 其主要有三点特色：  2PC + 共识组来避免 2PC 的无限超时阻塞。 GPS 原子钟同步技术以支持快速的只读事务。 支持 ACID 的全球型 NewSQL 数据库。  介绍暂仅搬运一些资料，之后有时间再补。  6.824 讲义 6.824 视频 论文 Spanner 白皮书 Spann
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -296,11 +322,11 @@ Spann
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
             
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
             
-              <a href="/tags/Google/">Google</a>
+              <a href="/tags/Google/">#Google</a>
             
           </div>
         
@@ -318,26 +344,19 @@ Spann
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/farm-thesis/" target="_self">
           Farm 论文阅读
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/farm-thesis/" target="_self">
-          
-          
-            
-          
-          相关背景Fram 结合了乐观事务和硬件优势，在保证可串行化的基础上实现了高性能的分布式事务框架。虽然其系统仅是一个原型系统，但其思想十分具有指导意义。
-其主要利用了三点硬件特性：
-
-NV RAM：减少磁盘 IO 对性能的影响。（一次 RAM 写大致需要 200ns，一次 SSD 写大致需要 100us，一次 HDD 写大致需要 100ms）
-Kernal Bypass：本地应用直接与网卡交互，无系
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/farm-thesis/" target="_self">
+        <div>
+          相关背景Fram 结合了乐观事务和硬件优势，在保证可串行化的基础上实现了高性能的分布式事务框架。虽然其系统仅是一个原型系统，但其思想十分具有指导意义。 其主要利用了三点硬件特性：  NV RAM：减少磁盘 IO 对性能的影响。（一次 RAM 写大致需要 200ns，一次 SSD 写大致需要 100us，一次 HDD 写大致需要 100ms） Kernal Bypass：本地应用直接与网卡交互，无系
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -353,9 +372,9 @@ Kernal Bypass：本地应用直接与网卡交互，无系
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
             
           </div>
         
@@ -373,24 +392,19 @@ Kernal Bypass：本地应用直接与网卡交互，无系
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/distributed-transactions/" target="_self">
           分布式事务简介
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/distributed-transactions/" target="_self">
-          
-          
-            
-          
-          前言事务是作为单个逻辑工作单元执行的一系列操作。一个逻辑工作单元必须有四个属性，称为原子性、一致性、隔离性和持久性 (ACID) 属性。分布式事务则是尝试在多节点的环境下实现这些语义。
-分布式事务涉及的知识内容较多，本篇博客并没有将其彻底整理清楚，只是简单记录了一下 6.824 课程所学。
-内容对于分布式事务，可以将其细化为并发控制和原子提交两个子问题。前者是在说如何保证并发事务的串行隔离性，后者
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/distributed-transactions/" target="_self">
+        <div>
+          前言事务是作为单个逻辑工作单元执行的一系列操作。一个逻辑工作单元必须有四个属性，称为原子性、一致性、隔离性和持久性 (ACID) 属性。分布式事务则是尝试在多节点的环境下实现这些语义。 分布式事务涉及的知识内容较多，本篇博客并没有将其彻底整理清楚，只是简单记录了一下 6.824 课程所学。 内容对于分布式事务，可以将其细化为并发控制和原子提交两个子问题。前者是在说如何保证并发事务的串行隔离性，后者
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -406,7 +420,7 @@ Kernal Bypass：本地应用直接与网卡交互，无系
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
           </div>
         
@@ -424,24 +438,19 @@ Kernal Bypass：本地应用直接与网卡交互，无系
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/aurora-thesis/" target="_self">
           Aurora 论文阅读
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/aurora-thesis/" target="_self">
-          
-          
-            
-          
-          相关背景Amazon Aurora 是一种与 MySQL 和 PostgreSQL 兼容的关系数据库，专为云而打造，既具有传统企业数据库的性能和可用性，又具有开源数据库的简单性和成本效益。
-Amazon Aurora 的速度最高可以达到标准 MySQL 数据库的五倍、标准 PostgreSQL 数据库的三倍。它可以实现商用数据库的安全性、可用性和可靠性，而成本只有商用数据库的 1/10。
-关于 A
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/aurora-thesis/" target="_self">
+        <div>
+          相关背景Amazon Aurora 是一种与 MySQL 和 PostgreSQL 兼容的关系数据库，专为云而打造，既具有传统企业数据库的性能和可用性，又具有开源数据库的简单性和成本效益。 Amazon Aurora 的速度最高可以达到标准 MySQL 数据库的五倍、标准 PostgreSQL 数据库的三倍。它可以实现商用数据库的安全性、可用性和可靠性，而成本只有商用数据库的 1/10。 关于 A
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -457,9 +466,9 @@ Amazon Aurora 的速度最高可以达到标准 MySQL 数据库的五倍、标�
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
             
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
             
           </div>
         
@@ -477,30 +486,19 @@ Amazon Aurora 的速度最高可以达到标准 MySQL 数据库的五倍、标�
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/frangipani-thesis/" target="_self">
           Frangipani 论文阅读
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/frangipani-thesis/" target="_self">
-          
-          
-            
-          
-          前言Frangipani 是一篇很古老的分布式存储论文，其设计思想在今天看来有很多已经过时了，但也有一定的参考意义。
-该论文主要介绍了三个方面的工作：
-
-cache coherence
-distributed transactions
-distributed crash recovery
-
-内容具体内容可以参考此 博客 和 6.824 课程的 讲义，后者较为详细。
-有关后两个工作可以直接参考以上博
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/frangipani-thesis/" target="_self">
+        <div>
+          前言Frangipani 是一篇很古老的分布式存储论文，其设计思想在今天看来有很多已经过时了，但也有一定的参考意义。 该论文主要介绍了三个方面的工作：  cache coherence distributed transactions distributed crash recovery  内容具体内容可以参考此 博客 和 6.824 课程的 讲义，后者较为详细。 有关后两个工作可以直接参考以上博
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -516,9 +514,9 @@ distributed crash recovery
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">分布式存储</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
             
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
             
           </div>
         
@@ -536,23 +534,19 @@ distributed crash recovery
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/chain-replication-thesis/" target="_self">
           Chain Replication 论文阅读
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/chain-replication-thesis/" target="_self">
-          
-          
-            
-          
-          前言对于 raft、paxos 这类共识算法，leader 节点需要将客户端的写请求编号并发送给所有 follower 以期望达成共识，这一定程度上导致写性能无法随节点个数线性增长，因为 leader 同步的数据量会随着节点数的增长而增长，从而使得主节点承载着更大的压力，往往成为了瓶颈。
-2004 年，Chain Replication （之后简称 cr）方案被提出，其也能够保证多副本间的线性一致
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/chain-replication-thesis/" target="_self">
+        <div>
+          前言对于 raft、paxos 这类共识算法，leader 节点需要将客户端的写请求编号并发送给所有 follower 以期望达成共识，这一定程度上导致写性能无法随节点个数线性增长，因为 leader 同步的数据量会随着节点数的增长而增长，从而使得主节点承载着更大的压力，往往成为了瓶颈。 2004 年，Chain Replication （之后简称 cr）方案被提出，其也能够保证多副本间的线性一致
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -568,11 +562,11 @@ distributed crash recovery
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
             
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
             
           </div>
         
@@ -590,25 +584,19 @@ distributed crash recovery
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/zookeeper-thesis/" target="_self">
           Zookeeper 论文阅读
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/zookeeper-thesis/" target="_self">
-          
-          
-            
-          
-          前言Zookeeper 作为一个划时代的分布式协调服务，是 Hadoop 技术栈的重要组件。
-本篇博客将讨论一些 zk 论文的知识点。
-内容最近比较忙，没多少时间总结了，论文内容概要可以参考这篇 博客，更详细的细节可以参考这篇 博客。
-讨论zk or etcd?同为分布式协调服务和元数据存储服务的产品：老大哥 zk 伴随 NoSQL 运动崛起，坐拥 hadoop 技术栈孤独求败；后起之秀 etcd
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/zookeeper-thesis/" target="_self">
+        <div>
+          前言Zookeeper 作为一个划时代的分布式协调服务，是 Hadoop 技术栈的重要组件。 本篇博客将讨论一些 zk 论文的知识点。 内容最近比较忙，没多少时间总结了，论文内容概要可以参考这篇 博客，更详细的细节可以参考这篇 博客。 讨论zk or etcd?同为分布式协调服务和元数据存储服务的产品：老大哥 zk 伴随 NoSQL 运动崛起，坐拥 hadoop 技术栈孤独求败；后起之秀 etcd
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -624,11 +612,11 @@ distributed crash recovery
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
             
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
             
           </div>
         
@@ -646,23 +634,19 @@ distributed crash recovery
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/cluster-iotdb-idea-debugger/" target="_self">
           利用 IDEA 对分布式 IoTDB 进行调试
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/cluster-iotdb-idea-debugger/" target="_self">
-          
-          
-            
-          
-          前言在单机数据库中，寻找 bug 相对较为简单。因为一旦可以复现 bug，那我们可以利用 IDE 在服务端打断点一步步执行并跟踪查看堆栈信息来判断代码出错的位置从而最终找到问题。
-在分布式数据库中，找 bug 就变得相对困难了。一方面是因为分布式数据库较难利用 IDE 打断点，其往往通过打 log 的方式来记录错误情况，另一方面是一条客户端请求过来后往往伴随着若干并行和跨节点的 rpc，因此如果通
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/cluster-iotdb-idea-debugger/" target="_self">
+        <div>
+          前言在单机数据库中，寻找 bug 相对较为简单。因为一旦可以复现 bug，那我们可以利用 IDE 在服务端打断点一步步执行并跟踪查看堆栈信息来判断代码出错的位置从而最终找到问题。 在分布式数据库中，找 bug 就变得相对困难了。一方面是因为分布式数据库较难利用 IDE 打断点，其往往通过打 log 的方式来记录错误情况，另一方面是一条客户端请求过来后往往伴随着若干并行和跨节点的 rpc，因此如果通
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -678,9 +662,9 @@ distributed crash recovery
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/IoTDB/">IoTDB</a>
+              <a href="/tags/IoTDB/">#IoTDB</a>
             
-              <a href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E9%85%8D%E7%BD%AE/">开发工具配置</a>
+              <a href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E9%85%8D%E7%BD%AE/">#开发工具配置</a>
             
           </div>
         
@@ -698,25 +682,19 @@ distributed crash recovery
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
+      <h2 class="index-header">
         
         <a href="/consistency-and-consensus/" target="_self">
           一致性模型与共识算法
         </a>
-      </h1>
+      </h2>
 
-      <p class="index-excerpt">
-        <a href="/consistency-and-consensus/" target="_self">
-          
-          
-            
-          
-          前言有关一致性模型和共识算法的一致性模型这两个问题，最近阅读了一些优质博客，学到了一些新的东西，同时感觉一些定义比较混乱，特此记录一下自己的理解。
-一致性模型一致性问题是分布式领域最为基础也是最重要的问题，具体来历可以参考此 博客。
-一般来讲，分布式系统中的一致性按照对一致性要求的不同，主要分为强一致性，弱一致性这两大类，前者是基于 safety 的概念，后者是基于 liveness 的概念。
-强
-        </a>
-      </p>
+      
+      <a class="index-excerpt " href="/consistency-and-consensus/" target="_self">
+        <div>
+          前言有关一致性模型和共识算法的一致性模型这两个问题，最近阅读了一些优质博客，学到了一些新的东西，同时感觉一些定义比较混乱，特此记录一下自己的理解。 一致性模型一致性问题是分布式领域最为基础也是最重要的问题，具体来历可以参考此 博客。 一般来讲，分布式系统中的一致性按照对一致性要求的不同，主要分为强一致性，弱一致性这两大类，前者是基于 safety 的概念，后者是基于 liveness 的概念。 强
+        </div>
+      </a>
 
       <div class="index-btm post-metas">
         
@@ -732,9 +710,9 @@ distributed crash recovery
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
             
           </div>
         
@@ -779,56 +757,58 @@ distributed crash recovery
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v"
-                 for="local-search-input">关键词</label>
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
     </div>
   </div>
 </div>
+
     
 
     
   </main>
 
-  <footer class="text-center mt-5 py-3">
-  <div class="footer-content">
-     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-  </div>
+  <footer>
+    <div class="footer-inner">
   
-  <div class="statistics">
-    
-    
-
-    
-      
-        <!-- 不蒜子统计PV -->
-        <span id="busuanzi_container_site_pv" style="display: none">
-            总访问量 
-            <span id="busuanzi_value_site_pv"></span>
-             次
-          </span>
-      
-      
-        <!-- 不蒜子统计UV -->
-        <span id="busuanzi_container_site_uv" style="display: none">
-            总访客数 
-            <span id="busuanzi_value_site_uv"></span>
-             人
-          </span>
-      
-    
-  </div>
-
-
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
   
 
   
-</footer>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
 
+  
+  
+  
+</div>
 
-  <!-- SCRIPTS -->
+  </footer>
+
+  <!-- Scripts -->
   
   <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
@@ -847,10 +827,22 @@ distributed crash recovery
 <script  src="/js/events.js" ></script>
 <script  src="/js/plugins.js" ></script>
 
-<!-- Plugins -->
 
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
 
-  <script  src="/js/local-search.js" ></script>
 
 
 
@@ -860,59 +852,25 @@ distributed crash recovery
 
 
 
-  
 
-
-
-
+  <script  src="/js/local-search.js" ></script>
 
   <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var title = document.getElementById('subtitle').title;
-      
-      typing(title)
-      
-    })(window, document);
-  </script>
 
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-
-
-
-
-<!-- 主题的启动项 保持在最底部 -->
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
 <script  src="/js/boot.js" ></script>
 
 
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         tex2jax: {

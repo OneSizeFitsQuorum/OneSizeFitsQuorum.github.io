@@ -15,56 +15,47 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="分享记录自己对于生活，学习与工作的见闻">
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
-  <meta name="description" content="背景共识算法共识算法允许一组节点像一个整体一样一起工作，即使其中一些节点出现故障也能够继续工作下去，其正确性主要源于复制状态机的性质：  任何初始状态一样的状态机，如果执行的命令序列一样，则最终达到的状态也一样。如果将此特性应用在多参与者进行协商共识上，可以理解为系统中存在多个具有完全相同的状态机（参与者），这些状态机能最终保持一致的关键就是起始状态完全一致和执行命令序列完全一致。  共识算法常被">
+  
+    <meta name="description" content="背景共识算法共识算法允许一组节点像一个整体一样一起工作，即使其中一些节点出现故障也能够继续工作下去，其正确性主要源于复制状态机的性质：  任何初始状态一样的状态机，如果执行的命令序列一样，则最终达到的状态也一样。如果将此特性应用在多参与者进行协商共识上，可以理解为系统中存在多个具有完全相同的状态机（参与者），这些状态机能最终保持一致的关键就是起始状态完全一致和执行命令序列完全一致。  共识算法常被">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Raft 算法介绍">
 <meta property="og:url" content="https://tanxinyu.work/raft/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="背景共识算法共识算法允许一组节点像一个整体一样一起工作，即使其中一些节点出现故障也能够继续工作下去，其正确性主要源于复制状态机的性质：  任何初始状态一样的状态机，如果执行的命令序列一样，则最终达到的状态也一样。如果将此特性应用在多参与者进行协商共识上，可以理解为系统中存在多个具有完全相同的状态机（参与者），这些状态机能最终保持一致的关键就是起始状态完全一致和执行命令序列完全一致。  共识算法常被">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://tanxinyu.work/raft/rsm.png">
-<meta property="og:image" content="https://tanxinyu.work/raft/state.png">
-<meta property="og:image" content="https://tanxinyu.work/raft/term.png">
-<meta property="og:image" content="https://tanxinyu.work/raft/log.png">
-<meta property="og:image" content="https://tanxinyu.work/raft/leader_restriction.png">
-<meta property="og:image" content="https://tanxinyu.work/raft/singlechange.png">
-<meta property="og:image" content="https://tanxinyu.work/raft/jointchange.png">
-<meta property="og:image" content="https://tanxinyu.work/raft/client.png">
+<meta property="og:image" content="https://tanxinyu.work/raft/raft.jpeg">
 <meta property="article:published_time" content="2020-02-19T01:42:48.000Z">
 <meta property="article:modified_time" content="2022-01-30T03:42:57.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="分布式系统理论">
 <meta property="article:tag" content="共识算法">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://tanxinyu.work/raft/rsm.png">
+<meta name="twitter:image" content="https://tanxinyu.work/raft/raft.jpeg">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
   
   <title>Raft 算法介绍 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
 
+
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+
   <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-  
-    
-    
-      
-      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/atelier.min.css" />
-    
-  
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
 
-  
-    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
-  
 
 
 <!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -73,22 +64,56 @@
 
 <link  rel="stylesheet" href="/css/main.css" />
 
-<!-- 自定义样式保持在最底部 -->
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
 
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
-<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
 </head>
 
 
 <body>
-  <header style="height: 70vh;">
-    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
       <strong>TXY</strong>
@@ -109,9 +134,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/">
+              <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
-                首页
+                <span>首页</span>
               </a>
             </li>
           
@@ -121,9 +146,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/archives/">
+              <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
-                归档
+                <span>归档</span>
               </a>
             </li>
           
@@ -133,9 +158,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/tags/">
+              <a class="nav-link" href="/tags/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
-                标签
+                <span>标签</span>
               </a>
             </li>
           
@@ -145,9 +170,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/about/">
+              <a class="nav-link" href="/about/" target="_self">
                 <i class="iconfont icon-user-fill"></i>
-                关于
+                <span>关于</span>
               </a>
             </li>
           
@@ -157,9 +182,9 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/links/">
+              <a class="nav-link" href="/links/" target="_self">
                 <i class="iconfont icon-link-fill"></i>
-                友链
+                <span>友链</span>
               </a>
             </li>
           
@@ -167,14 +192,16 @@
         
           <li class="nav-item" id="search-btn">
             <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+              <i class="iconfont icon-search"></i>
             </a>
           </li>
+          
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
           </li>
         
       </ul>
@@ -182,65 +209,79 @@
   </div>
 </nav>
 
-    <div class="banner" id="banner" parallax=true
-         style="background: url('/img/blog-background.jpeg') no-repeat center center;
-           background-size: cover;">
-      <div class="full-bg-img">
-        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-          <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="Raft 算法介绍">
-              
-            </span>
-
-            
-              <div class="mt-3">
-  
-  
-    <span class="post-meta">
-      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2020-02-19 09:42" pubdate>
-        2020年2月19日 上午
-      </time>
-    </span>
-  
-</div>
-
-<div class="mt-1">
-  
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-chart"></i>
-      25k 字
-    </span>
   
 
-  
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-clock-fill"></i>
-      
-      
-      79 分钟
-    </span>
-  
-
-  
-  
-    
-      <!-- 不蒜子统计文章PV -->
-      <span id="busuanzi_container_page_pv" style="display: none">
-        <i class="iconfont icon-eye" aria-hidden="true"></i>
-        <span id="busuanzi_value_page_pv"></span> 次
-      </span>
-    
-  
-</div>
-
-            
-          </div>
-
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/blog-background.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Raft 算法介绍"></span>
           
         </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-02-19 09:42" pubdate>
+          2020年2月19日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          29 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
       </div>
+
+      
     </div>
+  </div>
+</div>
+
+</div>
+
   </header>
 
   <main>
@@ -249,22 +290,30 @@
 
 <div class="container-fluid nopadding-x">
   <div class="row nomargin-x">
-    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
     <div class="col-lg-8 nopadding-x-md">
       <div class="container nopadding-x-md" id="board-ctn">
-        <div class="py-5" id="board">
+        <div id="board">
           <article class="post-content mx-auto">
-            <!-- SEO header -->
-            <h1 style="display: none">Raft 算法介绍</h1>
+            <h1 id="seo-header">Raft 算法介绍</h1>
             
               <p class="note note-info">
                 
-                  本文最后更新于：2 年前
+                  
+                    <!-- compatible with older versions-->
+                    本文最后更新于：2 年前
+                  
                 
               </p>
             
-            <div class="markdown-body">
-              <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><h3 id="共识算法"><a href="#共识算法" class="headerlink" title="共识算法"></a>共识算法</h3><p>共识算法允许一组节点像一个整体一样一起工作，即使其中一些节点出现故障也能够继续工作下去，其正确性主要源于复制状态机的性质：</p>
+            
+              <div class="markdown-body">
+                
+                <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><h3 id="共识算法"><a href="#共识算法" class="headerlink" title="共识算法"></a>共识算法</h3><p>共识算法允许一组节点像一个整体一样一起工作，即使其中一些节点出现故障也能够继续工作下去，其正确性主要源于复制状态机的性质：</p>
 <blockquote>
 <p>任何初始状态一样的状态机，如果执行的命令序列一样，则最终达到的状态也一样。如果将此特性应用在多参与者进行协商共识上，可以理解为系统中存在多个具有完全相同的状态机（参与者），这些状态机能最终保持一致的关键就是起始状态完全一致和执行命令序列完全一致。</p>
 </blockquote>
@@ -282,7 +331,7 @@
 <p>但是不幸的是，尽管有很多工作都在尝试降低 Paxos 的复杂性，但是它依然十分难以理解。并且，Paxos 自身的算法结构需要进行大幅的修改才能够应用到实际的系统中。这些都导致了工业界和学术界都对 Paxos 算法感到十分头疼。比如 <code>Google Chubby</code> 的论文就提到，因为 Paxos 的描述和现实差距太大，所以最终人们总会实现一套未经证实的类 Paxos 协议。</p>
 <p>基于以上背景，<code>Diego Ongaro</code> 在就读博士期间，深入研究 Paxos 协议后提出了 Raft 协议，旨在提供更为易于理解的共识算法。Raft 的宗旨在于可实践性和可理解性，并且相比 Paxos 几乎没有牺牲多少性能。</p>
 <blockquote>
-<p>趣闻：<a href="https://groups.google.com/forum/#!topic/raft-dev/95rZqptGpmU" target="_blank" rel="noopener">Raft 名字的来源</a>。简而言之，其名字即来自于 <code>R{eliable|plicated|dundant} And Fault-Tolerant</code>， 也来自于这是一艘可以帮助你逃离 Paxos 小岛的救生筏（Raft）。</p>
+<p>趣闻：<a target="_blank" rel="noopener" href="https://groups.google.com/forum/#!topic/raft-dev/95rZqptGpmU">Raft 名字的来源</a>。简而言之，其名字即来自于 <code>R&#123;eliable|plicated|dundant&#125; And Fault-Tolerant</code>， 也来自于这是一艘可以帮助你逃离 Paxos 小岛的救生筏（Raft）。</p>
 </blockquote>
 <h3 id="工业界的实现"><a href="#工业界的实现" class="headerlink" title="工业界的实现"></a>工业界的实现</h3><ul>
 <li><code>tikv</code></li>
@@ -372,7 +421,7 @@
 <p>etcd 中将随机选举超时设置为 <code>[electiontimeout, 2 * electiontimeout - 1]</code>。</p>
 <p>通过一个节点在一个 term 只能给一个节点投票，Raft 保证了对于给定的一个 term 最多只有一个 leader，从而避免了选举导致的 <code>split brain</code> 以确保 safety；通过不同节点每次随机化选举超时时间，Raft 在实践中（注意：并没有在理论上）避免了活锁以确保 liveness。</p>
 <p>以下是 6.824 lab2 中选举相关逻辑的具体实现，以供参考。</p>
-<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs GO"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span> <span class="hljs-title">RequestVote</span><span class="hljs-params">(request *RequestVoteRequest, response *RequestVoteResponse)</span></span> &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	<span class="hljs-keyword">defer</span> rf.persist()<br>	<span class="hljs-keyword">defer</span> DPrintf(<span class="hljs-string">"&#123;Node %v&#125;'s state is &#123;state %v,term %v,commitIndex %v,lastApplied %v,firstLog %v,lastLog %v&#125; before processing requestVoteRequest %v and reply requestVoteResponse %v"</span>, rf.me, rf.state, rf.currentTerm, rf.commitIndex, rf.lastApplied, rf.getFirstLog(), rf.getLastLog(), request, response)<br><br>	<span class="hljs-keyword">if</span> request.Term &lt; rf.currentTerm || (request.Term == rf.currentTerm &amp;&amp; rf.votedFor != <span class="hljs-number">-1</span> &amp;&amp; rf.votedFor != request.CandidateId) &#123;<br>		response.Term, response.VoteGranted = rf.currentTerm, <span class="hljs-literal">false</span><br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	<span class="hljs-keyword">if</span> request.Term &gt; rf.currentTerm &#123;<br>		rf.ChangeState(StateFollower)<br>		rf.currentTerm, rf.votedFor = request.Term, <span class="hljs-number">-1</span><br>	&#125;<br>	<span class="hljs-keyword">if</span> !rf.isLogUpToDate(request.LastLogTerm, request.LastLogIndex) &#123;<br>		response.Term, response.VoteGranted = rf.currentTerm, <span class="hljs-literal">false</span><br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	rf.votedFor = request.CandidateId<br>	rf.electionTimer.Reset(RandomizedElectionTimeout())<br>	response.Term, response.VoteGranted = rf.currentTerm, <span class="hljs-literal">true</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span> <span class="hljs-title">StartElection</span><span class="hljs-params">()</span></span> &#123;<br>	request := rf.genRequestVoteRequest()<br>	DPrintf(<span class="hljs-string">"&#123;Node %v&#125; starts election with RequestVoteRequest %v"</span>, rf.me, request)<br>	<span class="hljs-comment">// use Closure</span><br>	grantedVotes := <span class="hljs-number">1</span><br>	rf.votedFor = rf.me<br>	rf.persist()<br>	<span class="hljs-keyword">for</span> peer := <span class="hljs-keyword">range</span> rf.peers &#123;<br>		<span class="hljs-keyword">if</span> peer == rf.me &#123;<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br>		<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(peer <span class="hljs-keyword">int</span>)</span></span> &#123;<br>			response := <span class="hljs-built_in">new</span>(RequestVoteResponse)<br>			<span class="hljs-keyword">if</span> rf.sendRequestVote(peer, request, response) &#123;<br>				rf.mu.Lock()<br>				<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>				DPrintf(<span class="hljs-string">"&#123;Node %v&#125; receives RequestVoteResponse %v from &#123;Node %v&#125; after sending RequestVoteRequest %v in term %v"</span>, rf.me, response, peer, request, rf.currentTerm)<br>				<span class="hljs-keyword">if</span> rf.currentTerm == request.Term &amp;&amp; rf.state == StateCandidate &#123;<br>					<span class="hljs-keyword">if</span> response.VoteGranted &#123;<br>						grantedVotes += <span class="hljs-number">1</span><br>						<span class="hljs-keyword">if</span> grantedVotes &gt; <span class="hljs-built_in">len</span>(rf.peers)/<span class="hljs-number">2</span> &#123;<br>							DPrintf(<span class="hljs-string">"&#123;Node %v&#125; receives majority votes in term %v"</span>, rf.me, rf.currentTerm)<br>							rf.ChangeState(StateLeader)<br>							rf.BroadcastHeartbeat(<span class="hljs-literal">true</span>)<br>						&#125;<br>					&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> response.Term &gt; rf.currentTerm &#123;<br>						DPrintf(<span class="hljs-string">"&#123;Node %v&#125; finds a new leader &#123;Node %v&#125; with term %v and steps down in term %v"</span>, rf.me, peer, response.Term, rf.currentTerm)<br>						rf.ChangeState(StateFollower)<br>						rf.currentTerm, rf.votedFor = response.Term, <span class="hljs-number">-1</span><br>						rf.persist()<br>					&#125;<br>				&#125;<br>			&#125;<br>		&#125;(peer)<br>	&#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs GO"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> RequestVote(request *RequestVoteRequest, response *RequestVoteResponse) &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	<span class="hljs-keyword">defer</span> rf.persist()<br>	<span class="hljs-keyword">defer</span> DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125;&#x27;s state is &#123;state %v,term %v,commitIndex %v,lastApplied %v,firstLog %v,lastLog %v&#125; before processing requestVoteRequest %v and reply requestVoteResponse %v&quot;</span>, rf.me, rf.state, rf.currentTerm, rf.commitIndex, rf.lastApplied, rf.getFirstLog(), rf.getLastLog(), request, response)<br><br>	<span class="hljs-keyword">if</span> request.Term &lt; rf.currentTerm || (request.Term == rf.currentTerm &amp;&amp; rf.votedFor != <span class="hljs-number">-1</span> &amp;&amp; rf.votedFor != request.CandidateId) &#123;<br>		response.Term, response.VoteGranted = rf.currentTerm, <span class="hljs-literal">false</span><br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	<span class="hljs-keyword">if</span> request.Term &gt; rf.currentTerm &#123;<br>		rf.ChangeState(StateFollower)<br>		rf.currentTerm, rf.votedFor = request.Term, <span class="hljs-number">-1</span><br>	&#125;<br>	<span class="hljs-keyword">if</span> !rf.isLogUpToDate(request.LastLogTerm, request.LastLogIndex) &#123;<br>		response.Term, response.VoteGranted = rf.currentTerm, <span class="hljs-literal">false</span><br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	rf.votedFor = request.CandidateId<br>	rf.electionTimer.Reset(RandomizedElectionTimeout())<br>	response.Term, response.VoteGranted = rf.currentTerm, <span class="hljs-literal">true</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> StartElection() &#123;<br>	request := rf.genRequestVoteRequest()<br>	DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125; starts election with RequestVoteRequest %v&quot;</span>, rf.me, request)<br>	<span class="hljs-comment">// use Closure</span><br>	grantedVotes := <span class="hljs-number">1</span><br>	rf.votedFor = rf.me<br>	rf.persist()<br>	<span class="hljs-keyword">for</span> peer := <span class="hljs-keyword">range</span> rf.peers &#123;<br>		<span class="hljs-keyword">if</span> peer == rf.me &#123;<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br>		<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(peer <span class="hljs-type">int</span>)</span></span> &#123;<br>			response := <span class="hljs-built_in">new</span>(RequestVoteResponse)<br>			<span class="hljs-keyword">if</span> rf.sendRequestVote(peer, request, response) &#123;<br>				rf.mu.Lock()<br>				<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>				DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125; receives RequestVoteResponse %v from &#123;Node %v&#125; after sending RequestVoteRequest %v in term %v&quot;</span>, rf.me, response, peer, request, rf.currentTerm)<br>				<span class="hljs-keyword">if</span> rf.currentTerm == request.Term &amp;&amp; rf.state == StateCandidate &#123;<br>					<span class="hljs-keyword">if</span> response.VoteGranted &#123;<br>						grantedVotes += <span class="hljs-number">1</span><br>						<span class="hljs-keyword">if</span> grantedVotes &gt; <span class="hljs-built_in">len</span>(rf.peers)/<span class="hljs-number">2</span> &#123;<br>							DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125; receives majority votes in term %v&quot;</span>, rf.me, rf.currentTerm)<br>							rf.ChangeState(StateLeader)<br>							rf.BroadcastHeartbeat(<span class="hljs-literal">true</span>)<br>						&#125;<br>					&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> response.Term &gt; rf.currentTerm &#123;<br>						DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125; finds a new leader &#123;Node %v&#125; with term %v and steps down in term %v&quot;</span>, rf.me, peer, response.Term, rf.currentTerm)<br>						rf.ChangeState(StateFollower)<br>						rf.currentTerm, rf.votedFor = response.Term, <span class="hljs-number">-1</span><br>						rf.persist()<br>					&#125;<br>				&#125;<br>			&#125;<br>		&#125;(peer)<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <h2 id="日志同步"><a href="#日志同步" class="headerlink" title="日志同步"></a>日志同步</h2><p>leader 被选举后，则负责所有的客户端请求。每一个客户端请求都包含一个命令，该命令可以被作用到 RSM。</p>
 <p>leader 收到客户端请求后，会生成一个 entry，包含 <code>&lt;index, term, cmd&gt;</code>，再将这个 entry 添加到自己的日志末尾后，向所有的节点广播该 entry。</p>
 <p>follower 如果同意接受该 entry，则在将 entry 添加到自己的日志后，返回同意。</p>
@@ -386,26 +435,26 @@
 <p>通过”仅有 leader 可以生成 entry”来确保第一个性质， 第二个性质则通过一致性检查（consistency check）来保证，该检查包含几个步骤：</p>
 <p>leader 在通过 AppendEntriesRPC 和 follower 通讯时，会带上上一块 entry 的信息， 而 follower 在收到后会对比自己的日志，如果发现这个 entry 的信息（index、term）和自己日志内的不符合，则会拒绝该请求。一旦 leader 发现有 follower 拒绝了请求，则会与该 follower 再进行一轮一致性检查， 找到双方最大的共识点，然后用 leader 的 entries 记录覆盖 follower 所有在最大共识点之后的数据。</p>
 <p>寻找共识点时，leader 还是通过 AppendEntriesRPC 和 follower 进行一致性检查， 方法是发送再上一块的 entry， 如果 follower 依然拒绝，则 leader 再尝试发送更前面的一块，直到找到双方的共识点。 因为分歧发生的概率较低，而且一般很快能够得到纠正，所以这里的逐块确认一般不会造成性能问题。当然，在这里进行二分查找或者某些规则的查找可能也能够在理论上得到收益。</p>
-<p>每个 leader 都会为每一个 follower 保存一个 nextIndex 的变量， 标志了下一个需要发送给该 follower 的 entry 的 index。 在 leader 刚当选时，该值初始化为该 leader 的 log 的 index+1。 一旦 follower 拒绝了 entry，则 leader 会执行 nextIndex—，然后再次发送。直到 follower 接收后将 matchIndex 设置为此时的 nextIndex - 1，然后开始正常的复制。这里还可以做一些更细粒度的优化，比如在正常复制时可以批量复制日志以减少系统调用的开销；在寻找共识点时可以只携带一条日志以减少不必要的流量传输，具体可以参考 etcd 的 <a href="https://github.com/etcd-io/etcd/blob/main/raft/tracker/state.go" target="_blank" rel="noopener">设计</a>。</p>
+<p>每个 leader 都会为每一个 follower 保存一个 nextIndex 的变量， 标志了下一个需要发送给该 follower 的 entry 的 index。 在 leader 刚当选时，该值初始化为该 leader 的 log 的 index+1。 一旦 follower 拒绝了 entry，则 leader 会执行 nextIndex—，然后再次发送。直到 follower 接收后将 matchIndex 设置为此时的 nextIndex - 1，然后开始正常的复制。这里还可以做一些更细粒度的优化，比如在正常复制时可以批量复制日志以减少系统调用的开销；在寻找共识点时可以只携带一条日志以减少不必要的流量传输，具体可以参考 etcd 的 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/main/raft/tracker/state.go">设计</a>。</p>
 <p>以下是 6.824 lab2 中 日志同步相关逻辑的具体实现，以供参考。</p>
-<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs Go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span> <span class="hljs-title">replicateOneRound</span><span class="hljs-params">(peer <span class="hljs-keyword">int</span>)</span></span> &#123;<br>	rf.mu.RLock()<br>	<span class="hljs-keyword">if</span> rf.state != StateLeader &#123;<br>		rf.mu.RUnlock()<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	prevLogIndex := rf.nextIndex[peer] - <span class="hljs-number">1</span><br>	<span class="hljs-keyword">if</span> prevLogIndex &lt; rf.getFirstLog().Index &#123;<br>		<span class="hljs-comment">// only snapshot can catch up</span><br>		request := rf.genInstallSnapshotRequest()<br>		rf.mu.RUnlock()<br>		response := <span class="hljs-built_in">new</span>(InstallSnapshotResponse)<br>		<span class="hljs-keyword">if</span> rf.sendInstallSnapshot(peer, request, response) &#123;<br>			rf.mu.Lock()<br>			rf.handleInstallSnapshotResponse(peer, request, response)<br>			rf.mu.Unlock()<br>		&#125;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-comment">// just entries can catch up</span><br>		request := rf.genAppendEntriesRequest(prevLogIndex)<br>		rf.mu.RUnlock()<br>		response := <span class="hljs-built_in">new</span>(AppendEntriesResponse)<br>		<span class="hljs-keyword">if</span> rf.sendAppendEntries(peer, request, response) &#123;<br>			rf.mu.Lock()<br>			rf.handleAppendEntriesResponse(peer, request, response)<br>			rf.mu.Unlock()<br>		&#125;<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span> <span class="hljs-title">AppendEntries</span><span class="hljs-params">(request *AppendEntriesRequest, response *AppendEntriesResponse)</span></span> &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	<span class="hljs-keyword">defer</span> rf.persist()<br>	<span class="hljs-keyword">defer</span> DPrintf(<span class="hljs-string">"&#123;Node %v&#125;'s state is &#123;state %v,term %v,commitIndex %v,lastApplied %v,firstLog %v,lastLog %v&#125; before processing AppendEntriesRequest %v and reply AppendEntriesResponse %v"</span>, rf.me, rf.state, rf.currentTerm, rf.commitIndex, rf.lastApplied, rf.getFirstLog(), rf.getLastLog(), request, response)<br><br>	<span class="hljs-keyword">if</span> request.Term &lt; rf.currentTerm &#123;<br>		response.Term, response.Success = rf.currentTerm, <span class="hljs-literal">false</span><br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> request.Term &gt; rf.currentTerm &#123;<br>		rf.currentTerm, rf.votedFor = request.Term, <span class="hljs-number">-1</span><br>	&#125;<br><br>	rf.ChangeState(StateFollower)<br>	rf.electionTimer.Reset(RandomizedElectionTimeout())<br><br>	<span class="hljs-keyword">if</span> request.PrevLogIndex &lt; rf.getFirstLog().Index &#123;<br>		response.Term, response.Success = <span class="hljs-number">0</span>, <span class="hljs-literal">false</span><br>		DPrintf(<span class="hljs-string">"&#123;Node %v&#125; receives unexpected AppendEntriesRequest %v from &#123;Node %v&#125; because prevLogIndex %v &lt; firstLogIndex %v"</span>, rf.me, request, request.LeaderId, request.PrevLogIndex, rf.getFirstLog().Index)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> !rf.matchLog(request.PrevLogTerm, request.PrevLogIndex) &#123;<br>		response.Term, response.Success = rf.currentTerm, <span class="hljs-literal">false</span><br>		lastIndex := rf.getLastLog().Index<br>		<span class="hljs-keyword">if</span> lastIndex &lt; request.PrevLogIndex &#123;<br>			response.ConflictTerm, response.ConflictIndex = <span class="hljs-number">-1</span>, lastIndex+<span class="hljs-number">1</span><br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			firstIndex := rf.getFirstLog().Index<br>			response.ConflictTerm = rf.logs[request.PrevLogIndex-firstIndex].Term<br>			index := request.PrevLogIndex - <span class="hljs-number">1</span><br>			<span class="hljs-keyword">for</span> index &gt;= firstIndex &amp;&amp; rf.logs[index-firstIndex].Term == response.ConflictTerm &#123;<br>				index--<br>			&#125;<br>			response.ConflictIndex = index<br>		&#125;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	firstIndex := rf.getFirstLog().Index<br>	<span class="hljs-keyword">for</span> index, entry := <span class="hljs-keyword">range</span> request.Entries &#123;<br>		<span class="hljs-keyword">if</span> entry.Index-firstIndex &gt;= <span class="hljs-built_in">len</span>(rf.logs) || rf.logs[entry.Index-firstIndex].Term != entry.Term &#123;<br>			rf.logs = shrinkEntriesArray(<span class="hljs-built_in">append</span>(rf.logs[:entry.Index-firstIndex], request.Entries[index:]...))<br>			<span class="hljs-keyword">break</span><br>		&#125;<br>	&#125;<br><br>	rf.advanceCommitIndexForFollower(request.LeaderCommit)<br><br>	response.Term, response.Success = rf.currentTerm, <span class="hljs-literal">true</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><code class="hljs Go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> replicateOneRound(peer <span class="hljs-type">int</span>) &#123;<br>	rf.mu.RLock()<br>	<span class="hljs-keyword">if</span> rf.state != StateLeader &#123;<br>		rf.mu.RUnlock()<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	prevLogIndex := rf.nextIndex[peer] - <span class="hljs-number">1</span><br>	<span class="hljs-keyword">if</span> prevLogIndex &lt; rf.getFirstLog().Index &#123;<br>		<span class="hljs-comment">// only snapshot can catch up</span><br>		request := rf.genInstallSnapshotRequest()<br>		rf.mu.RUnlock()<br>		response := <span class="hljs-built_in">new</span>(InstallSnapshotResponse)<br>		<span class="hljs-keyword">if</span> rf.sendInstallSnapshot(peer, request, response) &#123;<br>			rf.mu.Lock()<br>			rf.handleInstallSnapshotResponse(peer, request, response)<br>			rf.mu.Unlock()<br>		&#125;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-comment">// just entries can catch up</span><br>		request := rf.genAppendEntriesRequest(prevLogIndex)<br>		rf.mu.RUnlock()<br>		response := <span class="hljs-built_in">new</span>(AppendEntriesResponse)<br>		<span class="hljs-keyword">if</span> rf.sendAppendEntries(peer, request, response) &#123;<br>			rf.mu.Lock()<br>			rf.handleAppendEntriesResponse(peer, request, response)<br>			rf.mu.Unlock()<br>		&#125;<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> AppendEntries(request *AppendEntriesRequest, response *AppendEntriesResponse) &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	<span class="hljs-keyword">defer</span> rf.persist()<br>	<span class="hljs-keyword">defer</span> DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125;&#x27;s state is &#123;state %v,term %v,commitIndex %v,lastApplied %v,firstLog %v,lastLog %v&#125; before processing AppendEntriesRequest %v and reply AppendEntriesResponse %v&quot;</span>, rf.me, rf.state, rf.currentTerm, rf.commitIndex, rf.lastApplied, rf.getFirstLog(), rf.getLastLog(), request, response)<br><br>	<span class="hljs-keyword">if</span> request.Term &lt; rf.currentTerm &#123;<br>		response.Term, response.Success = rf.currentTerm, <span class="hljs-literal">false</span><br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> request.Term &gt; rf.currentTerm &#123;<br>		rf.currentTerm, rf.votedFor = request.Term, <span class="hljs-number">-1</span><br>	&#125;<br><br>	rf.ChangeState(StateFollower)<br>	rf.electionTimer.Reset(RandomizedElectionTimeout())<br><br>	<span class="hljs-keyword">if</span> request.PrevLogIndex &lt; rf.getFirstLog().Index &#123;<br>		response.Term, response.Success = <span class="hljs-number">0</span>, <span class="hljs-literal">false</span><br>		DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125; receives unexpected AppendEntriesRequest %v from &#123;Node %v&#125; because prevLogIndex %v &lt; firstLogIndex %v&quot;</span>, rf.me, request, request.LeaderId, request.PrevLogIndex, rf.getFirstLog().Index)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> !rf.matchLog(request.PrevLogTerm, request.PrevLogIndex) &#123;<br>		response.Term, response.Success = rf.currentTerm, <span class="hljs-literal">false</span><br>		lastIndex := rf.getLastLog().Index<br>		<span class="hljs-keyword">if</span> lastIndex &lt; request.PrevLogIndex &#123;<br>			response.ConflictTerm, response.ConflictIndex = <span class="hljs-number">-1</span>, lastIndex+<span class="hljs-number">1</span><br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			firstIndex := rf.getFirstLog().Index<br>			response.ConflictTerm = rf.logs[request.PrevLogIndex-firstIndex].Term<br>			index := request.PrevLogIndex - <span class="hljs-number">1</span><br>			<span class="hljs-keyword">for</span> index &gt;= firstIndex &amp;&amp; rf.logs[index-firstIndex].Term == response.ConflictTerm &#123;<br>				index--<br>			&#125;<br>			response.ConflictIndex = index<br>		&#125;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	firstIndex := rf.getFirstLog().Index<br>	<span class="hljs-keyword">for</span> index, entry := <span class="hljs-keyword">range</span> request.Entries &#123;<br>		<span class="hljs-keyword">if</span> entry.Index-firstIndex &gt;= <span class="hljs-built_in">len</span>(rf.logs) || rf.logs[entry.Index-firstIndex].Term != entry.Term &#123;<br>			rf.logs = shrinkEntriesArray(<span class="hljs-built_in">append</span>(rf.logs[:entry.Index-firstIndex], request.Entries[index:]...))<br>			<span class="hljs-keyword">break</span><br>		&#125;<br>	&#125;<br><br>	rf.advanceCommitIndexForFollower(request.LeaderCommit)<br><br>	response.Term, response.Success = rf.currentTerm, <span class="hljs-literal">true</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <h2 id="安全"><a href="#安全" class="headerlink" title="安全"></a>安全</h2><h3 id="选举限制"><a href="#选举限制" class="headerlink" title="选举限制"></a>选举限制</h3><p>因为 leader 的强势地位，所以 Raft 在投票阶段就确保选举出的 leader 一定包含了整个集群中目前已 committed 的所有日志。</p>
 <p>当 candidate 发送 RequestVoteRPC 时，会带上最后一个 entry 的信息。 所有的节点收到该请求后，都会比对自己的日志，如果发现自己的日志更新一些，则会拒绝投票给该 candidate。 （Pre-Vote 同理，如果 follower 认为 Pre-Candidate 没有资格的话，会拒绝 PreVote）</p>
 <p>判断日志新旧的方式：获取请求的 entry 后，比对自己日志中的最后一个 entry。 首先比对 term，如果自己的 term 更大，则拒绝请求。 如果 term 一样，则比对 index，如果自己的 index 更大（说明自己的日志更长），则拒绝请求。</p>
-<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs GO"><span class="hljs-comment">// used by RequestVote Handler to judge which log is newer</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span> <span class="hljs-title">isLogUpToDate</span><span class="hljs-params">(term, index <span class="hljs-keyword">int</span>)</span> <span class="hljs-title">bool</span></span> &#123;<br>	lastLog := rf.getLastLog()<br>	<span class="hljs-keyword">return</span> term &gt; lastLog.Term || (term == lastLog.Term &amp;&amp; index &gt;= lastLog.Index)<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs GO"><span class="hljs-comment">// used by RequestVote Handler to judge which log is newer</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> isLogUpToDate(term, index <span class="hljs-type">int</span>) <span class="hljs-type">bool</span> &#123;<br>	lastLog := rf.getLastLog()<br>	<span class="hljs-keyword">return</span> term &gt; lastLog.Term || (term == lastLog.Term &amp;&amp; index &gt;= lastLog.Index)<br>&#125;<br></code></pre></td></tr></table></figure>
 <p><img src="/raft/leader_restriction.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>在上图中，raft 为了避免出现一致性问题，要求 leader 绝不会提交过去的 term 的 entry （即使该 entry 已经被复制到了多数节点上）。leader 永远只提交当前 term 的 entry， 过去的 entry 只会随着当前的 entry 被一并提交。（上图中的 c，term2 只会跟随 term4 被提交。）</p>
 <p>如果一个 candidate 能取得多数同意，说明它的日志已经是多数节点中最完备的， 那么也就可以认为该 candidate 已经包含了整个集群的所有 committed entries。</p>
 <p>因此 leader 当选后，应当立刻发起 AppendEntriesRPC 提交一个 no-op entry。注意，这是一个 <code>Must</code>，不是一个 <code>Should</code>，否则会有许多 corner case 存在问题。比如：</p>
 <ul>
 <li>读请求：leader 此时的状态机可能并不是最新的，若服务读请求可能会违反线性一致性，即出现 safety 的问题；若不服务读请求则可能会有 liveness 的问题。</li>
-<li>配置变更：可能会导致数据丢失，具体原因和例子可以参考此 <a href="https://zhuanlan.zhihu.com/p/359206808" target="_blank" rel="noopener">博客</a>。</li>
+<li>配置变更：可能会导致数据丢失，具体原因和例子可以参考此 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/359206808">博客</a>。</li>
 </ul>
-<p>实际上，leader 当选后提交一个 no-op entry 日志的做法就是 Raft 算法解决 “幽灵复现” 问题的解法，感兴趣的可以看看此 <a href="https://mp.weixin.qq.com/s/jzx05Q781ytMXrZ2wrm2Vg" target="_blank" rel="noopener">博客</a>。</p>
+<p>实际上，leader 当选后提交一个 no-op entry 日志的做法就是 Raft 算法解决 “幽灵复现” 问题的解法，感兴趣的可以看看此 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/jzx05Q781ytMXrZ2wrm2Vg">博客</a>。</p>
 <h3 id="节点崩溃"><a href="#节点崩溃" class="headerlink" title="节点崩溃"></a>节点崩溃</h3><p>如果 leader 崩溃，集群中的所有节点在 electionTimeout 时间内没有收到 leader 的心跳信息就会触发新一轮的选主。总而言之，最终集群总会选出唯一的 leader 。按论文中的说法，计算一次 RPC 耗时高达 <code>30～40ms</code> 时，<code>99.9%</code> 的选举依然可以在 <code>3s</code> 内完成，但一般一个机房内一次 RPC 只需 1ms。当然，选主期间整个集群对外是不可用的。 </p>
 <p>如果 follower 和 candidate 奔溃相对而言就简单很多， 因为 Raft 所有的 RPC 都是幂等的，所以 Raft 中所有的请求，只要超时，就会无限的重试。follower 和 candidate 崩溃恢复后，可以收到新的请求，然后按照上面谈论过的追加或拒绝 entry 的方式处理请求。</p>
 <h3 id="时间与可用性"><a href="#时间与可用性" class="headerlink" title="时间与可用性"></a>时间与可用性</h3><p>Raft 原则上可以在绝大部分延迟情况下保证一致性， 不过为了保证选择和 leader 的正常工作，最好能满足下列时间条件：</p>
-<figure class="highlight armasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs armasm"><span class="hljs-keyword">broadcastTime </span>&lt;&lt; electionTimeout &lt;&lt; MTBF<br></code></pre></div></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">broadcastTime &lt;&lt; <span class="hljs-string">electionTimeout &lt;&lt; MTBF</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li><code>broadcastTime</code>：向其他节点并发发送消息的平均响应时间；</li>
 <li><code>electionTimeout</code>：follower 判定 leader 已经故障的时间（heartbeat 的最长容忍间隔）；</li>
@@ -429,7 +478,7 @@
 </li>
 </ol>
 <p>以下是 6.824 lab2 中 日志压缩相关逻辑的具体实现，以供参考。</p>
-<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs Go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span> <span class="hljs-title">Snapshot</span><span class="hljs-params">(index <span class="hljs-keyword">int</span>, snapshot []<span class="hljs-keyword">byte</span>)</span></span> &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	snapshotIndex := rf.getFirstLog().Index<br>	<span class="hljs-keyword">if</span> index &lt;= snapshotIndex &#123;<br>		DPrintf(<span class="hljs-string">"&#123;Node %v&#125; rejects replacing log with snapshotIndex %v as current snapshotIndex %v is larger in term %v"</span>, rf.me, index, snapshotIndex, rf.currentTerm)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	rf.logs = shrinkEntriesArray(rf.logs[index-snapshotIndex:])<br>	rf.logs[<span class="hljs-number">0</span>].Command = <span class="hljs-literal">nil</span><br>	rf.persister.SaveStateAndSnapshot(rf.encodeState(), snapshot)<br>	DPrintf(<span class="hljs-string">"&#123;Node %v&#125;'s state is &#123;state %v,term %v,commitIndex %v,lastApplied %v,firstLog %v,lastLog %v&#125; after replacing log with snapshotIndex %v as old snapshotIndex %v is smaller"</span>, rf.me, rf.state, rf.currentTerm, rf.commitIndex, rf.lastApplied, rf.getFirstLog(), rf.getLastLog(), index, snapshotIndex)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span> <span class="hljs-title">InstallSnapshot</span><span class="hljs-params">(request *InstallSnapshotRequest, response *InstallSnapshotResponse)</span></span> &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	<span class="hljs-keyword">defer</span> DPrintf(<span class="hljs-string">"&#123;Node %v&#125;'s state is &#123;state %v,term %v,commitIndex %v,lastApplied %v,firstLog %v,lastLog %v&#125; before processing InstallSnapshotRequest %v and reply InstallSnapshotResponse %v"</span>, rf.me, rf.state, rf.currentTerm, rf.commitIndex, rf.lastApplied, rf.getFirstLog(), rf.getLastLog(), request, response)<br><br>	response.Term = rf.currentTerm<br><br>	<span class="hljs-keyword">if</span> request.Term &lt; rf.currentTerm &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> request.Term &gt; rf.currentTerm &#123;<br>		rf.currentTerm, rf.votedFor = request.Term, <span class="hljs-number">-1</span><br>		rf.persist()<br>	&#125;<br><br>	rf.ChangeState(StateFollower)<br>	rf.electionTimer.Reset(RandomizedElectionTimeout())<br><br>	<span class="hljs-comment">// outdated snapshot</span><br>	<span class="hljs-keyword">if</span> request.LastIncludedIndex &lt;= rf.commitIndex &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		rf.applyCh &lt;- ApplyMsg&#123;<br>			SnapshotValid: <span class="hljs-literal">true</span>,<br>			Snapshot:      request.Data,<br>			SnapshotTerm:  request.LastIncludedTerm,<br>			SnapshotIndex: request.LastIncludedIndex,<br>		&#125;<br>	&#125;()<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span> <span class="hljs-title">CondInstallSnapshot</span><span class="hljs-params">(lastIncludedTerm <span class="hljs-keyword">int</span>, lastIncludedIndex <span class="hljs-keyword">int</span>, snapshot []<span class="hljs-keyword">byte</span>)</span> <span class="hljs-title">bool</span></span> &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	DPrintf(<span class="hljs-string">"&#123;Node %v&#125; service calls CondInstallSnapshot with lastIncludedTerm %v and lastIncludedIndex %v to check whether snapshot is still valid in term %v"</span>, rf.me, lastIncludedTerm, lastIncludedIndex, rf.currentTerm)<br><br>	<span class="hljs-comment">// outdated snapshot</span><br>	<span class="hljs-keyword">if</span> lastIncludedIndex &lt;= rf.commitIndex &#123;<br>		DPrintf(<span class="hljs-string">"&#123;Node %v&#125; rejects the snapshot which lastIncludedIndex is %v because commitIndex %v is larger"</span>, rf.me, lastIncludedIndex, rf.commitIndex)<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> lastIncludedIndex &gt; rf.getLastLog().Index &#123;<br>		rf.logs = <span class="hljs-built_in">make</span>([]Entry, <span class="hljs-number">1</span>)<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		rf.logs = shrinkEntriesArray(rf.logs[lastIncludedIndex-rf.getFirstLog().Index:])<br>		rf.logs[<span class="hljs-number">0</span>].Command = <span class="hljs-literal">nil</span><br>	&#125;<br>	<span class="hljs-comment">// update dummy entry with lastIncludedTerm and lastIncludedIndex</span><br>	rf.logs[<span class="hljs-number">0</span>].Term, rf.logs[<span class="hljs-number">0</span>].Index = lastIncludedTerm, lastIncludedIndex<br>	rf.lastApplied, rf.commitIndex = lastIncludedIndex, lastIncludedIndex<br><br>	rf.persister.SaveStateAndSnapshot(rf.encodeState(), snapshot)<br>	DPrintf(<span class="hljs-string">"&#123;Node %v&#125;'s state is &#123;state %v,term %v,commitIndex %v,lastApplied %v,firstLog %v,lastLog %v&#125; after accepting the snapshot which lastIncludedTerm is %v, lastIncludedIndex is %v"</span>, rf.me, rf.state, rf.currentTerm, rf.commitIndex, rf.lastApplied, rf.getFirstLog(), rf.getLastLog(), lastIncludedTerm, lastIncludedIndex)<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs Go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> Snapshot(index <span class="hljs-type">int</span>, snapshot []<span class="hljs-type">byte</span>) &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	snapshotIndex := rf.getFirstLog().Index<br>	<span class="hljs-keyword">if</span> index &lt;= snapshotIndex &#123;<br>		DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125; rejects replacing log with snapshotIndex %v as current snapshotIndex %v is larger in term %v&quot;</span>, rf.me, index, snapshotIndex, rf.currentTerm)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	rf.logs = shrinkEntriesArray(rf.logs[index-snapshotIndex:])<br>	rf.logs[<span class="hljs-number">0</span>].Command = <span class="hljs-literal">nil</span><br>	rf.persister.SaveStateAndSnapshot(rf.encodeState(), snapshot)<br>	DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125;&#x27;s state is &#123;state %v,term %v,commitIndex %v,lastApplied %v,firstLog %v,lastLog %v&#125; after replacing log with snapshotIndex %v as old snapshotIndex %v is smaller&quot;</span>, rf.me, rf.state, rf.currentTerm, rf.commitIndex, rf.lastApplied, rf.getFirstLog(), rf.getLastLog(), index, snapshotIndex)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> InstallSnapshot(request *InstallSnapshotRequest, response *InstallSnapshotResponse) &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	<span class="hljs-keyword">defer</span> DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125;&#x27;s state is &#123;state %v,term %v,commitIndex %v,lastApplied %v,firstLog %v,lastLog %v&#125; before processing InstallSnapshotRequest %v and reply InstallSnapshotResponse %v&quot;</span>, rf.me, rf.state, rf.currentTerm, rf.commitIndex, rf.lastApplied, rf.getFirstLog(), rf.getLastLog(), request, response)<br><br>	response.Term = rf.currentTerm<br><br>	<span class="hljs-keyword">if</span> request.Term &lt; rf.currentTerm &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> request.Term &gt; rf.currentTerm &#123;<br>		rf.currentTerm, rf.votedFor = request.Term, <span class="hljs-number">-1</span><br>		rf.persist()<br>	&#125;<br><br>	rf.ChangeState(StateFollower)<br>	rf.electionTimer.Reset(RandomizedElectionTimeout())<br><br>	<span class="hljs-comment">// outdated snapshot</span><br>	<span class="hljs-keyword">if</span> request.LastIncludedIndex &lt;= rf.commitIndex &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		rf.applyCh &lt;- ApplyMsg&#123;<br>			SnapshotValid: <span class="hljs-literal">true</span>,<br>			Snapshot:      request.Data,<br>			SnapshotTerm:  request.LastIncludedTerm,<br>			SnapshotIndex: request.LastIncludedIndex,<br>		&#125;<br>	&#125;()<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> CondInstallSnapshot(lastIncludedTerm <span class="hljs-type">int</span>, lastIncludedIndex <span class="hljs-type">int</span>, snapshot []<span class="hljs-type">byte</span>) <span class="hljs-type">bool</span> &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125; service calls CondInstallSnapshot with lastIncludedTerm %v and lastIncludedIndex %v to check whether snapshot is still valid in term %v&quot;</span>, rf.me, lastIncludedTerm, lastIncludedIndex, rf.currentTerm)<br><br>	<span class="hljs-comment">// outdated snapshot</span><br>	<span class="hljs-keyword">if</span> lastIncludedIndex &lt;= rf.commitIndex &#123;<br>		DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125; rejects the snapshot which lastIncludedIndex is %v because commitIndex %v is larger&quot;</span>, rf.me, lastIncludedIndex, rf.commitIndex)<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> lastIncludedIndex &gt; rf.getLastLog().Index &#123;<br>		rf.logs = <span class="hljs-built_in">make</span>([]Entry, <span class="hljs-number">1</span>)<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		rf.logs = shrinkEntriesArray(rf.logs[lastIncludedIndex-rf.getFirstLog().Index:])<br>		rf.logs[<span class="hljs-number">0</span>].Command = <span class="hljs-literal">nil</span><br>	&#125;<br>	<span class="hljs-comment">// update dummy entry with lastIncludedTerm and lastIncludedIndex</span><br>	rf.logs[<span class="hljs-number">0</span>].Term, rf.logs[<span class="hljs-number">0</span>].Index = lastIncludedTerm, lastIncludedIndex<br>	rf.lastApplied, rf.commitIndex = lastIncludedIndex, lastIncludedIndex<br><br>	rf.persister.SaveStateAndSnapshot(rf.encodeState(), snapshot)<br>	DPrintf(<span class="hljs-string">&quot;&#123;Node %v&#125;&#x27;s state is &#123;state %v,term %v,commitIndex %v,lastApplied %v,firstLog %v,lastLog %v&#125; after accepting the snapshot which lastIncludedTerm is %v, lastIncludedIndex is %v&quot;</span>, rf.me, rf.state, rf.currentTerm, rf.commitIndex, rf.lastApplied, rf.getFirstLog(), rf.getLastLog(), lastIncludedTerm, lastIncludedIndex)<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <h2 id="禅让"><a href="#禅让" class="headerlink" title="禅让"></a>禅让</h2><p>有时候，会希望取消当前 leader 的管理权，比如：</p>
 <ul>
 <li>leader 节点因为运维原因需要重启；</li>
@@ -468,9 +517,9 @@
 <p>这种情形下，脱离集群的节点，只会不断的发起 Pre-Vote，而不会更新自己的 term。</p>
 <p>在 etcd 的实现中，如果某个节点赞同了某个 candidate， 是不需要更新自己的状态的，它依然可以赞同其他 candidate。 而且，即使收到的 PreVote 的 term 大于自己，也不会更新自己的 term。 也就是说，PreVote 不会改变其他节点的任何状态。</p>
 <p>etcd 中还有一个设计是，当发起 PreVote 的时候，针对的是下一轮的 term， 所以会向所有的节点发送一个 term+1 的 PreVoteReq。</p>
-<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs GO"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *raft)</span> <span class="hljs-title">campaign</span><span class="hljs-params">(t CampaignType)</span></span> &#123;<br>	<span class="hljs-keyword">var</span> term <span class="hljs-keyword">uint64</span><br>	<span class="hljs-keyword">var</span> voteMsg pb.MessageType<br>	<span class="hljs-keyword">if</span> t == campaignPreElection &#123;<br>		r.becomePreCandidate()<br>		voteMsg = pb.MsgPreVote<br>		<span class="hljs-comment">// 这里需要注意的是，PreVote 会针对“下一轮 term”发起投票，</span><br>		<span class="hljs-comment">// 而 Vote 则是针对当前 term</span><br>		<span class="hljs-comment">// PreVote RPCs are sent for the next term before we've incremented r.Term.</span><br>		term = r.Term + <span class="hljs-number">1</span><br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		r.becomeCandidate()<br>		voteMsg = pb.MsgVote<br>		term = r.Term<br>	&#125;<br>    <br>    <span class="hljs-comment">// ...</span><br>    <br>    <span class="hljs-comment">// 发送投票请求</span><br>    r.send(pb.Message&#123;Term: term, To: id, Type: voteMsg, Index: r.raftLog.lastIndex(), LogTerm: r.raftLog.lastTerm(), Context: ctx&#125;)<br>    <br>    <span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
-<h2 id="配置变更"><a href="#配置变更" class="headerlink" title="配置变更"></a>配置变更</h2><p>raft 的配置变更一般分为两种方式：一次变更一个和一次变更多个，前者实现相对简单（谬误，其实并不简单，感兴趣可以参考该 <a href="https://zhuanlan.zhihu.com/p/342319702" target="_blank" rel="noopener">博客</a>），改动多个节点的配置变更可以被分成多个一次变更一个来执行；后者相对复杂，并且在某些场景下可用性更强，具体可参考 TiDB 5.0 的 <a href="https://mp.weixin.qq.com/s/nLWbEEBBVYuNGde0IbE3XQ" target="_blank" rel="noopener">介绍</a>。</p>
-<p>以下仅会简单介绍两种成员变更方式，具体可以参考 raft 作者博士论文的 <a href="https://github.com/OneSizeFitsQuorum/raft-thesis-zh_cn/blob/master/raft-thesis-zh_cn.md#4-%E9%9B%86%E7%BE%A4%E6%88%90%E5%91%98%E6%9B%B4%E6%94%B9" target="_blank" rel="noopener">第四章</a> 和 <a href="https://zhuanlan.zhihu.com/p/359206808" target="_blank" rel="noopener">Raft 成员变更的工程实践</a>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs GO"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *raft)</span></span> campaign(t CampaignType) &#123;<br>	<span class="hljs-keyword">var</span> term <span class="hljs-type">uint64</span><br>	<span class="hljs-keyword">var</span> voteMsg pb.MessageType<br>	<span class="hljs-keyword">if</span> t == campaignPreElection &#123;<br>		r.becomePreCandidate()<br>		voteMsg = pb.MsgPreVote<br>		<span class="hljs-comment">// 这里需要注意的是，PreVote 会针对“下一轮 term”发起投票，</span><br>		<span class="hljs-comment">// 而 Vote 则是针对当前 term</span><br>		<span class="hljs-comment">// PreVote RPCs are sent for the next term before we&#x27;ve incremented r.Term.</span><br>		term = r.Term + <span class="hljs-number">1</span><br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		r.becomeCandidate()<br>		voteMsg = pb.MsgVote<br>		term = r.Term<br>	&#125;<br>    <br>    <span class="hljs-comment">// ...</span><br>    <br>    <span class="hljs-comment">// 发送投票请求</span><br>    r.send(pb.Message&#123;Term: term, To: id, Type: voteMsg, Index: r.raftLog.lastIndex(), LogTerm: r.raftLog.lastTerm(), Context: ctx&#125;)<br>    <br>    <span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="配置变更"><a href="#配置变更" class="headerlink" title="配置变更"></a>配置变更</h2><p>raft 的配置变更一般分为两种方式：一次变更一个和一次变更多个，前者实现相对简单（谬误，其实并不简单，感兴趣可以参考该 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/342319702">博客</a>），改动多个节点的配置变更可以被分成多个一次变更一个来执行；后者相对复杂，并且在某些场景下可用性更强，具体可参考 TiDB 5.0 的 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/nLWbEEBBVYuNGde0IbE3XQ">介绍</a>。</p>
+<p>以下仅会简单介绍两种成员变更方式，具体可以参考 raft 作者博士论文的 <a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/raft-thesis-zh_cn/blob/master/raft-thesis-zh_cn.md#4-%E9%9B%86%E7%BE%A4%E6%88%90%E5%91%98%E6%9B%B4%E6%94%B9">第四章</a> 和 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/359206808">Raft 成员变更的工程实践</a>。</p>
 <h3 id="一次变更一台"><a href="#一次变更一台" class="headerlink" title="一次变更一台"></a>一次变更一台</h3><p>因为在 Raft 算法中，集群中每一个节点都存有整个集群的信息，而集群的成员有可能会发生变更（节点增删、替换节点等）。 Raft 限制一次性只能增／删一个节点，在一次变更结束后，才能继续进行下一次变更。</p>
 <p>如果一次性只变更一个节点，那么只需要简单的要求“在新／旧集群中，都必须取得多数（N/2+1）”， 那么这两个多数中必然会出现交集，这样就可以保证不会因为配置不一致而导致脑裂。</p>
 <p><img src="/raft/singlechange.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -526,9 +575,9 @@
 </ul>
 <p>这些问题在工程实现上都较为麻烦。比如后者如果业务上是事务那直接 abort 就行，但如果不是事务就很难办了。</p>
 <p>实际上，个人感觉 clientId 是与 session 绑定的，其生命周期应该与 session 一致，开启 session 时从 map 中保存该 clientId，关闭 session 时从 map 中删除该 clientId 及其对应的 value 即可。map 中一个 clientId 对应的内存占用可能都不足 30 字节，相比携带更多业务语义的 session 其实很小，所以感觉没太大必要去严格控制该 map 的内存占用，还不如考虑下怎么控制 session 更大地内存占用呢。这样就不用去纠结前面提到的两个问题了。</p>
-<p>感兴趣的可以参照 raft 博士论文第六章-<a href="https://github.com/OneSizeFitsQuorum/raft-thesis-zh_cn/blob/master/raft-thesis-zh_cn.md#6-%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BA%A4%E4%BA%92" target="_blank" rel="noopener">客户端交互</a> 和 dragonboat 作者在知乎上对其的 <a href="https://www.zhihu.com/question/278551592" target="_blank" rel="noopener">讨论</a>。</p>
+<p>感兴趣的可以参照 raft 博士论文第六章-<a target="_blank" rel="noopener" href="https://github.com/OneSizeFitsQuorum/raft-thesis-zh_cn/blob/master/raft-thesis-zh_cn.md#6-%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BA%A4%E4%BA%92">客户端交互</a> 和 dragonboat 作者在知乎上对其的 <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/278551592">讨论</a>。</p>
 <h2 id="线性一致性读"><a href="#线性一致性读" class="headerlink" title="线性一致性读"></a>线性一致性读</h2><p>有关 raft 一致性读的实现，可以参考本人写的另一篇 <a href="https://tanxinyu.work/consistency-and-consensus/#etcd-%E7%9A%84-Raft">博客</a>。</p>
-<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>业界的实践很多，可以参考 tikv 的 <a href="https://zhuanlan.zhihu.com/p/25735592" target="_blank" rel="noopener">优化</a> 和 dragonboat 的 <a href="https://zhuanlan.zhihu.com/p/52620657" target="_blank" rel="noopener">优化</a>。</p>
+<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>业界的实践很多，可以参考 tikv 的 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25735592">优化</a> 和 dragonboat 的 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/52620657">优化</a>。</p>
 <p>以下简单列举几种：</p>
 <ul>
 <li>batching：降低 system call 的开销。</li>
@@ -650,44 +699,86 @@
 <h3 id="TimeoutNowRPC"><a href="#TimeoutNowRPC" class="headerlink" title="TimeoutNowRPC"></a>TimeoutNowRPC</h3><p>由 leader 发起，告知 target 节点立刻发起竞选，无视 electionTimeout。主要用于禅让。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇博客较为详细的介绍了 raft 算法的实现，希望能对读者理解 raft 算法有所帮助。</p>
 <h2 id="相关资料"><a href="#相关资料" class="headerlink" title="相关资料"></a>相关资料</h2><ul>
-<li><a href="https://raft.github.io/" target="_blank" rel="noopener">raft 官网</a></li>
-<li><a href="http://thesecretlivesofdata.com/raft/" target="_blank" rel="noopener">raft 动画教程</a></li>
-<li><a href="https://raft.github.io/raft.pdf" target="_blank" rel="noopener">raft 会议论文</a></li>
-<li><a href="https://web.stanford.edu/~ouster/cgi-bin/papers/OngaroPhD.pdf" target="_blank" rel="noopener">raft 博士论文</a></li>
-<li><a href="https://blog.laisky.com/p/raft/#%E9%9B%86%E7%BE%A4%E8%8A%82%E7%82%B9%E5%8F%98%E6%9B%B4-ohtdR" target="_blank" rel="noopener">raft 论文笔记</a></li>
-<li><a href="http://nil.csail.mit.edu/6.824/2020/notes/l-raft.txt" target="_blank" rel="noopener">6.824 Raft 讲义 1</a></li>
-<li><a href="http://nil.csail.mit.edu/6.824/2020/notes/l-raft2.txt" target="_blank" rel="noopener">6.824 Raft 讲义 2</a></li>
+<li><a target="_blank" rel="noopener" href="https://raft.github.io/">raft 官网</a></li>
+<li><a target="_blank" rel="noopener" href="http://thesecretlivesofdata.com/raft/">raft 动画教程</a></li>
+<li><a target="_blank" rel="noopener" href="https://raft.github.io/raft.pdf">raft 会议论文</a></li>
+<li><a target="_blank" rel="noopener" href="https://web.stanford.edu/~ouster/cgi-bin/papers/OngaroPhD.pdf">raft 博士论文</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.laisky.com/p/raft/#%E9%9B%86%E7%BE%A4%E8%8A%82%E7%82%B9%E5%8F%98%E6%9B%B4-ohtdR">raft 论文笔记</a></li>
+<li><a target="_blank" rel="noopener" href="http://nil.csail.mit.edu/6.824/2020/notes/l-raft.txt">6.824 Raft 讲义 1</a></li>
+<li><a target="_blank" rel="noopener" href="http://nil.csail.mit.edu/6.824/2020/notes/l-raft2.txt">6.824 Raft 讲义 2</a></li>
 </ul>
 
-            </div>
-            <hr>
-            <div>
-              <div class="post-metas mb-3">
-                
-                
-                  <div class="post-meta">
-                    <i class="iconfont icon-tags"></i>
-                    
-                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">分布式系统理论</a>
-                    
-                      <a class="hover-with-bg" href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">共识算法</a>
-                    
-                  </div>
                 
               </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/" class="print-no-link">#分布式系统理论</a>
+      
+        <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/" class="print-no-link">#共识算法</a>
+      
+    </div>
+  
+</div>
+
+
               
-                <p class="note note-warning">
-                  
-                    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
-                  
-                </p>
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Raft 算法介绍</div>
+      <div>https://tanxinyu.work/raft/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>谭新宇</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年2月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
               
               
-                <div class="post-prevnext">
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/raft-thesis-translate/">
+                      <a href="/raft-thesis-translate/" title="Raft 博士论文翻译">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">Raft 博士论文翻译</span>
                         <span class="visible-mobile">上一篇</span>
@@ -697,7 +788,7 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/cap-theory/">
+                      <a href="/cap-theory/" title="CAP 定理介绍">
                         <span class="hidden-mobile">CAP 定理介绍</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
@@ -709,12 +800,10 @@
             </div>
 
             
-              <!-- Comments -->
-              <article class="comments" id="comments" lazyload>
-                
-                  
-                
-                
+  
+  
+    <article id="comments" lazyload>
+      
   <script type="text/javascript">
     Fluid.utils.loadComments('#comments', function() {
       var light = 'github-light';
@@ -742,25 +831,67 @@
   <noscript>Please enable JavaScript to view the comments</noscript>
 
 
-              </article>
-            
+    </article>
+  
+
+
           </article>
         </div>
       </div>
     </div>
-    
-      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
-        <div id="toc">
-  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
   <div class="toc-body" id="toc-body"></div>
 </div>
 
-      </div>
-    
+
+
+  </aside>
+
+
+    </div>
   </div>
 </div>
 
-<!-- Custom -->
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
 
 
     
@@ -785,56 +916,58 @@
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v"
-                 for="local-search-input">关键词</label>
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
     </div>
   </div>
 </div>
+
     
 
     
   </main>
 
-  <footer class="text-center mt-5 py-3">
-  <div class="footer-content">
-     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-  </div>
+  <footer>
+    <div class="footer-inner">
   
-  <div class="statistics">
-    
-    
-
-    
-      
-        <!-- 不蒜子统计PV -->
-        <span id="busuanzi_container_site_pv" style="display: none">
-            总访问量 
-            <span id="busuanzi_value_site_pv"></span>
-             次
-          </span>
-      
-      
-        <!-- 不蒜子统计UV -->
-        <span id="busuanzi_container_site_uv" style="display: none">
-            总访客数 
-            <span id="busuanzi_value_site_uv"></span>
-             人
-          </span>
-      
-    
-  </div>
-
-
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
   
 
   
-</footer>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
 
+  
+  
+  
+</div>
 
-  <!-- SCRIPTS -->
+  </footer>
+
+  <!-- Scripts -->
   
   <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
@@ -853,10 +986,22 @@
 <script  src="/js/events.js" ></script>
 <script  src="/js/plugins.js" ></script>
 
-<!-- Plugins -->
 
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
 
-  <script  src="/js/local-search.js" ></script>
 
 
 
@@ -866,114 +1011,161 @@
 
 
 
-  
-
-
 
   
-    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
-  
-  
-    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
-  
-  
-    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
-  
-  
-    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
-  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
 
 
+  <script src=https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
 
   <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var title = document.getElementById('subtitle').title;
-      
-      typing(title)
-      
-    })(window, document);
-  </script>
 
-
-
-
-
-  
-
-  
-    <!-- MathJax -->
-    <script>
-      MathJax = {
-        tex: {
-          inlineMath: [['$', '$'], ['\\(', '\\)']]
-        },
-        loader: {
-          load: ['ui/lazy']
-        },
-        options: {
-          renderActions: {
-            findScript: [10, doc => {
-              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
-                const display = !!node.type.match(/; *mode=display/);
-                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
-                const text = document.createTextNode('');
-                node.parentNode.replaceChild(text, node);
-                math.start = { node: text, delim: '', n: 0 };
-                math.end = { node: text, delim: '', n: 0 };
-                doc.math.push(math);
-              });
-            }, '', false],
-            insertedScript: [200, () => {
-              document.querySelectorAll('mjx-container').forEach(node => {
-                let target = node.parentNode;
-                if (target.nodeName.toLowerCase() === 'li') {
-                  target.parentNode.classList.add('has-jax');
-                }
-              });
-            }, '', false]
-          }
-        }
-      };
-    </script>
-
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
-
-  
-
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-
-
-
-
-<!-- 主题的启动项 保持在最底部 -->
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
 <script  src="/js/boot.js" ></script>
 
 
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         tex2jax: {
