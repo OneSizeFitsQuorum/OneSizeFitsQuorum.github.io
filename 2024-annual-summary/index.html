@@ -1,0 +1,885 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言忙忙碌碌又是一年，2024 匆匆结束。回想这一年的成长和收获，除了个人能力的提升，在做人做事做选择等方面也有了更多的认识。可以说，自己并未虚度时光，过得十分充实。 临近除夕，总算抽出时间坚持自己之前的习惯来继续写年终总结。希望今年的总结不仅能继续鞭策自己寻找并实践摩尔定律的成长节奏，也能获得更多反馈来修正自己。 首先依然是自我介绍环节，我叫谭新宇，清华本硕，师从软件学院王建民&#x2F;黄向东老师。目前">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2024 年终总结：在清华 IoTDB 创业公司中构建起摩尔定律成长节奏">
+<meta property="og:url" content="https://tanxinyu.work/2024-annual-summary/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="前言忙忙碌碌又是一年，2024 匆匆结束。回想这一年的成长和收获，除了个人能力的提升，在做人做事做选择等方面也有了更多的认识。可以说，自己并未虚度时光，过得十分充实。 临近除夕，总算抽出时间坚持自己之前的习惯来继续写年终总结。希望今年的总结不仅能继续鞭策自己寻找并实践摩尔定律的成长节奏，也能获得更多反馈来修正自己。 首先依然是自我介绍环节，我叫谭新宇，清华本硕，师从软件学院王建民&#x2F;黄向东老师。目前">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tanxinyu.work/2024-annual-summary/scenery.jpg">
+<meta property="article:published_time" content="2025-01-23T03:17:22.000Z">
+<meta property="article:modified_time" content="2025-01-28T06:05:02.379Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="IoTDB">
+<meta property="article:tag" content="年终总结">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tanxinyu.work/2024-annual-summary/scenery.jpg">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>2024 年终总结：在清华 IoTDB 创业公司中构建起摩尔定律成长节奏 - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/blog-background.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2024 年终总结：在清华 IoTDB 创业公司中构建起摩尔定律成长节奏"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-23 11:17" pubdate>
+          2025年1月23日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          37 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">2024 年终总结：在清华 IoTDB 创业公司中构建起摩尔定律成长节奏</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    <!-- compatible with older versions-->
+                    本文最后更新于：几秒前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>忙忙碌碌又是一年，2024 匆匆结束。回想这一年的成长和收获，除了个人能力的提升，在做人做事做选择等方面也有了更多的认识。可以说，自己并未虚度时光，过得十分充实。</p>
+<p>临近除夕，总算抽出时间坚持自己之前的习惯来继续写年终总结。希望今年的总结不仅能继续鞭策自己寻找并实践摩尔定律的成长节奏，也能获得更多反馈来修正自己。</p>
+<p>首先依然是自我介绍环节，我叫谭新宇，清华本硕，师从软件学院王建民/黄向东老师。目前在时序数据库 Apache IoTDB 的商业化公司天谋科技系统组担任内核开发工程师。我对分布式系统、性能优化等技术驱动的系统设计感兴趣，2024 年也一直致力于提升 Apache IoTDB 的集群易用性 &amp; 鲁棒性、共识能力和写入性能等，并接手完成了若干具有挑战性的大项目。</p>
+<p>接下来介绍一下我司：</p>
+<p>天谋科技的物联网时序数据库 IoTDB 是一款低成本、高性能的时序数据库，技术原型发源于清华大学，自研完整的存储引擎、查询计算引擎、流处理引擎、智能分析引擎，并拓展集群管理、系统监控、可视化控制台等多项配套工具，可实现单平台采存算管用的横向一站式解决方案，与跨平台端边云协同的纵向一站式解决方案，可方便地满足用户在工业物联网场景多测点、多副本、多环境，达到灵活、高效的时序数据管理。</p>
+<p>天谋科技由全球性开源项目、Apache Top-Level 项目 IoTDB 核心团队创立。公司围绕开源版持续进行产品性能打磨，提供更加全面的企业级服务与行业特色功能，并开发易用性工具，使得 IoTDB 的读写、压缩、处理速度、分布式高可用、部署运维等技术维度领先多家数据库厂商。目前，IoTDB 可达到单节点每秒千万级数据写入、10X 倍无损压缩、TB 数据毫秒级查询响应、两节点高可用、秒级扩容等性能表现，实现单设备万级点位、多设备亿级点位管理。</p>
+<p>目前，IoTDB 能够为我国关键行业提供一个国产的、更加安全的、性能更加优异的选择。据不完全统计，IoTDB 已服务超 1000 家以上工业企业，在能源电力、钢铁冶炼、航空航天、石油石化、智慧工厂、车联网等行业均成功部署数十至数百套，并扩展至期货、基金等金融行业。目前已投入使用的企业包括华润电力、中核集团、国家电网、宝武钢铁、中冶赛迪、中航成飞、中国中车、长安汽车等。</p>
+<p>值得一提的是，2024 年 IoTDB 的商业公司天谋科技营收同比增长近 300%，正式进入了指数增长的摩尔定律节奏。</p>
+<h2 id="2024"><a href="#2024" class="headerlink" title="2024"></a>2024</h2><p>介绍完背景后，在这里回顾下 2024 年我们系统组的主要工作，可分为 TPCx-IoT 双版本登顶、共识遥遥领先、性能优化摩尔定律新时代、集群易用性 &amp; 鲁棒性显著提升、海量项目支持和海量技术沉淀 6 个方面。</p>
+<p>在 TPCx-IoT 双版本登顶方面，国际事务处理性能委员会（TPC）是全球最权威的数据库性能测评基准组织之一。TPCx-IoT（TPC Express Benchmark IoT）是业界首个能直接对比物联网场景下不同软件和硬件性能的基准，涵盖了性能和性价比两个维度。今年，TimechoDB 1.3.2.2 版本在开启和关闭 WAL 测试的两种配置下，分别在 TPCx-IoT 的性能和性价比两个维度均登顶。值得一提的是，原本性能第一的系统是开启 WAL 的，而性价比第一的系统则关闭了 WAL。做数据库的人都知道，是否开启 WAL 对写入性能和资源消耗有着巨大的影响。尽管如此，IoTDB 最终实现了即使开启 WAL，仍能在性能和性价比两个维度同时登顶。如果关闭 WAL，性能和性价比还能够进一步提升约 20%，这充分彰显了 IoTDB 在应对物联网高吞吐场景中的极致性能。如今回想今年与新豪一起完成的这一工作，个人感触颇深，这对我来说也是四年磨一剑的过程。还记得 2020 年下半年研究生刚入学时，我就第一次尝试用 TPCx-IoT 测试过 0.12 版本的 IoTDB 老分布式集群。当时的分布式架构存在较大问题，性能始终难以提升，那年我的外号也成了 “tpc”，因为我一个学期几乎都在做 TPCx-IoT 测试，遗憾的是最终没有得到理想结果。经过四年的彻底重构与迭代，IoTDB 自 1.0 版本推出了全新的分布式架构，并在分区、共识和写入性能等方面做了诸多创新与改进。这些进展不仅使 IoTDB 能够支撑更多的用户场景，也最终帮助我们在 TPCx-IoT 榜单上登顶，性能达到了老版本的近 6 倍，充分证明了技术创新始终是第一生产力。此外，随着商业化公司成立，本次登顶过程中，我们不再是单打独斗，获得了许多同事的全力支持，特别是在与 TPC 委员会沟通、撰写报告等方面。这里特别感谢鹏程、Chris、昊男和苏总等同事对我们组的支持与帮助。没有团队的默默付出与协作，我们也不可能在今年完成这一目标，让这把磨了四年的剑最终得以出鞘。</p>
+<p>在共识遥遥领先方面，IoTDB 的 1.x 分布式版本参照 2020 OSDI 最佳论文 Facebook Delos 的思路抽象了一个支持不同共识算法的统一共识框架，允许用户在一致性、可用性、性能和存储成本等若干维度进行权衡。今年我们不仅将现有共识算法迭代的几乎稳定，更是创新的提出了一个新的性能遥遥领先的共识算法</p>
+<ul>
+<li>在强一致性算法 Ratis 方面，过去一年里我们组三位同学共为 Ratis 社区贡献了 35 个 commit，使得 Apache IoTDB 社区成为 Apache Ratis 社区仅次于原创团队的最大贡献社区。目前，Ratis 在 IoTDB 的通用场景下已经基本稳定，成员变更的稳定性也得到了显著提升。今年，宋哥成为了 Ratis 的 PMC，我成为了 Ratis 的 Committer，邓超也成为了 Ratis 的 Active Contributor。由于 IoTDB 每次发布正式版本不能依赖 Ratis 的快照版本，今年我们主动承担了多次 Ratis 社区的 Release Manager 角色，确保 IoTDB 每次发布正式版本时不依赖快照版本，从而符合 Apache 基金会的规范。今年，Ratis 共发布了 5 个版本，其中 4 次由我们组担任 Release Manager，Ratis-ThirdParty 发布了 3 个版本，其中 2 次由我们组担任 Release Manager。这标志着我们在 Ratis 维护方面已经积累了相当的能力和影响力。</li>
+<li>在基于操作复制的最终一致性算法 IoTV1 方面，过去一年湘鹏，宇衡和我已经将其打磨至几乎彻底稳定，成员变更的稳定性也得到了显著提升。近半年以来，IoTV1 相关的工单几乎为零，这标志着 IoTDB 共识算法稳定性的显著提升。今年，我们在理论上也迈出了重要一步，针对多主异步复制共识算法在成员变更时的一致性机制和保证边界进行了详细分析和完善，最终效果是在上万次 Region 迁移中副本数据依然保持一致。甚至测试组的同学也发出了疑问：“IoTV1 已经这么稳定了，为什么还要开发新的共识算法？”。这进一步说明了 IoTV1 的稳定性已经得到了团队的广泛认可。</li>
+<li>在基于状态复制的最终一致性算法 IoTV2 方面，过去一年我们结合物联网场景中写写冲突少的特点，与思成和俊植从 0 到 1 设计并实现了业界首个多节点多副本性能超越单节点单副本的共识算法。该算法不仅在鲁棒性上优于 IoTV1，解决了 WAL 堆积问题，还能在性能上超越现有常用的 Raft 算法 5-10 倍。在实现这一新共识算法的过程中，我们复用了流处理框架，推动了团队合力迭代，与苏总、哲涵、宇辰和振羽一起逐步提升了流处理框架的鲁棒性和稳定性。这一工作是我们在物联网场景下对共识算法的重要创新，也是我们在工程实践中发现的关键方向。我也首次完全自驱地联系伙伴（十篇 A 在投的张先生，以及我们组的新豪和俊植）共同撰写论文来沉淀我们组的工作成果，并最终得到了导师们的认可与支持。虽然没读博士，但也写了论文的两个章节过了一把博士的瘾。经过两个多月的努力，第一版论文已提交至系统方向的 A 类会议，现正等待评审。我非常期待 2025 年，IoTV2 能在学术与工程上同时与大家见面，这也是我们组今年最令人振奋、最反直觉的技术突破。</li>
+</ul>
+<p>在性能优化摩尔定律新时代方面，今年我跟旭鑫、昊男、雨峰、湘鹏、荣钊、钰铭、江天学长，田原学长和振宇师兄等团队成员一起进行了多项盲测写入性能优化工作并取得了显著进展。我们不仅在很多特定场景下实现了性能提升数十倍的效果，还在通用场景下实现了写入性能翻倍的成就，这是 IoTDB 写入性能提升最大的一年。通过分布式架构、存储引擎和系统优化的组合拳，我们成功让 IoTDB 在通用场景下的盲测写入性能进入了摩尔定律的成长节奏（每 18 个月性能翻一倍或资源利用率减少一半）。以 2023 年为基准，2024 年我们已经实现了这一目标，2025 和 2026 年现有的技术储备也已经为继续沿着摩尔定律节奏提升奠定好了基础。在具体优化方面，我们做了很多关键工作，仅列举已做的开源部分如下：</p>
+<ul>
+<li>行列接口自动转换：优化场景是用户使用行式接口写入列式数据，系统能够自动检测并转换为列式向量化执行，从而提升写入性能。</li>
+<li>WAL 压缩：优化场景是通用 I/O 瓶颈场景，通过 WAL 压缩，显著节约实时磁盘 I/O 带宽。</li>
+<li>WAL 批量化：优化场景是设备多测点少的行式批量写入接口，能够显著降低 CPU 利用率和写入延迟。</li>
+<li>第一条写入调优：优化场景是空集群第一条写入耗时过长，通过优化显著提升了用户体验。</li>
+<li>表模型写入性能优化：优化目标是使 IoTDB 即将发布的表模型写入性能与树模型相似，将树模型优化思路接入表模型，从而提升写入效率。</li>
+<li>重启加速：优化场景是加速重启速度，使得重启时间不再与节点数据量挂钩，进而提升集群可用性。</li>
+<li>默认 DataRegion 数与硬件资源绑定：优化场景是针对更强硬件（如 16 核以上机器），自动根据硬件资源配置合理的共识组个数，从而高效利用 CPU 资源。</li>
+<li>Memtable State of the Art 数组：优化场景是解决 Memtable 读写删并发互相影响的性能问题，我们通过设计符合时序场景的 State of the Art 数组结构，显著提升了存储引擎 Memtable 的并发性能。</li>
+</ul>
+<p>在集群易用性 &amp; 鲁棒性显著提升方面，我们也做了非常多的工作</p>
+<ul>
+<li>Region 迁移和 DataNode 缩容是 IoTDB 动态扩缩容能力的基石，针对在迭代过程中遇到的分布式状态维护难（多个节点的内存和磁盘均维护状态）、沟通成本高（牵扯模块多）和复杂场景多（考虑若干故障场景）的问题，宇衡、湘鹏、珍姐和我在考虑众多因素后进行了详细设计和开发。为了保证最终交付给用户的功能质量，我们进入了测试的 Bug 拉锯战，这个过程堪比系统组的诺曼底登陆，无数精力都投入在鲁棒性的打磨上。经过近一年的打磨，现阶段的 bug 已经基本收敛，功能也逐步从不可用到基本可用，我们已在若干实际用户场景中实践了该功能，2025 年我们已经不再畏惧上万次迁移和 TB 级别迁移的场景。</li>
+<li>在易用性 &amp; 鲁棒性方面，我也和宇衡、雨峰、文炜、湘鹏和荣钊一起进行了大量的完善，包括但不限于配置文件三合一、热更新加载参数缺失配置项恢复默认值、Set Configuration 集群更新配置语句、Region 重建/增删副本、Verify connection 检测网络连通性、CLI 激活 &amp; 机器码缩短、Procedure 维护（10+ commit）、WAL 阻写默认阈值与磁盘大小绑定、CN 脑裂问题修复、节点启停流程双军问题工程完善、RTO/RPO 优化、多数据库负载均衡、多数据库创建保护机制、激活代码同步冲突处理等。这些工作显著提升了 IoTDB 的稳定性和用户黏性。</li>
+</ul>
+<p>在 IoT-Benchmark 方面，今年我们梳理了其项目结构和 README，使其逐步向更通用的时序基准测试工具演进。过去一年钰铭作为主力带领我们迭代了近 100+ commit，包括 50+ 稳定性修复和易用性提升、以及 10+ 性能优化。</p>
+<p>在持续集成与迭代体系方面，今年在王老师的指引下，我们引入了对第三方库的 SBOM 管理，并开始使用 NVD 扫描并持续追踪开源项目中的 CVE 问题，从而逐步提升了对第三方依赖漏洞安全问题的重视。此外，我们还开始统计 IoTDB 的代码量，以评估代码复用效果和项目的复杂度。与此同时，我们也意识到，随着产品功能和复杂度的不断增加，测试用例的指数级增长与产品迭代效率之间存在一定的 trade-off。结合每天晚上和周末 CI 机器几乎都在空闲的现状——每周 168 个小时中，只有大约 1/3 的时间 CI 机器在工作，其余 2/3 的时间处于闲置状态——我与钰铭开始探索将 CI 拆分为不同级别的测试体系，包括 commit、daily 和 weekly 级别的测试。我们在 commit 级别保留最为关键的 CI 测试，在 daily 和 weekly 测试中充分利用闲置的机器资源，补充更多的测试用例。同时，我们也将引入智能化策略，自动识别并追踪有问题的 commit，从而在开发效率与质量保障之间找到更好的平衡点。</p>
+<p>在海量项目支持这块，我则个人负责了若干探索性项目并参与了很多实际项目</p>
+<ul>
+<li>在某一关键领域的大客户项目中，我担任了技术架构师和部分项目经理的角色，与乔老师、祥志、洪胤和高飞学长从需求调研到业务建模，再到推动内核迭代优化，几乎将自己毕生所学都倾注其中。庆幸的是，今年我们的工作得到了双方的认可。我们的工作包括但不限于：特定领域数据时序数据库一体化建模与应用的可行性验证，较原生系统现有资料数据性能提升超过 10 倍，下一代负载更大 10 倍的资料数据从不可写转为可写；我们还实现了该领域首个针对多维查询的异构多副本高可用方案，性能提升了一个数量级；结合具体场景，我们对 IoTDB 的 LSM 引擎进行了架构优化，使 0 层 TsFile 文件大小提升了 300 倍，系统从不可用变为可用；此外，我们还针对大文本数据进行了关键技术演进，包括零拷贝和内存池优化等。最终，我们还预留了若干内核优化，期待在 2025 年继续打磨完善。这个极具性能挑战的业务场景，不仅让我在高压下不断突破自己，也让我更加深刻地体会到系统设计的乐趣。</li>
+<li>除了预研项目外，我还通过项目工时表统计了自己今年 6-12 月共 7 个月参与的项目耗时，共计 257 小时，平均每个工作日 2 小时。具体支持的内容包括但不限于与竞品 PK 并取得胜利、撰写各种报告和文档、售前（包括纯英文售前）、oncall、写标书、评奖答辩和技术分享等。这些持续的项目和业务侧投入，使我能够始终接触产品一线，从一个更全局、具备发展眼光的视角去平衡不同工作的优先级，并理解一个 2B 创业产品需要关注的方方面面。在此，也特别感谢佳哥、红岩以及其他项目组的同事，帮助内核团队承担了大量的线上压力。</li>
+</ul>
+<p>在海量技术沉淀这块，则基本是我们出于技术 &amp; 业务双驱动完成的很多探索</p>
+<ul>
+<li>在技术推送方面，今年我们组协调产研团队共发布了 19 篇技术推送，其中我们组独立完成了 10 篇，包括《分布式三部曲》系列、监控系列、与 HBase/InfluxDB 的对比系列、TPC 系列等。我们公众号的推送视角也逐渐从纯技术视角转向了用户视角，开始更加关注公众号目标用户的实际需求。现在，我也在跟随旋哥一起审核并整理一些 FAQ 问题，期望能够解决更多开源用户的问题。此外，我还在知乎上宣传了 IoTDB 在分布式架构下的细致考虑，收获了不少关注和反馈。</li>
+<li>在学术成果方面，今年我们组产出了 1 篇软著、4 篇专利和 3 篇论文（2 篇在投），涵盖了我们组负责的负载均衡、共识算法、时序基准测试工具和 TPC 登顶等方面的工作。这些成果得益于去年王老师和东哥的要求，促使我们组不断沉淀并输出成果，在与同行交流的过程中激发了更多的创新点。</li>
+<li>在 JVM GC 探究方面，今年俊植和我一起举办了 GC 讨论班，我们对 JDK8/11/17 的默认 GC 算法 PS 和 G1 的原理和所有可调优参数都进行了研究和分享，我们也整理了相关 Cook Book 便于更多的同事能够参照流程图进行 GC 调优。我们也完善了 IoTDB 启动相关的 GC 参数，使得默认的 GC 参数是我们实践得到的最优选择。此外关于默认 GC 算法到底应该选择 PS 还是 G1 的问题，团队内部有很多争论和质疑，由于默认总需要选择一个 GC 算法，而不可能有任何一个 GC 算法在所有维度（例如吞吐，最大暂停延迟，稳定性和内存占用等）都能够超过其它 GC 算法。为了避免大家在这里耗费太多精力（例如“我发现某个场景 PS 更好”，“我发现某个场景 G1 更好”，“我觉得应该 xxx”），我们组结合过去两年对 GC 算法的研究和所有的对比案例整理了一个文档，得出了在我们所接触的所有场景里默认使用 G1 对于盲测更优，如有特定需要可调整为 PS 的方案。通过这种方式，我们平息了大家对这块的时间投入，能够让大家抽出更多的精力去专注于其他更重要的事情。</li>
+<li>在默认推荐 JDK 版本升级方面，23 年俊植和我曾尝试将 IoTDB 的默认推荐 JDK 版本从 JDK8 升级为 JDK17。然而，升级后冯老师发现写入、合并和导入导出等功能的耗时均有增加，经过近一个月的排查未果，我们暂时搁置了该问题。今年在调整 GC 算法默认参数时，我们意外发现，JDK17 性能下降的原因是 JDK15 之后默认关闭了偏向锁。我们在 JDK8 环境下关闭偏向锁也能复现类似的耗时增加现象。进一步排查后发现，IoTDB 内部的某些文件 IO 基础类过多使用了 synchronized，导致偏向锁取消时性能回退。通过优化这些基础类，我们解决了性能下降的问题，使 IoTDB 从 1.3.2 版本起默认推荐 JDK 17 部署。此举不仅让 IoTDB 的默认推荐 GC 算法从 PS 改为 G1，还为我们未来利用如 Vector API 等 JDK 高阶功能奠定了基础。</li>
+<li>在 JVM 非堆内存上涨问题方面，23 年我们团队已将 JVM 内存划分为堆内内存、堆外内存和非堆内存。今年，在某用户环境中，我们发现配置好 IoTDB 的堆内和堆外内存后，整个进程占用内存依然不断上涨，最终被 OOM-Killer 杀掉，说明非堆内存出现泄漏。通过结合 NMT 工具和 Oracle 官网文档对非堆内存进行分析，俊植和我提出了 IoTDB 内存配置的安全部署公式，虽然解决了线上内存不断增长的问题，但由于用户不愿进一步在生产环境中帮助我们确认原因，问题的根因排查暂时被搁置。幸运的是，由于我们开源了我们沉淀的 JVM 内存管理文档，一家广州创业公司的程序员联系到了我们，他们的 Java 服务也复现了该问题。在进一步沟通后，我们定位到这个场景的问题是由于 JVM 的默认内存分配器 glibc 缓存机制引起的，经过更换为 jemalloc 后，内存 RSS 稳定不再出现泄漏。这一经历也让我们更加深刻地认识到沉淀和分享技术的重要性。</li>
+<li>在访存瓶颈零拷贝优化方面，23 年我们发现，在一些大文本场景中，IoTDB 的 CPU、磁盘和网络均已经不再是瓶颈，反而是访存成为了瓶颈。今年，思屹和我系统整理了 IoTDB 的写入 RPC 请求从网卡到磁盘的端到端拷贝次数和访存次数，发现了 Thrift 框架中可优化的零拷贝部分。通过该优化，IoTDB 在 44KB 大文本场景下的写入吞吐提升了 35%。由于零拷贝技术需要完善控制对象生命周期，我们尽量平衡了性能收益与代码侵入性，首先优化了性能提升最大且生命周期控制最容易的客户端 Server 和共识 Server 部分。我们也为未来的扩展预留了接口，目前流处理组的宇辰已经开始尝试进一步引入客户端零拷贝来优化性能。</li>
+<li>在 JVM 内存池优化方面，针对大文本场景中的 GC 问题，思屹和我仔细梳理了 GC 触发的根本原因，并分析了 Java 与 C++ 在内存管理上的差异。C++ 允许开发者手动管理对象生命周期，并显式申请和释放内存，而 Java 则通过后台的可达性分析机制异步回收内存。由于这一机制，在处理大对象（如 byte[]、long[] 数组等）时，Java 在频繁的大内存申请与释放过程中容易引发较多的 GC，消耗大量 CPU 资源并影响程序性能。这本质上也是 C++ 和 Java 在开发者心智负担与性能之间的 Trade-off。因此，我们设计并实现了一个支持变长 byte[] 的内存池，提供了手动和自动两种接口，允许调用者选择是否手动管理生命周期来池化 byte[]。手动接口需要牺牲一定的开发者体验，要求实现引用计数机制来显式归还，但能获得更好的性能；而自动接口则基于虚引用机制实现内存的自动归还，性能相对较差，但仍优于不做池化的方式。该内存池还引入了基于 EMA 算法的主动驱逐策略和基于 JMX 的 GC 感知被动驱逐策略，确保性能提升的同时，不会引入新的稳定性问题。根据我们的测试，在 4KB 至 1MB 的大文本场景下，写入性能提升了 6% 到 71%，GC 从很严重降低到几乎没有。未来，我们计划将所有 JVM 大对象数组接入该对象池，从而消除大多数 GC 开销。</li>
+<li>在多 NUMA Node 机器性能优化方面，今年思屹和我在一台 192C 768G 内存的 4 NUMA Node 机器上进行了 IoTDB 性能提升的探索。我们首先尝试了单进程优化，发现 JDK 17 之后的 G1 垃圾回收算法已支持 NUMA 感知，但仅限于新生代，对于老年代的内存访问仍然存在较多的跨 NUMA Node 访问。对于 Java 来说，老年代内存可以通过第三方库如 Thread Affinity 进行核绑定，这要求访存和管存线程在同一个核上运行。然而，这种方式对内核侵入较大，因此我们推荐直接使用 JDK 17 以上版本自身的能力进行单进程优化。尽管单进程优化的空间有限，但我们发现多进程优化具有较大突破潜力。通过将每个 IoTDB 进程使用 numactl 命令绑定到一个 NUMA Node，我们能够以极小的代价显著提升性能。在该物理机上进行的 1 进程与 4 进程绑核的性能对比测试表明，读写性能最高可提升 1 倍，使用 Intel Vtune 工具观测到的跨 NUMA 带宽也显著降低。通过这一探索，IoTDB 在多 NUMA Node 机器上的高性能部署方案得到了进一步的优化和完善。</li>
+<li>在外部技术输出方面，今年宇衡在持续追踪一个影响 IoTDB 运行的问题时，发现了一个 GraalVM 编译器的 bug，在将其提报到 Oracle 社区后，得到了认可并快速修复。此外我在解决一个线上 WAL 堆积问题时，发现根因是 Thrift AsyncServer 的 Epoll 存在 bug，通过深入研究代码，我明确了具体原因并推动 Thrift 社区最终解决了该问题。这些反馈也引发了我的深思：对于一个追求普适性的复杂产品，稳定性和兼容性往往需要最优先考虑，那么那些出于性能优化驱动的新技术（如异步 server、异步 I/O、direct I/O、虚拟线程等）便需要谨慎使用。即便使用了，也应提供开关。因为只要延迟够用，吞吐基本可以通过横向扩展来提升，不必过度依赖那些看起来非常新颖但可能不够稳定的技术。特别是在当前国产化的背景下，如果这些技术没有在各种硬件和操作系统环境中做足够的测试和完善，线上问题一旦发生，oncall 的体验将非常痛苦，且会对用户和产研团队带来更大的负担。</li>
+<li>在更多的探索尝试方面，今年我们还有 6-7 个尚未合并到主分支的硬核技术尝试工作，具体细节暂不展开。期望这些工作能在 2025 年不断完善，为 IoTDB 2026 年通用场景盲测性能的摩尔定律节奏奠定基础。</li>
+</ul>
+<p>今年，我在 Apache IoTDB 社区提交并被合并了 84 个 PR（去年 119 个），Review 了 509 个 PR（去年 387 个）。相比去年，今年我的大部分精力都集中在贴近业务和技术管理上，也对个人和团队如何最大化产出有了更多思考和感悟。今年 8 月，我受邀成为 Ratis 社区的 Committer，并成功拥有了 1k Github Follower，这让我更加认可自己在开源领域的专注。回顾过去一年，我觉得我们成功将团队的许多工作通过各种方式沉淀下来，并影响了许多人。希望我们能始终在这段青春年华中保持对技术的热情，专注于我们的工作继续前行。在这里，我特别感谢我的女朋友🍊 始终支持我的工作并帮助我疏解情绪，让我感受到生活的美好与幸福。她还带我见识了许多新事物，让我对人生的很多方面有了新的认识和思考。</p>
+<h2 id="一些感悟"><a href="#一些感悟" class="headerlink" title="一些感悟"></a>一些感悟</h2><p>介绍完充实的 2024，回顾 2023 年终总结，可以发现今年我们在去年四个维度的展望上都取得了不错的成绩</p>
+<ul>
+<li>做深：我们组输出了大量工程技术沉淀，也产出了 4 项专利、3 篇论文（2 篇在投）和 1 项软著。</li>
+<li>做广：上半年与存储引擎合作，下半年与流处理引擎合作。</li>
+<li>做好：我们显著提升了系统稳定性，降低了纯分布式模块的 oncall；通过若干内核功能优化，提升了易用性；同时，我们也通过分布式、存储引擎和系统优化组合拳打造了 IoTDB 通用场景盲测写入性能的摩尔定律节奏，并预留了三年的余量。</li>
+<li>做响：我们成功完成了 TPCx-IoT 登顶工作，并获得了央视报道；此外，我们小组的技术输出总阅读量达 2w+，提升了团队的知名度和影响力。</li>
+</ul>
+<p>下面分享一下我今年的很多成长感悟，欢迎大家批评指正。</p>
+<h3 id="稳定性打磨工作如何评估时间"><a href="#稳定性打磨工作如何评估时间" class="headerlink" title="稳定性打磨工作如何评估时间"></a>稳定性打磨工作如何评估时间</h3><p>对于一个稳定性打磨的功能，如何评估其完善时间？在打磨 Region 迁移的稳定性时，我今年思考了很久。如果考虑无数硬件环境（如 4C16G 和 192C768G）、测试负载（实时写入、读写混合），再加上注入各种异常（如节点重启、网络分区、断电等），以及多个模块功能的组合（如多级存储、存储引擎、共识层、流处理引擎等），可以看出它们的组合是指数级扩展的。即使研发进行了完善的设计与实现，但提测后仅测试完善的开销就几乎永无止境。但如果一开始就定下工作周期为半年或一年，也难以做出可靠的过程管理来向上汇报。</p>
+<p>在这种困境下，我们必须意识到场景是无限的，在精力有限的情况下，我们的目标是用最小的研发和测试代价解决尽可能多的 bug。最初，我们按照研发视角将功能的稳定性迭代分为 V1、V2、V3，期望逐步打磨到稳定状态。然而在实际测试中，我们发现测试视角与研发视角并不同频，导致测出的 bug 比较分散，尽管测试与研发一同打磨很久，仍难以向上汇报阶段性成果，因为每个模块都有不少 bug 被修复。这使得这个工作看起来像是无底洞，且容易受到质疑。其实，问题的根本在于缺乏多方共识的客观评价标准。</p>
+<p>回顾整体流程，我认为可以在以下两个方面做得更好</p>
+<ul>
+<li>避免测试开销的指数级扩展：对功能中的核心模块，尽量做好抽象并补充完备的测试。在功能从 UT、IT、研发自测、测试自测、用户 POC 到用户线上等各个环节中，越早发现问题，整体时间成本就越低。更有趣的是，这种流程优化能潜移默化提升整个团队的效率。同样工作 8 个小时，高效与低效的差距，对于软件开发团队的影响会非常的大，这也是我未来需要持续反思与提升的地方。</li>
+<li>多方对齐：对于稳定性迭代工作，需要研发、测试和产品在功能、性能和测试场景等多个维度上提前对齐优先级，并将工作分配到 V1、V2、V3 版本中。对于每个小工作项，能够精确预估时间；对于大工作项，提供概要预估时间即可。这样即便出现延期，团队也能清楚了解目前功能的进展，哪些场景可以交付给用户，哪些还需改进。这会大大提高工作的透明度和效率。</li>
+</ul>
+<h3 id="软件工程没有银弹"><a href="#软件工程没有银弹" class="headerlink" title="软件工程没有银弹"></a>软件工程没有银弹</h3><p>今年有件让我深受感触的事，那就是发现大家对 IoTV2 共识算法的价值产生了质疑。从纯研发的视角来看，IoTV2 显然在创新性和性能上都显著超越了 IoTV1，是我们组过去几年最具创新性的工作之一，其他共识算法也都花了好几年才稳定，IoTV2 毕竟才诞生一年。但如果想在开发团队中获得更广泛的认可，就需要考虑大家关注的不同方面，包括稳定性、创新性、问题收敛程度、潜在收益与投入的平衡等。可以看出，这些维度之间往往存在矛盾，而且很难得出绝对客观的结论，很多东西也完全看未来的事在人为，因此很难在所有人中达成共识。这让我意识到，当一个软件项目和团队发展到一定阶段后，是否落实创新工作，往往会面临保守和激进的分歧，二者需要不断博弈与制衡，才能走向一个可行的方向。完全激进或者完全保守都会带来不可预知的风险。</p>
+<p>回到 IoTV2，我们能够平息质疑的一个重要原因是我们做了共识层的抽象，能在一套接口下支持不同的共识算法，从而使得各个共识算法可以单独迭代。如果没有这个统一的接口，不管 IoTV2 作为业界第一个多副本超越单副本的共识算法有多么创新，仍然会面临无数质疑，甚至可能导致无法迭代。而对于竞品来说，除非照抄 IoTDB 整体共识层的设计，否则也很难平息内部质疑，全力推进这项工作。这为我们未来的扩展性设计提供了指导——良好的接口抽象能够使得系统的关键迭代从“不可能”变为“可能”。当然，软件工程没有银弹，即使我们通过共识层的抽象让 IoTV2 的迭代得以顺利进行，但代价就是翻倍的测试和打磨开销。总体而言，抽象得越好，复杂度封装得越到位，测试和打磨的开销也就越低。</p>
+<h3 id="个人的管理成本-ROI"><a href="#个人的管理成本-ROI" class="headerlink" title="个人的管理成本 ROI"></a>个人的管理成本 ROI</h3><p>在今年参与更多技术管理工作后，我渐渐关注到个人管理成本 ROI 这一概念，其本质是消耗尽可能低的 +1 管理成本（包括时间和资源等）完成更复杂的工作，并在有风险时及时汇报并提供辅助决策的数据。</p>
+<p>总体而言，不同的人有不同的管理风格，同一个人对于不同的事情也会采取不同的管理方式。有时像《大明王朝 1566》中的嘉靖一样，只关注结果，不拘过程；有时又像《大决战》中的 101 一样，会关注每一个细节。其实，不论是哪种管理风格，最终目标都是完成工作，并没有绝对的好坏之分。</p>
+<p>对于我们个人而言，我们控制不了别人，唯一能够不断改善的就是提升自己的管理成本 ROI。通过这种方式，我发现能够使得自己与他人的合作变得更加高效和愉快。类似的例子包括但不限于</p>
+<ul>
+<li>完成一个 PR 后，补充详细描述和充足的测试用例，并至少自己 Review 一遍，再让 +1 Review，这样 +1 只需花费极小代价即可合并 PR。</li>
+<li>对于自己负责的工作方向，如果涉及到非常多的琐碎事项，主动周期性汇总关键点并屏蔽细节与 +1 沟通，让其在最短时间内了解现状并能进一步向上汇报，不要让他消耗很多时间去整理细节。</li>
+<li>在几乎不消耗 +1 时间的情况下，完成复杂架构设计并获得原本 +1 需要沟通的人员认可，让 +1 仅需做最终决策。</li>
+<li>在发现项目潜在风险时，及时整理现状和信息与 +1 沟通，评估是否需要更多资源，确保项目整体风险可控。</li>
+</ul>
+<p>这些经验很多是在与我们组俊植一起进步的过程中学到的。希望自己能像俊植一样，不断提升自己的管理成本 ROI，进而锻炼出更好的职业素养。</p>
+<h3 id="十倍程序员如何进一步提升"><a href="#十倍程序员如何进一步提升" class="headerlink" title="十倍程序员如何进一步提升"></a>十倍程序员如何进一步提升</h3><p>今年年中，我读了润基哥哥的十倍程序员文章，受益良多。对于十倍程序员的成长，本质上有两个方面：</p>
+<ul>
+<li>基于延迟的纵向扩展：这既包括以前做不到的事现在能做了，即延迟从无穷大变成了可量化的数字，也包括以前能做的事现在能更高效完成，即延迟更低。</li>
+<li>基于吞吐的横向扩展：这包含了能够带领团队在单位时间内并行产出更多成果，这中间需要避免单点瓶颈和负载不均衡现象，才能发挥出团队最大的力量。</li>
+</ul>
+<p>从纯个人能力上来看，可以按照上述思路进行纵向和横向扩展，但今年我也意识到人力始终有限，战略上选择一个正确的方向才是事半功倍的关键。所以今年除了个人业务能力的提升，我还积累了很多做人做事的经验。对于很多事情的可行性，我不用再依赖他人的意见，而是能够自己进行主观判断。希望自己能在这个方向上继续沉淀，用靠谱的战略指引自己不断成长。</p>
+<h3 id="决定不做什么往往比决定做什么更难"><a href="#决定不做什么往往比决定做什么更难" class="headerlink" title="决定不做什么往往比决定做什么更难"></a>决定不做什么往往比决定做什么更难</h3><p>其实这个感悟与战略类似，说一个应该做的事情只需要十秒钟，然而将这个事情具体落地可能需要十周甚至十个月的时间。人力始终有限，尤其对于一个软件团队来说，面对无数的输入和决策指引，客观上这些工作不可能面面俱到，必须进行战略性取舍。</p>
+<p>决定做什么往往没有太多压力，因为人性中总有一种“即使失败了，没有功劳也有苦劳”的自我安慰。但如果要决定不做什么，则必须对自己的业务和竞争力有深刻理解，出于提高人效的角度思考且愿意承担政治责任，才能最终说服别人。这种决策十分困难且珍贵，但也正是许多高效团队能够成功的关键。</p>
+<p>今年，我有幸在博士生组会中跟随王老师龙老师带领的实验室团队学习时序 AI 大模型的落地思路。虽然王老师龙老师一直强调我们现在已经做好了“存数”，接下来要把“用数”做好，但他们也明确通过案例分析告诉我们，哪些 AI 项目是靠谱的能够最终产生实际价值，哪些 AI 项目是不靠谱的做了也只是白白耗费精力不创造实际价值。这种战略定力和担当，让我深受触动。</p>
+<h3 id="人性的惯性是根据情绪和结果来评价过程"><a href="#人性的惯性是根据情绪和结果来评价过程" class="headerlink" title="人性的惯性是根据情绪和结果来评价过程"></a>人性的惯性是根据情绪和结果来评价过程</h3><p>尽管我一直对历史很感兴趣，很多大道理早已听过，但今年在工作中，我从切身实践中获得了一个深刻的感悟：任何事、任何人都会有正负面的影响和评价，不存在一个完人，也不存在一个能够得到所有人认可的方案。</p>
+<p>人性大多数时候是非常真实的，大家常常根据结果来判断过程。如果事情没有做成，就会有人列举一堆负面评价来解释为什么失败；如果事情做成了，又会有人说一堆正面评价来证明“早就看他行”。但实际上，成与不成，除了人的因素，还很大程度上取决于天时地利，而这些天时地利，作为非人为因素，反而会深刻影响最终大家的评价。此外，尽管我们都在强调要客观理智，但根据我的观察，大多数人，包括我自己，也曾在情绪驱动下做出一些非预期的行为，并且不断强调自己并没有被情绪左右。</p>
+<p>意识到这些后，我明白了很多事情，要么不做，要做就尽己所能做到最好，不必过多顾虑他人的评价。只有这样，才能避免不必要的内耗和沟通成本，将精力集中在更重要的事情上，这样反而更有可能将事情做成。</p>
+<h3 id="刚柔并济才能实现可持续发展"><a href="#刚柔并济才能实现可持续发展" class="headerlink" title="刚柔并济才能实现可持续发展"></a>刚柔并济才能实现可持续发展</h3><p>在今年的工作中，我逐渐有了一些中庸之道的感悟。每个人都有不同的特点，要凝聚一个多样化的团队，需要更多的包容性和开放性。过于从自己的视角偏重某一维度，反而可能导致适得其反，产生“过刚易折”的效果。在做人做事时，面对大的目标和原则性问题时，我们要坚持“刚”；而对于那些不影响最终目标的小细节，则可以选择“柔”。此外，在与许多跨行业朋友的沟通中，我逐渐意识到，尽管我们都在努力工作，但很多事情还是需要天时地利。有时候，顺势而为、蛰伏等待也许是成功的关键。</p>
+<p>因此，保持良好的工作心态，营造融洽的工作氛围，在自驱保证自我成长的基础上，不必过于纠结于远方的目标，而应专注当下刚柔并济，才能实现可持续发展，并与团队一起走得更远。</p>
+<h3 id="如何平衡个人输出和团队输出"><a href="#如何平衡个人输出和团队输出" class="headerlink" title="如何平衡个人输出和团队输出"></a>如何平衡个人输出和团队输出</h3><p>今年对我个人的时间管理和抗压能力来说是极具挑战的一年。上半年临危受命接管存储组，scope 显著扩大，团队人数相比去年接近翻倍。由于一些原因，无法进一步进行分级管理，这对我个人精力提出了极大挑战。基本上，我每天都在不断地线程切换，盯着十几二十个事项。尽管我已经转变为“没有深入参与时间，只略微沟通过程便要结果”的最低投入策略，但由于我依然是单点瓶颈，很多进展缓慢的事情和无人处理的 bug 需要我来当“救火队员”。我的时间依然远远不够用，一旦我在个人处理的某个问题上阻塞了一两个小时，那基本上会造成四五个问题的连锁阻塞。高压状态下，这种情况对我个人的心态和情绪也产生了一定的影响。幸好，下半年江天学长挺身而出，接过了存储组的压力，帮助我们组的人数恢复到了一个相对合理的规模，让我有更多精力去探索和深度参与我们组的很多工作。</p>
+<p>现在回想这段经历，我意识到一个人的合理管理半径不应超过 10 个人。在这个范围内，能够在个人输出和团队输出之间取得一个良好的平衡。此外，只有与团队一起成长、大家自驱地去做事，才能在不线性增加时间和精力投入的情况下，扩展管理半径。</p>
+<h3 id="与指数增长团队一起指数增长"><a href="#与指数增长团队一起指数增长" class="headerlink" title="与指数增长团队一起指数增长"></a>与指数增长团队一起指数增长</h3><p>即使是同一个人，在不同的年纪，对于金钱、工作氛围、健康和工作生活平衡等方面的追求都会有所不同。但一直以来，驱动我前进并屏蔽这些外部欲望的动力，始终是如何在单位时间内获得更多的成长。随着时间的推移，我逐渐意识到，能够承担越来越大的责任，并创造更多的价值，才是个人成长的核心所在。</p>
+<p>固然我们可以在任何地方按照这个思路去追求自我成长，但只有在一个增量团队中，团队和个人的双指数增长才更容易实现。希望大家可以找到与自己 match 的指数增长团队。</p>
+<h2 id="来年展望"><a href="#来年展望" class="headerlink" title="来年展望"></a>来年展望</h2><p>通过这一年，我们为 IoTDB 在技术上构建了摩尔定律的成长节奏。幸运的是，这些技术积累也立即在影响力和营收上得到了体现。希望在新的一年，无论是我个人还是团队，都能继续保持这种摩尔定律般的成长节奏，推动更多的技术创新和业务突破。</p>
+<p>最后，在除夕之际，预祝大家新年万事如意，心想事成！愿每个人在新的一年中都能够事业有成，收获满满！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/IoTDB/" class="print-no-link">#IoTDB</a>
+      
+        <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" class="print-no-link">#年终总结</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2024 年终总结：在清华 IoTDB 创业公司中构建起摩尔定律成长节奏</div>
+      <div>https://tanxinyu.work/2024-annual-summary/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>谭新宇</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年1月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023-annual-summary/" title="2023 年终总结：从清华 Apache IoTDB 组到创业公司天谋科技">
+                        <span class="hidden-mobile">2023 年终总结：从清华 Apache IoTDB 组到创业公司天谋科技</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>
