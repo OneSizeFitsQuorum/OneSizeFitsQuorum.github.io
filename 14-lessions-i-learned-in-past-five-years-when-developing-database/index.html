@@ -18,16 +18,16 @@
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
   
-    <meta name="description" content="前言过去五年半里，我在 Apache IoTDB 社区担任核心开发者，亲历了老分布式版本的迭代、新分布式架构的设计、盲测性能优化和系统可观测性搭建。这些年来，我在调试各种疑难杂症、修复线上事故以及优化系统架构的过程中，踩过无数坑，也积累了宝贵经验。 这篇文章记录了我在实战中总结出的 14 个重要教训，不是纸上谈兵，而是用血泪换来的经验。希望能帮助正在或即将从事数据库内核开发的朋友们少走弯路。 实战">
+    <meta name="description" content="前言过去五年半里，我在 Apache IoTDB 社区担任核心开发者，亲历了老分布式版本的迭代、新分布式架构的设计、盲测性能优化和系统可观测性搭建。这些年来，我在调试各种疑难杂症、修复线上事故以及优化系统架构的过程中，踩过无数坑，也积累了宝贵经验。 这篇文章记录了我在实战中总结出的 14 个重要教训，不是纸上谈兵，而是用血泪换来的经验。希望能帮助正在或即将从事数据库内核开发的朋友们少走弯路。 14">
 <meta property="og:type" content="article">
 <meta property="og:title" content="数据库内核开发 5 年，我从无数坑中学到的 14 个宝贵教训">
 <meta property="og:url" content="https://tanxinyu.work/14-lessions-i-learned-in-past-five-years-when-developing-database/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
-<meta property="og:description" content="前言过去五年半里，我在 Apache IoTDB 社区担任核心开发者，亲历了老分布式版本的迭代、新分布式架构的设计、盲测性能优化和系统可观测性搭建。这些年来，我在调试各种疑难杂症、修复线上事故以及优化系统架构的过程中，踩过无数坑，也积累了宝贵经验。 这篇文章记录了我在实战中总结出的 14 个重要教训，不是纸上谈兵，而是用血泪换来的经验。希望能帮助正在或即将从事数据库内核开发的朋友们少走弯路。 实战">
+<meta property="og:description" content="前言过去五年半里，我在 Apache IoTDB 社区担任核心开发者，亲历了老分布式版本的迭代、新分布式架构的设计、盲测性能优化和系统可观测性搭建。这些年来，我在调试各种疑难杂症、修复线上事故以及优化系统架构的过程中，踩过无数坑，也积累了宝贵经验。 这篇文章记录了我在实战中总结出的 14 个重要教训，不是纸上谈兵，而是用血泪换来的经验。希望能帮助正在或即将从事数据库内核开发的朋友们少走弯路。 14">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/14-lessions-i-learned-in-past-five-years-when-developing-database/background.png">
 <meta property="article:published_time" content="2025-05-14T07:14:35.000Z">
-<meta property="article:modified_time" content="2025-05-14T10:23:28.609Z">
+<meta property="article:modified_time" content="2025-05-14T10:30:47.476Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="分布式存储">
 <meta property="article:tag" content="数据库">
@@ -306,7 +306,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：1 分钟前
+                    本文最后更新于：几秒前
                   
                 
               </p>
@@ -316,7 +316,7 @@
                 
                 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>过去五年半里，我在 Apache IoTDB 社区担任核心开发者，亲历了老分布式版本的迭代、新分布式架构的设计、盲测性能优化和系统可观测性搭建。这些年来，我在调试各种疑难杂症、修复线上事故以及优化系统架构的过程中，踩过无数坑，也积累了宝贵经验。</p>
 <p>这篇文章记录了我在实战中总结出的 14 个重要教训，不是纸上谈兵，而是用血泪换来的经验。希望能帮助正在或即将从事数据库内核开发的朋友们少走弯路。</p>
-<h2 id="实战锤炼的-14-条教训"><a href="#实战锤炼的-14-条教训" class="headerlink" title="实战锤炼的 14 条教训"></a>实战锤炼的 14 条教训</h2><h3 id="预见性设计集群扩展，消除性能瓶颈"><a href="#预见性设计集群扩展，消除性能瓶颈" class="headerlink" title="预见性设计集群扩展，消除性能瓶颈"></a>预见性设计集群扩展，消除性能瓶颈</h3><p>集群扩展性是确保系统长期可持续发展的关键。在设计初期，应尽量避免集群中的单点瓶颈，合理地将用户负载分配到集群中的所有节点上，并且要控制分片数量。</p>
+<h2 id="14-条教训"><a href="#14-条教训" class="headerlink" title="14 条教训"></a>14 条教训</h2><h3 id="预见性设计集群扩展，消除性能瓶颈"><a href="#预见性设计集群扩展，消除性能瓶颈" class="headerlink" title="预见性设计集群扩展，消除性能瓶颈"></a>预见性设计集群扩展，消除性能瓶颈</h3><p>集群扩展性是确保系统长期可持续发展的关键。在设计初期，应尽量避免集群中的单点瓶颈，合理地将用户负载分配到集群中的所有节点上，并且要控制分片数量。</p>
 <p>这样，不仅可以保证集群在负载增加时能够平稳扩展，还能避免在实际运行过程中出现性能瓶颈，从而提高系统的整体可用性。</p>
 <h3 id="抽象共识算法接口，实现无缝迭代"><a href="#抽象共识算法接口，实现无缝迭代" class="headerlink" title="抽象共识算法接口，实现无缝迭代"></a>抽象共识算法接口，实现无缝迭代</h3><p>共识算法是分布式存储系统核心中的核心，其设计决策直接影响系统性能上限和可靠性保障。如果确信系统只需使用一种共识算法，可以集中精力将其优化到极致；但如果预见到未来可能需要支持多种算法，就应当提前设计一个抽象的通用接口。</p>
 <p>通用共识框架的设计不仅能支持当前的共识算法，还为未来算法的演进和优化创造了可能性。良好的抽象接口使新算法的引入变得简单，避免了整体架构的大规模重构，极大地减少了技术债务。</p>
