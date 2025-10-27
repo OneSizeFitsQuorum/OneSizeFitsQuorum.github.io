@@ -30,8 +30,16 @@ Fluid.events = {
       }
     });
     jQuery('#navbar-toggler-btn').on('click', function() {
+      var $this = jQuery(this);
+      if ($this.data('animating')) {
+        return;
+      }
+      $this.data('animating', true);
       jQuery('.animated-icon').toggleClass('open');
       jQuery('#navbar').toggleClass('navbar-col-show');
+      setTimeout(function() {
+        $this.data('animating', false);
+      }, 300);
     });
   },
 
@@ -125,7 +133,7 @@ Fluid.events = {
       var url = src.match(/\((.*?)\)/)[1].replace(/(['"])/g, '');
       var img = new Image();
       img.onload = function() {
-        window.NProgress && window.NProgress.inc(0.2);
+        window.NProgress && window.NProgress.status !== null && window.NProgress.inc(0.2);
       };
       img.src = url;
       if (img.complete) { img.onload(); }
@@ -137,7 +145,7 @@ Fluid.events = {
       const old = img.onload;
       img.onload = function() {
         old && old();
-        window.NProgress && window.NProgress.inc(0.5 / total);
+        window.NProgress && window.NProgress.status !== null && window.NProgress.inc(0.5 / total);
       };
       if (img.complete) { img.onload(); }
     }
@@ -166,19 +174,19 @@ Fluid.events = {
     }
     // eslint-disable-next-line no-console
     console.log(`
-------------------------------------------------
-|                                              |
-|     ________  __            _        __      |
-|    |_   __  |[  |          (_)      |  ]     |
-|      | |_ \\_| | | __   _   __   .--.| |      |
-|      |  _|    | |[  | | | [  |/ /'\`\\' |      |
-|     _| |_     | | | \\_/ |, | || \\__/  |      |
-|    |_____|   [___]'.__.'_/[___]'.__.;__]     |
-|                                              |
-|           Powered by Hexo x Fluid            |
-|         GitHub: https://git.io/JqpVD         |
-|                                              |
-------------------------------------------------
+-------------------------------------------------
+|                                               |
+|      ________  __            _        __      |
+|     |_   __  |[  |          (_)      |  ]     |
+|       | |_ \\_| | | __   _   __   .--.| |      |
+|       |  _|    | |[  | | | [  |/ /'\`\\' |      |
+|      _| |_     | | | \\_/ |, | || \\__/  |      |
+|     |_____|   [___]'.__.'_/[___]'.__.;__]     |
+|                                               |
+|            Powered by Hexo x Fluid            |
+| https://github.com/fluid-dev/hexo-theme-fluid |
+|                                               |
+-------------------------------------------------
     `);
   }
 };
