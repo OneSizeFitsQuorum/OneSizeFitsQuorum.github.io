@@ -244,6 +244,54 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/aurora-thesis/" target="_self">
+          <img src="/./aurora-thesis/Aurora.png" srcset="/img/loading.gif" lazyload alt="Aurora 论文阅读">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/aurora-thesis/" target="_self">
+          Aurora 论文阅读
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/aurora-thesis/" target="_self">
+        <div>
+          相关背景Amazon Aurora 是一种与 MySQL 和 PostgreSQL 兼容的关系数据库，专为云而打造，既具有传统企业数据库的性能和可用性，又具有开源数据库的简单性和成本效益。 Amazon Aurora 的速度最高可以达到标准 MySQL 数据库的五倍、标准 PostgreSQL 数据库的三倍。它可以实现商用数据库的安全性、可用性和可靠性，而成本只有商用数据库的 1/10。 关于 A
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-04-20 23:44" pubdate>
+              2021-04-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
+            
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/frangipani-thesis/" target="_self">
           <img src="/./frangipani-thesis/architecture.png" srcset="/img/loading.gif" lazyload alt="Frangipani 论文阅读">
         </a>
@@ -676,54 +724,6 @@
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/operating-system-performance-testing/" target="_self">
-          <img src="/./operating-system-performance-testing/performance.png" srcset="/img/loading.gif" lazyload alt="数据库系统调优时有关操作系统的知识与测试监控">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/operating-system-performance-testing/" target="_self">
-          数据库系统调优时有关操作系统的知识与测试监控
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/operating-system-performance-testing/" target="_self">
-        <div>
-          前言在测试数据库的性能时，往往需要通过从网卡，CPU，内存，磁盘，代码等方面出发进行性能调优，这期间可能会纵向扩展机器以获得更好的性能。然而，在不同的硬件机器上测试时，有时的结果可能与预期相差较多，单从软件方面进行猜想可能并不靠谱。因此，需要对机器硬件进行一定的了解和对应的测试，这样就能够在调优分析时利用底层的硬件信息来支撑瓶颈分析，从而更可能做出正确的判断。本篇博客将从网卡，CPU，内存，磁盘出
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-01-27 20:05" pubdate>
-              2021-01-27
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%B5%8B%E8%AF%95/">#测试</a>
-            
-              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
@@ -876,5 +876,20 @@
   <noscript>
     <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
   </noscript>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
 </html>
