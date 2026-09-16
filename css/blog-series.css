@@ -1,5 +1,6 @@
 /* Only the imported series uses these reading styles. */
 .series-article, .series-directory { min-width: 0; overflow-wrap: anywhere; }
+.series-legacy-anchor { scroll-margin-top: 5rem; }
 .post-content:has(.series-article) { padding-left: 2rem; padding-right: 2rem; }
 .series-nav { margin: 1.5rem 0 2rem; padding: 1rem 1.2rem; border: 1px solid #b8c9d9; border-left: 4px solid #527b9b; border-radius: .35rem; background: rgba(110, 150, 180, .07); font-size: .9rem; }
 .series-nav-title { display: flex; flex-wrap: wrap; gap: .5rem 1rem; justify-content: space-between; }
