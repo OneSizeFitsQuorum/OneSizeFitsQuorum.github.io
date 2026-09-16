@@ -63,6 +63,10 @@
 
 
 
+  
+<link rel="stylesheet" href="/css/blog-series.css">
+
+
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
@@ -138,6 +142,18 @@
               <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
                 <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/kuberay-volcano/" target="_self">
+                <i class="iconfont icon-book"></i>
+                <span>源码系列</span>
               </a>
             </li>
           
@@ -244,23 +260,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/gfs-thesis/" target="_self">
-          <img src="/./gfs-thesis/architecture.png" srcset="/img/loading.gif" lazyload alt="GFS 论文阅读">
+        <a href="/distributed-transactions/" target="_self">
+          <img src="/./distributed-transactions/2pc.jpeg" srcset="/img/loading.gif" lazyload alt="分布式事务简介">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/gfs-thesis/" target="_self">
-          GFS 论文阅读
+        <a href="/distributed-transactions/" target="_self">
+          分布式事务简介
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/gfs-thesis/" target="_self">
+      <a class="index-excerpt " href="/distributed-transactions/" target="_self">
         <div>
-          相关背景单机文件系统我们见得已经很多，像 xfs，ext4 等等都已经是很出名的单机文件系统。然而，单机文件系统的容量始终是有限的，随着数据量的不断增大，就算对单机不断的 scale up 也会逐渐达到上限。因此，支持 scale out 的分布式文件系统是技术的必然。作为世界上数据量可能最多的公司，Google 在 21 世纪初就已经遇到了这个挑战，随之其开发了 GFS 这个创时代的分布式文件系
+          前言事务是作为单个逻辑工作单元执行的一系列操作。一个逻辑工作单元必须有四个属性，称为原子性、一致性、隔离性和持久性 (ACID) 属性。分布式事务则是尝试在多节点的环境下实现这些语义。 分布式事务涉及的知识内容较多，本篇博客并没有将其彻底整理清楚，只是简单记录了一下 6.824 课程所学。 内容对于分布式事务，可以将其细化为并发控制和原子提交两个子问题。前者是在说如何保证并发事务的串行隔离性，后者
         </div>
       </a>
 
@@ -268,8 +284,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-03-07 21:59" pubdate>
-              2021-03-07
+            <time datetime="2021-04-29 13:46" pubdate>
+              2021-04-29
             </time>
           </div>
         
@@ -278,11 +294,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
-            
-              <a href="/tags/Google/">#Google</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
           </div>
         
@@ -294,23 +306,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/operating-system-performance-testing/" target="_self">
-          <img src="/./operating-system-performance-testing/performance.png" srcset="/img/loading.gif" lazyload alt="数据库系统调优时有关操作系统的知识与测试监控">
+        <a href="/aurora-thesis/" target="_self">
+          <img src="/./aurora-thesis/Aurora.png" srcset="/img/loading.gif" lazyload alt="Aurora 论文阅读">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/operating-system-performance-testing/" target="_self">
-          数据库系统调优时有关操作系统的知识与测试监控
+        <a href="/aurora-thesis/" target="_self">
+          Aurora 论文阅读
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/operating-system-performance-testing/" target="_self">
+      <a class="index-excerpt " href="/aurora-thesis/" target="_self">
         <div>
-          前言在测试数据库的性能时，往往需要通过从网卡，CPU，内存，磁盘，代码等方面出发进行性能调优，这期间可能会纵向扩展机器以获得更好的性能。然而，在不同的硬件机器上测试时，有时的结果可能与预期相差较多，单从软件方面进行猜想可能并不靠谱。因此，需要对机器硬件进行一定的了解和对应的测试，这样就能够在调优分析时利用底层的硬件信息来支撑瓶颈分析，从而更可能做出正确的判断。本篇博客将从网卡，CPU，内存，磁盘出
+          相关背景Amazon Aurora 是一种与 MySQL 和 PostgreSQL 兼容的关系数据库，专为云而打造，既具有传统企业数据库的性能和可用性，又具有开源数据库的简单性和成本效益。 Amazon Aurora 的速度最高可以达到标准 MySQL 数据库的五倍、标准 PostgreSQL 数据库的三倍。它可以实现商用数据库的安全性、可用性和可靠性，而成本只有商用数据库的 1/10。 关于 A
         </div>
       </a>
 
@@ -318,102 +330,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-01-27 20:05" pubdate>
-              2021-01-27
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%B5%8B%E8%AF%95/">#测试</a>
-            
-              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/open-source-license/" target="_self">
-          <img src="/./open-source-license/license.jpg" srcset="/img/loading.gif" lazyload alt="开源协议解读">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/open-source-license/" target="_self">
-          开源协议解读
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/open-source-license/" target="_self">
-        <div>
-          前言越来越多的开发者与设计者希望将自己的产品开源，以便其他人可以在他们的代码基础上做更多事，开源社区也因此充满生机。然而一旦开源，如何为代码选择开源许可证就是一个非常重要的问题。 相信很多人和我一样，在 Github 创建 repo 时对可以选择的多种 license 很迷糊，不知道该选哪个好，因此本篇博客就简单介绍一下常见的 license 和他们之间的区别，以做记录和学习。 什么是许可协议关于
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-01-24 20:59" pubdate>
-              2021-01-24
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%BC%80%E6%BA%90/">#开源</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/twitter-cache-analysis-thesis/" target="_self">
-          <img src="/./twitter-cache-analysis-thesis/twitter.jpg" srcset="/img/loading.gif" lazyload alt="Twitter 内存缓存系统分析论文阅读">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/twitter-cache-analysis-thesis/" target="_self">
-          Twitter 内存缓存系统分析论文阅读
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/twitter-cache-analysis-thesis/" target="_self">
-        <div>
-          背景基于一个物理现实：内存操作比磁盘操作快若干个数量级。现代网站服务广泛使用了类似 redis ，memcached 的内存缓存系统。其思想很简单：尽管海量数据最终都需要落盘持久化，但如果能够将一些常用的数据在内存中缓存以供读请求直接获取，则不仅能够降低请求时延，还能够提升系统吞吐量，而且也能够减少底层数据管理系统比如关系型数据库的负载。 内存缓存系统的大规模商用激发了业界对其的研究，现有的研究主
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2020-12-17 23:46" pubdate>
-              2020-12-17
+            <time datetime="2021-04-20 23:44" pubdate>
+              2021-04-20
             </time>
           </div>
         
@@ -436,23 +354,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/spark-thesis/" target="_self">
-          <img src="/./spark-thesis/spark.png" srcset="/img/loading.gif" lazyload alt="Spark 论文阅读">
+        <a href="/frangipani-thesis/" target="_self">
+          <img src="/./frangipani-thesis/architecture.png" srcset="/img/loading.gif" lazyload alt="Frangipani 论文阅读">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/spark-thesis/" target="_self">
-          Spark 论文阅读
+        <a href="/frangipani-thesis/" target="_self">
+          Frangipani 论文阅读
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/spark-thesis/" target="_self">
+      <a class="index-excerpt " href="/frangipani-thesis/" target="_self">
         <div>
-          背景在 Apache Spark 广泛使用以前，业界主要使用 MapReduce 和 Dryad 这样的集群计算框架来对大数据进行分布式处理。这类计算框架，最大的优点旨在帮助程序员专注业务编程，而非花精力分发计算任务和实现程序容错。 MapReduce 虽然对利用集群中的计算资源做了各类抽象，但还没有实现对集群内存的抽象封装。这样对那些需要重复利用中间结果集的应用就很不友好，比如机器学习和图算法，
+          前言Frangipani 是一篇很古老的分布式存储论文，其设计思想在今天看来有很多已经过时了，但也有一定的参考意义。 该论文主要介绍了三个方面的工作：  cache coherence distributed transactions distributed crash recovery  内容具体内容可以参考此 博客 和 6.824 课程的 讲义，后者较为详细。 有关后两个工作可以直接参考以上博
         </div>
       </a>
 
@@ -460,8 +378,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2020-11-26 15:55" pubdate>
-              2020-11-26
+            <time datetime="2021-04-10 19:24" pubdate>
+              2021-04-10
             </time>
           </div>
         
@@ -469,11 +387,11 @@
         
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
             
               <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
           </div>
         
       </div>
@@ -484,23 +402,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/git-or-svn/" target="_self">
-          <img src="/./git-or-svn/d-vcs.png" srcset="/img/loading.gif" lazyload alt="为什么选择 git 来作为代码版本控制系统">
+        <a href="/chain-replication-thesis/" target="_self">
+          <img src="/./chain-replication-thesis/chain-replication.jpeg" srcset="/img/loading.gif" lazyload alt="Chain Replication 论文阅读">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/git-or-svn/" target="_self">
-          为什么选择 git 来作为代码版本控制系统
+        <a href="/chain-replication-thesis/" target="_self">
+          Chain Replication 论文阅读
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/git-or-svn/" target="_self">
+      <a class="index-excerpt " href="/chain-replication-thesis/" target="_self">
         <div>
-          版本控制系统代码作为软件研发的核心产物，在整个开发周期都在递增，不断合入新需求以及解决 bug 的新 patch，这就需要有一款系统，能够存储、追踪文件的修改历史，记录多个版本的开发和维护。于是，版本控制系统（Version Control Systems）应运而生，主要分为两类，集中式和分布式。 集中式版本控制系统 集中化的版本控制系统，诸如 CVS，SVN 等，都有一个单一的集中管理的服务器，
+          前言对于 raft、paxos 这类共识算法，leader 节点需要将客户端的写请求编号并发送给所有 follower 以期望达成共识，这一定程度上导致写性能无法随节点个数线性增长，因为 leader 同步的数据量会随着节点数的增长而增长，从而使得主节点承载着更大的压力，往往成为了瓶颈。 2004 年，Chain Replication （之后简称 cr）方案被提出，其也能够保证多副本间的线性一致
         </div>
       </a>
 
@@ -508,8 +426,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2020-11-09 23:20" pubdate>
-              2020-11-09
+            <time datetime="2021-04-09 22:20" pubdate>
+              2021-04-09
             </time>
           </div>
         
@@ -518,104 +436,12 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/git/">#git</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/git-common-command/" target="_self">
-          <img src="/./git-common-command/git.png" srcset="/img/loading.gif" lazyload alt="33 条常用 git 命令详解">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/git-common-command/" target="_self">
-          33 条常用 git 命令详解
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/git-common-command/" target="_self">
-        <div>
-          参考我的 Github Repo。 由于作者能力有限，描述必然会有纰漏，欢迎提交 PR、创建 Issue 进一步交流。 如果看完之后有所收获，求求给个 Star 以表支持。😊
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2020-10-30 14:21" pubdate>
-              2020-10-30
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/git/">#git</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/mapreduce-thesis/" target="_self">
-          <img src="/./mapreduce-thesis/mapreduce.png" srcset="/img/loading.gif" lazyload alt="MapReduce 论文阅读">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/mapreduce-thesis/" target="_self">
-          MapReduce 论文阅读
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/mapreduce-thesis/" target="_self">
-        <div>
-          相关背景在 20 世纪初，包括本文作者在内的 Google 的很多程序员，为了处理海量的原始数据，已经实现了数以百计的、专用的计算方法。这些计算方法用来处理大量的原始数据，比如，文档抓取（类似网络爬虫的程序）、Web 请求日志等等；也为了计算处理各种类型的衍生数据，比如倒排索引、Web 文档的图结构的各种表示形势、每台主机上网络爬虫抓取的页面数量的汇总、每天被请求的最多的查询的集合等等。 要解决的
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2020-10-23 20:13" pubdate>
-              2020-10-23
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
             
               <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
             
-              <a href="/tags/Google/">#Google</a>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
           </div>
         
       </div>
@@ -626,23 +452,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/maxcompute-yugong-thesis/" target="_self">
-          <img src="/./maxcompute-yugong-thesis/maxcompute.png" srcset="/img/loading.gif" lazyload alt="MaxCompute 跨域流量优化论文阅读">
+        <a href="/zookeeper-thesis/" target="_self">
+          <img src="/./zookeeper-thesis/zookeeper.jpeg" srcset="/img/loading.gif" lazyload alt="Zookeeper 论文阅读">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/maxcompute-yugong-thesis/" target="_self">
-          MaxCompute 跨域流量优化论文阅读
+        <a href="/zookeeper-thesis/" target="_self">
+          Zookeeper 论文阅读
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/maxcompute-yugong-thesis/" target="_self">
+      <a class="index-excerpt " href="/zookeeper-thesis/" target="_self">
         <div>
-          相关背景随着大数据技术的长足发展，大公司和云供应商在全球创建了数十个地理上分散的数据中心（分布式数据中心）。一个典型的数据中心可包含数万台计算机，这些数据中心为许多大规模的 IT 企业提供了计算和存储能力。在管理这种大规模、分布式数据中心的过程中，减少跨数据中心流量是提高整体性能的核心瓶颈之一。 要解决的问题MaxCompute 是阿里巴巴的大型数据管理和分析平台，管理着数十个分布式数据中心。每个
+          前言Zookeeper 作为一个划时代的分布式协调服务，是 Hadoop 技术栈的重要组件。 本篇博客将讨论一些 zk 论文的知识点。 内容最近比较忙，没多少时间总结了，论文内容概要可以参考这篇 博客，更详细的细节可以参考这篇 博客。 讨论zk or etcd?同为分布式协调服务和元数据存储服务的产品：老大哥 zk 伴随 NoSQL 运动崛起，坐拥 hadoop 技术栈孤独求败；后起之秀 etcd
         </div>
       </a>
 
@@ -650,8 +476,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2020-10-13 16:05" pubdate>
-              2020-10-13
+            <time datetime="2021-04-08 19:16" pubdate>
+              2021-04-08
             </time>
           </div>
         
@@ -660,9 +486,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%B0%83%E5%BA%A6/">#分布式调度</a>
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
+            
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
             
           </div>
         
@@ -674,23 +502,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/jprofile-remote/" target="_self">
-          <img src="/./jprofile-remote/jprofile.jpeg" srcset="/img/loading.gif" lazyload alt="JProfile 远程配置">
+        <a href="/cluster-iotdb-idea-debugger/" target="_self">
+          <img src="/./cluster-iotdb-idea-debugger/iotdb.png" srcset="/img/loading.gif" lazyload alt="利用 IDEA 对分布式 IoTDB 进行调试">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/jprofile-remote/" target="_self">
-          JProfile 远程配置
+        <a href="/cluster-iotdb-idea-debugger/" target="_self">
+          利用 IDEA 对分布式 IoTDB 进行调试
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/jprofile-remote/" target="_self">
+      <a class="index-excerpt " href="/cluster-iotdb-idea-debugger/" target="_self">
         <div>
-          前言JProfile 是 Java 常用的性能分析工具，常被用来查看内存占用，CPU 时间消耗等数据。本地配置 JProfile 较为简单，可以参考此 博客。在一些情况下，监控的 Java 服务跑在服务器上，因此不能使用本地的 JProfile 来监控。不过 JProfile 能够支持远程连接监控，只不过需要一些额外的配置。此博客的内容就是介绍如何使用 JProfile 监控远程的 Java 应用
+          前言在单机数据库中，寻找 bug 相对较为简单。因为一旦可以复现 bug，那我们可以利用 IDE 在服务端打断点一步步执行并跟踪查看堆栈信息来判断代码出错的位置从而最终找到问题。 在分布式数据库中，找 bug 就变得相对困难了。一方面是因为分布式数据库较难利用 IDE 打断点，其往往通过打 log 的方式来记录错误情况，另一方面是一条客户端请求过来后往往伴随着若干并行和跨节点的 rpc，因此如果通
         </div>
       </a>
 
@@ -698,8 +526,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2020-10-05 17:48" pubdate>
-              2020-10-05
+            <time datetime="2021-04-07 22:44" pubdate>
+              2021-04-07
             </time>
           </div>
         
@@ -718,11 +546,201 @@
     </article>
   </div>
 
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/consistency-and-consensus/" target="_self">
+          <img src="/./consistency-and-consensus/background.png" srcset="/img/loading.gif" lazyload alt="一致性模型与共识算法">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/consistency-and-consensus/" target="_self">
+          一致性模型与共识算法
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/consistency-and-consensus/" target="_self">
+        <div>
+          前言有关一致性模型和共识算法的一致性模型这两个问题，最近阅读了一些优质博客，学到了一些新的东西，同时感觉一些定义比较混乱，特此记录一下自己的理解。 一致性模型一致性问题是分布式领域最为基础也是最重要的问题，具体来历可以参考此 博客。 一般来讲，分布式系统中的一致性按照对一致性要求的不同，主要分为强一致性，弱一致性这两大类，前者是基于 safety 的概念，后者是基于 liveness 的概念。 强
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-04-02 16:37" pubdate>
+              2021-04-02
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
+            
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/flp-theory/" target="_self">
+          <img src="/./flp-theory/flp.png" srcset="/img/loading.gif" lazyload alt="FLP 不可能定理介绍">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/flp-theory/" target="_self">
+          FLP 不可能定理介绍
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/flp-theory/" target="_self">
+        <div>
+          前言FLP 不可能定理与 CAP，BASE 定理等一样，都是分布式系统的基本理论，因此我们有必要了解该理论。 本博客摘抄了此 博客 中对 FLP 不可能定理的部分描述。 定义1985 年，Fisher、Lynch、Paterson 三位科学家就发表了关于分布式一致性问题的不可能定理：在完全异步的分布式网络中，故障容错问题无法被解决。（ We have shown that a natural an
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-03-28 11:44" pubdate>
+              2021-03-28
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/time-clock-order-in-distributed-system-thesis/" target="_self">
+          <img src="/./time-clock-order-in-distributed-system-thesis/order.png" srcset="/img/loading.gif" lazyload alt="Time, Clocks, and the Ordering of Events in a Distributed System 论文阅读">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/time-clock-order-in-distributed-system-thesis/" target="_self">
+          Time, Clocks, and the Ordering of Events in a Distributed System 论文阅读
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/time-clock-order-in-distributed-system-thesis/" target="_self">
+        <div>
+          背景这篇论文是 Leslie Lamport 于 1978 年发表的，并在 2007 年被选入 SOSP 的名人堂，被誉为第一篇真正的”分布式系统”论文，该论文曾一度成为计算机科学史上被引用最多的论文（截止 2022 年 3 月 6 日已达到 13071 次）。论文的作者 Lamport 享有分布式计算原理之父的美誉，并且因其对分布式系统研究作出的卓越贡献，于 2013 年被授予了图灵奖。 这篇论
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-03-21 20:00" pubdate>
+              2021-03-21
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
+            
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/vm-ft-thesis/" target="_self">
+          <img src="/./vm-ft-thesis/architecture.png" srcset="/img/loading.gif" lazyload alt="VM-FT 论文阅读">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/vm-ft-thesis/" target="_self">
+          VM-FT 论文阅读
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/vm-ft-thesis/" target="_self">
+        <div>
+          背景本论文主要介绍了一个用于提供容错虚拟机 (fault-tolerant virtual machine) 的企业级商业系统，该系统包含了两台位于不同物理机的虚拟机，其中一台为 primary，另一台为 backup，backup 备份了 primary 的所有执行。当 primary 出现故障时，backup 可以上线接管 primary 的工作，以此来提供容错。 内容论文内容可以参考此 博客
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-03-13 10:47" pubdate>
+              2021-03-13
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
+            
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/4/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/#board">3</a><a class="page-number" href="/page/4/#board">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/#board">6</a><a class="extend next" rel="next" href="/page/6/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/4/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/#board">3</a><a class="page-number" href="/page/4/#board">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/#board">6</a><a class="page-number" href="/page/7/#board">7</a><a class="extend next" rel="next" href="/page/6/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

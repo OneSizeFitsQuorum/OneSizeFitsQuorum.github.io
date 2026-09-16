@@ -63,6 +63,10 @@
 
 
 
+  
+<link rel="stylesheet" href="/css/blog-series.css">
+
+
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
@@ -138,6 +142,18 @@
               <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
                 <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/kuberay-volcano/" target="_self">
+                <i class="iconfont icon-book"></i>
+                <span>源码系列</span>
               </a>
             </li>
           
@@ -243,24 +259,18 @@
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2025-annual-summary/" target="_self">
-          <img src="/./2025-annual-summary/scenery.jpg" srcset="/img/loading.gif" lazyload alt="2025 年终总结：从时序数据库到 AI Infra 的转身">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2025-annual-summary/" target="_self">
-          2025 年终总结：从时序数据库到 AI Infra 的转身
+        <a href="/kuberay-volcano-00-reading-guide/" target="_self">
+          源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/2025-annual-summary/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-00-reading-guide/" target="_self">
         <div>
-          前言2025 年转瞬即逝。回望这一年的经历，许多事都是撰写 2024 年年终总结时未曾预料的，这份不确定性也让复盘过程更具意义。 首先依然是自我介绍环节：我叫谭新宇，清华本硕，是一名开源技术爱好者，主要关注分布式存储、共识算法、时序数据库、可观测性与性能优化等领域，过去六年也一直在这些方向做一些工作。今年开始，我把重心从偏存储扩展到计算调度与机器学习平台基础设施。尽管在新领域仍是新人，但也算正式以
+          从一个 Python 程序的计算与部署需求出发，解释 Ray、Kubernetes、KubeRay 与 Volcano 的职责和采用条件，并给出全系列的源码阅读路线。
         </div>
       </a>
 
@@ -268,163 +278,48 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-02-12 23:29" pubdate>
-              2026-02-12
+            <time datetime="2026-09-15 16:00" pubdate>
+              2026-09-15
             </time>
           </div>
         
         
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
             
-              <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">#年终总结</a>
-            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
           </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/ray-compile/" target="_self">
-          <img src="https://picx.zhimg.com/70/v2-9a0e0a9de2e3d8ac38522272dcfeb2d6_1440w.avis?source=172ae18b&amp;biz_tag=Post" srcset="/img/loading.gif" lazyload alt="Ray 编译踩坑记：老版本在老系统上的编译之路">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/ray-compile/" target="_self">
-          Ray 编译踩坑记：老版本在老系统上的编译之路
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/ray-compile/" target="_self">
-        <div>
-          背景Ray 官方提供了安装文档和编译文档，涵盖了多种预构建方案——从稳定的发行版本、到日常构建版本，甚至支持主分支上任意 commit 的构建版本。在多平台、多 Python 版本和多芯片架构的组合下，这些预构建方案在大多数情况下都能满足需求。 但当涉及到在生产环境中维护 HotFix 版本时，从源码编译就成了必不可少的技能。特别是在一些企业环境中，你可能面临的是在 CentOS 8 这样的老系统
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-12-06 14:47" pubdate>
-              2025-12-06
-            </time>
-          </div>
-        
         
         
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E9%85%8D%E7%BD%AE/">#开发工具配置</a>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/code-server-with-ray-distributed-debugger/" target="_self">
-          <img src="https://picx.zhimg.com/70/v2-9a0e0a9de2e3d8ac38522272dcfeb2d6_1440w.avis?source=172ae18b&amp;biz_tag=Post" srcset="/img/loading.gif" lazyload alt="让 Ray Distributed Debugger 在 Kuberay 下可用">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/code-server-with-ray-distributed-debugger/" target="_self">
-          让 Ray Distributed Debugger 在 Kuberay 下可用
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/code-server-with-ray-distributed-debugger/" target="_self">
-        <div>
-          背景在软件开发过程中，具备单步调试能力的 Debugger 是提升开发效率的关键工具。对于复杂的分布式系统而言，单步调试能力尤为重要，它能帮助开发者在纷繁复杂的同步/异步代码链路中快速定位问题，从而缩短问题诊断周期。 以分布式存储系统为例，2021 年我曾通过 IDEA 配置 Apache IoTDB 3C3D 集群的单步调试能力（可参考 博客）。在随后的几年里，这套方案帮助我解决了 IoTDB
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-08-17 00:39" pubdate>
-              2025-08-17
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E9%85%8D%E7%BD%AE/">#开发工具配置</a>
             
               <a href="/tags/Ray/">#Ray</a>
             
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/14-lessions-i-learned-in-past-five-years-when-developing-database/" target="_self">
-          <img src="/./14-lessions-i-learned-in-past-five-years-when-developing-database/background.png" srcset="/img/loading.gif" lazyload alt="数据库内核开发 5 年，我从无数坑中学到的 14 个宝贵教训">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/14-lessions-i-learned-in-past-five-years-when-developing-database/" target="_self">
-          数据库内核开发 5 年，我从无数坑中学到的 14 个宝贵教训
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/14-lessions-i-learned-in-past-five-years-when-developing-database/" target="_self">
-        <div>
-          前言过去五年半里，我在 Apache IoTDB 社区担任核心开发者，亲历了老分布式版本的迭代、新分布式架构的设计、盲测性能优化和系统可观测性搭建。这些年来，我在调试各种疑难杂症、修复线上事故以及优化系统架构的过程中，踩过无数坑，也积累了宝贵经验。 这篇文章记录了我在实战中总结出的 14 个重要教训，不是纸上谈兵，而是用血泪换来的经验。希望能帮助正在或即将从事数据库内核开发的朋友们少走弯路。 14
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-05-14 15:14" pubdate>
-              2025-05-14
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
             
-              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">#数据库</a>
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
             
-              <a href="/tags/%E5%88%86%E4%BA%AB/">#分享</a>
+              <a href="/tags/KubeRay/">#KubeRay</a>
+            
+              <a href="/tags/Volcano/">#Volcano</a>
             
           </div>
         
@@ -435,24 +330,18 @@
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2024-annual-summary/" target="_self">
-          <img src="/./2024-annual-summary/scenery.jpg" srcset="/img/loading.gif" lazyload alt="2024 年终总结：在清华 IoTDB 创业公司中构建起摩尔定律成长节奏">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024-annual-summary/" target="_self">
-          2024 年终总结：在清华 IoTDB 创业公司中构建起摩尔定律成长节奏
+        <a href="/kuberay-volcano-01-architecture/" target="_self">
+          KubeRay 源码阅读：从 RayJob 看组件分工与协作
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/2024-annual-summary/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-01-architecture/" target="_self">
         <div>
-          前言忙忙碌碌又是一年，2024 匆匆结束。回想这一年的成长和收获，除了个人能力的提升，在做人做事做选择等方面也有了更多的认识。可以说，自己并未虚度时光，过得十分充实。 临近除夕，总算抽出时间坚持自己之前的习惯来继续写年终总结。希望今年的总结不仅能继续鞭策自己寻找并实践摩尔定律的成长节奏，也能获得更多反馈来修正自己。 首先依然是自我介绍环节，我叫谭新宇，清华本硕，师从软件学院王建民/黄向东老师。目前
+          沿一次 RayJob 提交，追踪 RayCluster、head、worker 和 submitter 的创建、状态交接与清理，分清集群管理与用户计算。
         </div>
       </a>
 
@@ -460,19 +349,46 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2025-01-23 11:17" pubdate>
-              2025-01-23
+            <time datetime="2026-09-15 16:00" pubdate>
+              2026-09-15
             </time>
           </div>
         
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
         
         
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">#年终总结</a>
+              <a href="/tags/Ray/">#Ray</a>
             
-              <a href="/tags/IoTDB/">#IoTDB</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
             
           </div>
         
@@ -483,24 +399,18 @@
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023-annual-summary/" target="_self">
-          <img src="/./2023-annual-summary/scenery.jpg" srcset="/img/loading.gif" lazyload alt="2023 年终总结：从清华 Apache IoTDB 组到创业公司天谋科技">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2023-annual-summary/" target="_self">
-          2023 年终总结：从清华 Apache IoTDB 组到创业公司天谋科技
+        <a href="/kuberay-volcano-03-concurrency/" target="_self">
+          KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/2023-annual-summary/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-03-concurrency/" target="_self">
         <div>
-          前言兜兜转转又是一年，不知不觉 2023 已经结束。回想自己过去一年的成长与感悟，依然觉得是收获满满。今年工作之后闲余时间相比学生时代少了许多，到了除夕才有时间来写今年的年终总结。好在自己还是下定决心将这个习惯坚持下去，希望这些年终总结不仅能够在未来的时光里鞭策自己，也能够获得更多大家的反馈来修正自己。 首先依然是自我介绍环节，我叫谭新宇，清华本硕，师从软件学院王建民/黄向东老师。目前在时序数据库
+          以 100 个 RayCluster 为推演场景，分析协调协程、队列键锁、缓存滞后与 expectations，区分管理并发和 Ray 计算并发。
         </div>
       </a>
 
@@ -508,19 +418,46 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-02-07 15:24" pubdate>
-              2024-02-07
+            <time datetime="2026-09-15 16:00" pubdate>
+              2026-09-15
             </time>
           </div>
         
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
         
         
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">#年终总结</a>
+              <a href="/tags/Ray/">#Ray</a>
             
-              <a href="/tags/IoTDB/">#IoTDB</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
             
           </div>
         
@@ -531,24 +468,18 @@
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023-iotdb-submit/" target="_self">
-          <img src="/./2023-iotdb-submit/talk.jpg" srcset="/img/loading.gif" lazyload alt="2023 IoTDB 用户大会分享：如何用 IoTDB 监控工具进行深度系统调优">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2023-iotdb-submit/" target="_self">
-          2023 IoTDB 用户大会分享：如何用 IoTDB 监控工具进行深度系统调优
+        <a href="/kuberay-volcano-02-reconcile/" target="_self">
+          KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/2023-iotdb-submit/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-02-reconcile/" target="_self">
         <div>
-          背景2023 年 12 月 3 日，IoTDB 一年一度的 用户大会 成功举办。 在本次大会中，我有幸作为讲师之一做了《优其效：如何用 IoTDB 监控工具进行深度系统调优》的分享，系统介绍了 IoTDB 这一年来在可观测性方面的进展，并展示了它如何显著提升我们的性能调优和问题排查效率。 本博客将通过文字和图片的方式展示我的分享内容。 我们在可观测性方面做的工作后续也会有更多的博客输出出来，敬请期
+          从 worker Pod 的状态变化进入监听、缓存和工作队列，跟踪一次 Reconcile，以及事件、延时和错误怎样触发下一轮协调。
         </div>
       </a>
 
@@ -556,21 +487,46 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-07 18:03" pubdate>
-              2023-12-07
+            <time datetime="2026-09-15 16:00" pubdate>
+              2026-09-15
             </time>
           </div>
         
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
         
         
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E4%BA%AB/">#分享</a>
+              <a href="/tags/Ray/">#Ray</a>
             
-              <a href="/tags/%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98/">#性能调优</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
             
-              <a href="/tags/%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/">#可观测性</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
             
           </div>
         
@@ -581,24 +537,18 @@
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2022-annual-summary/" target="_self">
-          <img src="/./2022-annual-summary/scenery.png" srcset="/img/loading.gif" lazyload alt="2022 年终总结：记清华硕士的秋招之年">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2022-annual-summary/" target="_self">
-          2022 年终总结：记清华硕士的秋招之年
+        <a href="/kuberay-volcano-04-recovery/" target="_self">
+          KubeRay 源码阅读：Operator 重启后如何继续工作
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/2022-annual-summary/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-04-recovery/" target="_self">
         <div>
-          前言忙忙碌碌又是一年，终于到了 2022 年底。去年第一次写年终总结受到了不少的关注，我在这一年里也时常会重读自己的 2021 年终总结来鞭策自己。今年由于家里的特殊原因需要在医院过年，时间比较仓促，勉强抽出了一天的时间来简短写写年终总结。一方面是给 2022 年的自己一个交代，另一方面也是给 2023 年的自己一个警醒。希望我的经历和感悟能给大家一些启发。 首先依然是自我介绍环节，我叫谭新宇，清
+          把中断放在资源创建与状态写回之间，沿持久化身份、对象查询和重试分支，分析 Operator 重启后的恢复依据与防重边界。
         </div>
       </a>
 
@@ -606,19 +556,46 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-01-19 12:00" pubdate>
-              2023-01-19
+            <time datetime="2026-09-15 16:00" pubdate>
+              2026-09-15
             </time>
           </div>
         
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
         
         
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">#年终总结</a>
+              <a href="/tags/Ray/">#Ray</a>
             
-              <a href="/tags/IoTDB/">#IoTDB</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
             
           </div>
         
@@ -629,24 +606,18 @@
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2022-internet-job-hunting-experience-sharing/" target="_self">
-          <img src="/./2022-internet-job-hunting-experience-sharing/1.png" srcset="/img/loading.gif" lazyload alt="2022 互联网求职经验分享">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2022-internet-job-hunting-experience-sharing/" target="_self">
-          2022 互联网求职经验分享
+        <a href="/kuberay-volcano-06-volcano-architecture/" target="_self">
+          Volcano 源码阅读：从 Pod 到作业
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/2022-internet-job-hunting-experience-sharing/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-06-volcano-architecture/" target="_self">
         <div>
-          背景在前前后后忙活了接近四个月后，我的秋招终于结束了。 这篇 回答 分享了我几乎所有技术面的面经，本博客将结合本人在今年秋招中的经验和在院系就业分享会中的分享内容介绍一下实习和秋招各个环节的注意事项，希望能够帮助到对分布式数据库内核研发岗感兴趣的同学。 注：本文内容仅代表个人看法。 内容
+          从几个 Pod 争用资源的问题进入 Volcano，区分 Job、PodGroup、Queue，以及 Scheduler、Controller Manager 和 Admission 的协作。
         </div>
       </a>
 
@@ -654,19 +625,48 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-12-15 10:21" pubdate>
-              2022-12-15
+            <time datetime="2026-09-15 16:00" pubdate>
+              2026-09-15
             </time>
           </div>
         
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
         
         
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">#数据库</a>
+              <a href="/tags/Ray/">#Ray</a>
             
-              <a href="/tags/%E5%88%86%E4%BA%AB/">#分享</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
+            
+              <a href="/tags/Volcano/">#Volcano</a>
             
           </div>
         
@@ -677,24 +677,18 @@
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2022-tidb-hackathon/" target="_self">
-          <img src="/./2022-tidb-hackathon/overview.png" srcset="/img/loading.gif" lazyload alt="2022 TiDB Hackathon 产品组最佳校园奖总结">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2022-tidb-hackathon/" target="_self">
-          2022 TiDB Hackathon 产品组最佳校园奖总结
+        <a href="/kuberay-volcano-07-volcano-gang/" target="_self">
+          Volcano 源码阅读：一次调度怎样满足 Gang 约束
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/2022-tidb-hackathon/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-07-volcano-gang/" target="_self">
         <div>
-          背景2022 年 10 月，2022 TiDB Hackathon Possibility at Scale 成功举办。 作为暑期实习在贵司事务组的 intern，在对 TiKV 的 codebase 有一定了解后，我兴致勃勃地拉了实验室的同学报名参加了此次 Hackathon，并且最终拿到了产品组的最佳校园奖，虽然没有拿到更大的奖项，但已经玩得十分开心了。 非常感谢 Hackathon 期间队友
+          跟踪一个 PodGroup 在 Session 中的准入、试分配、Gang 检查、提交与绑定，解释分配撤销和部分绑定失败的处理边界。
         </div>
       </a>
 
@@ -702,21 +696,259 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-12-08 20:28" pubdate>
-              2022-12-08
+            <time datetime="2026-09-15 16:00" pubdate>
+              2026-09-15
             </time>
           </div>
         
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
         
         
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
+              <a href="/tags/Ray/">#Ray</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
             
-              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
+            
+              <a href="/tags/Volcano/">#Volcano</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/kuberay-volcano-08-volcano-queues/" target="_self">
+          Volcano 源码阅读：多个作业怎样共享与竞争资源
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-08-volcano-queues/" target="_self">
+        <div>
+          用有明确前提的数字例子分析 Queue 份额、DRF、优先级和资源回收，区分策略计算、节点放置与实际 Pod 占用。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-09-15 16:00" pubdate>
+              2026-09-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Ray/">#Ray</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
+            
+              <a href="/tags/Volcano/">#Volcano</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/kuberay-volcano-05-high-availability/" target="_self">
+          KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-05-high-availability/" target="_self">
+        <div>
+          从 Operator 的 Lease 选主与接管，追到 Kubernetes 控制面、Ray head、GCS 和 RayService，分别核对管理恢复、计算恢复与请求可用性。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-09-15 16:00" pubdate>
+              2026-09-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Ray/">#Ray</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/kuberay-volcano-09-kuberay-volcano/" target="_self">
+          KubeRay 与 Volcano：从 RayJob 到 PodGroup
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-09-kuberay-volcano/" target="_self">
+        <div>
+          沿 KubeRay 的 Volcano 适配器，核对 PodGroup、成员标记、submitter 启动依赖与资源记账，再分析完成、暂停和重试后的清理。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-09-15 16:00" pubdate>
+              2026-09-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Ray/">#Ray</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
+            
+              <a href="/tags/Volcano/">#Volcano</a>
             
           </div>
         
@@ -728,7 +960,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/#board">6</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/#board">7</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

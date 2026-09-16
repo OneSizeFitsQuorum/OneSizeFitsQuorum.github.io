@@ -1,0 +1,1016 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="谭新宇">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="用有明确前提的数字例子分析 Queue 份额、DRF、优先级和资源回收，区分策略计算、节点放置与实际 Pod 占用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Volcano 源码阅读：多个作业怎样共享与竞争资源">
+<meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-08-volcano-queues/index.html">
+<meta property="og:site_name" content="谭新宇的博客">
+<meta property="og:description" content="用有明确前提的数字例子分析 Queue 份额、DRF、优先级和资源回收，区分策略计算、节点放置与实际 Pod 占用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tanxinyu.work/kuberay-volcano-08-volcano-queues/01-queues.svg">
+<meta property="og:image" content="https://tanxinyu.work/kuberay-volcano-08-volcano-queues/02-shares.svg">
+<meta property="og:image" content="https://tanxinyu.work/kuberay-volcano-08-volcano-queues/03-drf.svg">
+<meta property="og:image" content="https://tanxinyu.work/kuberay-volcano-08-volcano-queues/04-reclaim.svg">
+<meta property="article:published_time" content="2026-09-15T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-15T08:00:00.000Z">
+<meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="Ray">
+<meta property="article:tag" content="分布式计算">
+<meta property="article:tag" content="源码阅读">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="KubeRay">
+<meta property="article:tag" content="Volcano">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tanxinyu.work/kuberay-volcano-08-volcano-queues/01-queues.svg">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Volcano 源码阅读：多个作业怎样共享与竞争资源 - 谭新宇的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/blog-series.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="谭新宇的博客" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 55vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TXY</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/kuberay-volcano/" target="_self">
+                <i class="iconfont icon-book"></i>
+                <span>源码系列</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/blog-background.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Volcano 源码阅读：多个作业怎样共享与竞争资源"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-09-15 16:00" pubdate>
+          2026年9月15日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          19 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Volcano 源码阅读：多个作业怎样共享与竞争资源</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 8 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">KubeRay 源码阅读：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">Volcano 源码阅读：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></li><li class="is-current"><a href="/kuberay-volcano-08-volcano-queues/" aria-current="page">Volcano 源码阅读：多个作业怎样共享与竞争资源</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-07-volcano-gang/">上一篇：第 7 篇 · Volcano 源码阅读：一次调度怎样满足 Gang 约束</a><a href="/kuberay-volcano-09-kuberay-volcano/">下一篇：第 9 篇 · KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></div></nav><p>上一篇的 Gang 检查回答了一组 Pod 能否满足最低要求。现在有两个作业都在等资源：<code>demo-job</code> 和独立提交的 <code>demo-job-b</code>。它们应该按提交时间排队，按优先级选择，还是按已经占用的资源量轮流获得机会？</p>
+<p>Volcano 把这些选择放在不同层次：Queue 表达资源策略，作业和成员各有排序，节点还有自己的放置约束。这篇沿 Volcano <code>d8984501e4ad</code> 的 proportion、drf 和传统 preempt、reclaim 路径阅读。默认配置仍承接第七篇；分析驱逐时会显式增加对应 Action。数字例子只演示算法，不表示主案例已经修改配置或完成压测。</p>
+<h2 id="1-Queue-里配置的值，和本轮算出的份额"><a href="#1-Queue-里配置的值，和本轮算出的份额" class="headerlink" title="1. Queue 里配置的值，和本轮算出的份额"></a>1. Queue 里配置的值，和本轮算出的份额</h2><p>先看两个作业都提交到 <code>ray-batch</code> 的情况。它们共享该 Queue 的资源策略；作业之间如何排序，稍后再看。讨论跨队列分配时，另设一个对比场景：第二个作业在提交时就指定新建的 <code>ray-batch-b</code>。这是两个提交条件不同的例子，没有把运行中的作业迁移到另一队列。</p>
+<figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/01-queues.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。"><img src="/kuberay-volcano-08-volcano-queues/01-queues.svg" alt="两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。" width="960" height="370" style="--diagram-width:960px"></a></div><figcaption>两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。 <a href="/kuberay-volcano-08-volcano-queues/01-queues.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
+<p>以 proportion 插件为例，它为每个参与计算的 Queue 构造一份 <code>queueAttr</code>。下面几个量看起来都在描述“队列有多少资源”，来源和用途却不同。</p>
+<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>来源与含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>weight</code></td>
+<td>Queue 配置的权重，用于计算有需求队列的相对份额</td>
+</tr>
+<tr>
+<td><code>capability</code></td>
+<td>Queue 配置的资源上限；插件还会结合总资源和其他队列保障量计算 <code>realCapability</code></td>
+</tr>
+<tr>
+<td><code>guarantee.resource</code></td>
+<td>配置的保障资源，参与份额下限及其他队列可用上限的计算</td>
+</tr>
+<tr>
+<td><code>request</code></td>
+<td>插件从本轮可见的已分配和 Pending 成员汇总的需求</td>
+</tr>
+<tr>
+<td><code>deserved</code></td>
+<td>proportion 在本轮依据权重、需求和上限算出的份额</td>
+</tr>
+<tr>
+<td><code>allocated</code></td>
+<td>调度模型中已经分配的资源量，按成员资源请求记账，不是实时 CPU 使用率</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>因此，“业务当前 CPU 使用率很低”和“调度器认为队列还占着很多资源”可以同时成立。只要相应 Pod 仍占用资源请求，节点或队列的调度账目就不会因为进程暂时空闲而自动归零。</p>
+<p><code>guarantee</code> 也需要结合资源条件理解。它参与资源分配策略，并不让没有 GPU 的集群凭空满足 GPU 请求，也不会消除节点亲和性造成的限制。</p>
+<h2 id="2-用一组数字推演-proportion"><a href="#2-用一组数字推演-proportion" class="headerlink" title="2. 用一组数字推演 proportion"></a>2. 用一组数字推演 proportion</h2><p>为看清权重的作用，先只算 CPU：本轮可分配总量为 12 核，没有其他占用；两个 Queue 优先级相同，权重分别为 1 和 2，保障量为零，上限不构成限制。假设 Pod 请求可以组成所需份额，内存和放置约束都已满足。</p>
+<p>如果两个队列的需求都足够大，第一轮份额计算得到 4 核和 8 核。这里是在计算后续分配要遵循的额度，还没有把 Pod 放到节点上。源码中对应的动作，是把剩余资源乘以权重比例，加入各自 <code>deserved</code>。<code>proportion.go</code> 的连续节选如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go">oldDeserved := attr.deserved.Clone()<br>attr.deserved.Add(remaining.Clone().Multi(<span class="hljs-type">float64</span>(attr.weight) / <span class="hljs-type">float64</span>(totalWeight)))<br><br><span class="hljs-keyword">if</span> attr.realCapability != <span class="hljs-literal">nil</span> &#123;<br>	attr.deserved.MinDimensionResource(attr.realCapability, api.Infinity)<br>&#125;<br>attr.deserved.MinDimensionResource(attr.request, api.Zero)<br><br>attr.deserved = helpers.Max(attr.deserved, attr.guarantee)<br></code></pre></td></tr></table></figure>
+<p>这里紧接着做了上限和需求裁剪。若 <code>ray-batch</code> 实际只需要 2 核，分给它的 4 核就会裁到 2 核；另一队列先得到 8 核。剩余 2 核继续分配给尚未满足需求、也未达到上限的队列，最终可以得到 2 核和 10 核。</p>
+<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
+<table>
+<thead>
+<tr>
+<th>本轮条件</th>
+<th><code>ray-batch</code> 的 deserved</th>
+<th><code>ray-batch-b</code> 的 deserved</th>
+<th>未计入两队列份额的量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>双方需求均充足，上限不限制</td>
+<td>4 核</td>
+<td>8 核</td>
+<td>0</td>
+</tr>
+<tr>
+<td>第一队列只需 2 核，第二队列至少需 10 核</td>
+<td>2 核</td>
+<td>10 核</td>
+<td>0</td>
+</tr>
+<tr>
+<td>第一队列只需 2 核，第二队列上限为 7 核</td>
+<td>2 核</td>
+<td>7 核</td>
+<td>3 核</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/02-shares.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：同一组权重在不同需求与上限下得到不同份额。灰色部分表示未计入两队列 deserved 的余量，不代表实测节点空闲量。图中忽略其他资源维度。"><img src="/kuberay-volcano-08-volcano-queues/02-shares.svg" alt="同一组权重在不同需求与上限下得到不同份额。灰色部分表示未计入两队列 deserved 的余量，不代表实测节点空闲量。图中忽略其他资源维度。" width="960" height="350" style="--diagram-width:960px"></a></div><figcaption>同一组权重在不同需求与上限下得到不同份额。灰色部分表示未计入两队列 deserved 的余量，不代表实测节点空闲量。图中忽略其他资源维度。 <a href="/kuberay-volcano-08-volcano-queues/02-shares.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
+<p>第三种情况下，余下的 3 核不会继续计入这两个队列的份额：一个已经满足需求，另一个受到上限限制。只有后续 Pod 成功分配，份额才可能转化为实际占用；节点条件或 Gang 门槛还可能让其中一部分暂时用不上。权重 1:2 不是任何时刻都必须维持的占用比例，也不是永久固定的配额。</p>
+<p>此外，<code>deserved</code> 的变化不会立即改变运行中的 Pod。假如第二个队列此前已经使用 10 核，现在第一队列新增需求，重新计算可能得到 4 核和 8 核，但第二个队列当前仍占着 10 核。如何让占用向新的份额靠拢，还需要等待资源自然释放或执行符合策略的回收。</p>
+<h2 id="3-排得靠前，和还能拿资源，是两件事"><a href="#3-排得靠前，和还能拿资源，是两件事" class="headerlink" title="3. 排得靠前，和还能拿资源，是两件事"></a>3. 排得靠前，和还能拿资源，是两件事</h2><p>proportion 注册的 Queue 排序函数先比较 <code>Queue.spec.priority</code>，相同时再比较资源份额使用程度。其 share 按各资源维度的 <code>allocated / deserved</code> 计算，取最大值。份额使用程度较低的队列，在这个比较中排在前面。</p>
+<p>但从优先队列取出一个 Queue 后，还要执行资源可分配性检查。插件会计算分配候选 Pod 后的占用量，检查它是否超过该队列本轮的 deserved：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">futureUsed := attr.allocated.Clone().Add(totalReq)<br>allocatable, _ := futureUsed.LessEqualWithDimensionAndResourcesName(attr.deserved, totalReq)<br></code></pre></td></tr></table></figure>
+<p>这两行来自 <code>queueAllocatable</code> 的连续节选。排序决定先检查谁，可分配性决定这个候选还能不能继续拿资源。随后节点过滤仍可能失败，因此“队列有额度”和“Pod 能放下”还隔着一步。</p>
+<p>Queue 内部再按 JobOrder 回调选择作业。第七篇的配置把 <code>priority</code> 放在 <code>drf</code> 前面；<code>Session.JobOrderCompareFn</code> 按启用回调的顺序，遇到非零比较结果就返回。两个作业优先级不同时，前面的 priority 已经作出选择，不会再把 DRF 算出的份额与它加权平均。比较仍相同时，框架才使用创建时间和 UID 等后备规则。</p>
+<p>这里有两个不同的优先级：<code>Queue.spec.priority</code> 参与队列排序，PodGroup 引用的 PriorityClass 参与作业优先级。成员 Pod 还有自己的优先级字段。在调试“为什么它先运行”时，应先确认当前比较的是哪一层对象。</p>
+<h2 id="4-CPU-和-GPU-混用时，怎样衡量份额"><a href="#4-CPU-和-GPU-混用时，怎样衡量份额" class="headerlink" title="4. CPU 和 GPU 混用时，怎样衡量份额"></a>4. CPU 和 GPU 混用时，怎样衡量份额</h2><p>只数 Pod 个数无法比较资源占用：一个 Pod 请求 1 核 CPU，另一个可能请求 8 核和一张 GPU。DRF，即 Dominant Resource Fairness，用一个作业占用各类资源的最大比例表示它的主导资源份额。</p>
+<p>单独构造一个数学例子：总资源为 16 核 CPU、4 张 GPU，两个作业同优先级，前面的排序回调没有分出先后。这里只看 DRF JobOrder 回调的比较，不声称这是主案例的实际配置。</p>
+<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
+<table>
+<thead>
+<tr>
+<th>作业</th>
+<th>已分配资源</th>
+<th>CPU 份额</th>
+<th>GPU 份额</th>
+<th>主导份额</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>demo-job</code></td>
+<td>8 核、1 张 GPU</td>
+<td>8/16 = 50%</td>
+<td>1/4 = 25%</td>
+<td>50%</td>
+</tr>
+<tr>
+<td><code>demo-job-b</code></td>
+<td>2 核、2 张 GPU</td>
+<td>2/16 = 12.5%</td>
+<td>2/4 = 50%</td>
+<td>50%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>两个作业占用的形状不同，主导份额却相同。若第二个作业只有 2 核、1 张 GPU，它的主导份额就是 25%，DRF 的这个比较会让它排在前面。实际能否再分配，仍然取决于它所在队列的份额、剩余资源和 Pod 约束。</p>
+<figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/03-drf.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：DRF 取各资源占用比例的最大值。两个作业的主导资源可以不同；此图只解释份额比较，没有推导下一次必然分配给谁。"><img src="/kuberay-volcano-08-volcano-queues/03-drf.svg" alt="DRF 取各资源占用比例的最大值。两个作业的主导资源可以不同；此图只解释份额比较，没有推导下一次必然分配给谁。" width="960" height="386" style="--diagram-width:960px"></a></div><figcaption>DRF 取各资源占用比例的最大值。两个作业的主导资源可以不同；此图只解释份额比较，没有推导下一次必然分配给谁。 <a href="/kuberay-volcano-08-volcano-queues/03-drf.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
+<p>源码 <code>drf.calculateShare</code> 逐一计算资源维度的 share，保留最大值。每次分配或撤销分配，插件通过事件回调调整已分配量，后续比较就能反映本轮发生的变化。</p>
+<p>proportion 和这里的 DRF 作用层次也不同：前者计算 Queue 的份额并约束队列分配，后者在当前配置中参与 Job 排序等判断。Volcano 还提供 capacity 插件，直接读取 <code>Queue.spec.deserved</code> 作为配置份额。注意这个同名字段：proportion 的 <code>deserved</code> 是本轮算出的内存值，capacity 这里读取的是 Queue 声明中的配置值。更换插件后，不能继续套用前面的权重计算过程。另有按队列层级组织公平分配的层级 DRF，当前源码明确拒绝它与 proportion 的冲突组合；本篇不采用这种配置。</p>
+<h2 id="5-preempt-与-reclaim-怎样释放资源"><a href="#5-preempt-与-reclaim-怎样释放资源" class="headerlink" title="5. preempt 与 reclaim 怎样释放资源"></a>5. preempt 与 reclaim 怎样释放资源</h2><p>默认的 <code>enqueue, allocate, backfill</code> 不包含主动驱逐。这里的驱逐指让选中的已有 Pod 退出，把资源释放给等待者；被选中的 Pod 在源码中常称为 victim，下文称为受害成员。以下分析假设配置已启用对应 Action，等待中的作业也已经通过前置准入。单纯提高优先级，不足以越过所有准入和资源约束。</p>
+<p>传统 <code>preempt</code> 处理队列内部的竞争。源码先寻找同一 Queue 中其他作业的候选成员，另外还有同一作业内成员竞争的分支。跨作业候选的核心条件是：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">return</span> job.Queue == preemptorJob.Queue &amp;&amp; preemptor.Job != task.Job<br></code></pre></td></tr></table></figure>
+<p>候选还要满足可抢占状态、成员允许被抢占等条件。priority 插件在不同作业间比较作业优先级，在同一作业内比较成员优先级；Gang 等插件继续筛选受害者，节点约束也要验证。作业只是排得靠前，并不代表一定能驱逐任意一个正在运行的 Pod。</p>
+<p>传统 <code>reclaim</code> 处理跨 Queue 的资源回收。它从其他队列里寻找允许被回收的运行中成员，检查来源队列的 <code>reclaimable</code> 设置，再交给策略回调判断。在 proportion 中，超过 deserved 的占用是筛选回收对象的重要依据。</p>
+<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>主要竞争范围</th>
+<th>还要检查什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preempt</code></td>
+<td>同 Queue 的作业之间，以及同作业内成员之间</td>
+<td>优先级、可抢占性、Gang、节点条件等</td>
+</tr>
+<tr>
+<td><code>reclaim</code></td>
+<td>不同 Queue 之间</td>
+<td>来源队列允许回收、资源份额、成员可抢占性、Gang、节点条件等</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>传统路径下，Gang 回调有一项很具体的限制：它按候选依次减少受害作业的可用成员计数，只有计数高于 <code>MinAvailable</code> 时才允许继续选成员。例如某组正好只有最低要求的三个成员，不能把其中一个当作不影响成组要求的冗余成员回收。</p>
+<p>当前源码另有 <code>gangpreempt</code>、<code>gangreclaim</code>，支持以组为单位组织驱逐决策，采用不同的候选组合模型。上面的限制针对本篇跟踪的传统 Action，不能推广成“Volcano 永远不会驱逐一个最低运行组”。这些新路径不在默认配置中，本篇不把它们与传统回调混写。</p>
+<figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。"><img src="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" alt="传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。" width="960" height="596" style="--diagram-width:960px"></a></div><figcaption>传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。 <a href="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
+<p>preempt 和 reclaim 同样使用 Statement。它们可以先推演受害成员退出后是否放得下等待者，并将等待者记为 Pipelined。没有满足要求时撤销尝试；提交驱逐以后，资源也不会在同一瞬间可用。Pod 终止、缓存观察到变化、等待成员重新分配和绑定，都有自己的时间窗口。</p>
+<p>对 Ray 应用来说，被驱逐的 worker 上可能有用户任务、actor 或内存中的对象。后续 Pod 被补回，不代表这些计算必然无损恢复。Ray 的重试设置、检查点以及应用处理重复执行的方式，仍需按第四、五篇的故障边界分析。</p>
+<h2 id="6-有空闲资源，为什么作业还在排队"><a href="#6-有空闲资源，为什么作业还在排队" class="headerlink" title="6. 有空闲资源，为什么作业还在排队"></a>6. 有空闲资源，为什么作业还在排队</h2><p>把本篇的判断按执行顺序放回现场，可以缩小排查范围：</p>
+<ol>
+<li>查看实际加载的 Action、插件和参数。没有启用驱逐，就先分析自然释放条件；作业未准入，则先查 enqueue。</li>
+<li>查看 Queue 是否 Open、PodGroup 的队列引用是否正确，再比较需求、上限、保障量、deserved 和 allocated。不要用实时 CPU 利用率替代资源请求账目。</li>
+<li>查看单个 Pod 的放置失败原因。资源碎片、GPU 型号、节点亲和性和存储条件，都可能让总量足够的资源无法使用。还要看节点污点：这是节点上用来排斥特定 Pod 的标记，相应 Pod 需要配置容忍条件才能通过这类检查。</li>
+<li>查看 Gang 的最低要求与可用成员。一个候选放不下，可能使本轮已试分配的部分被撤销。</li>
+<li>若已触发驱逐，检查受害 Pod 是否真正退出，以及等待成员的绑定和启动是否完成。</li>
+</ol>
+<p>回到本系列的问题，KubeRay 创建了多少 Pod，与 Volcano 当前允许哪一组占用资源，由不同的循环决定。下一篇会逐字段核对 KubeRay 如何生成 PodGroup，并解释 submitter 还不存在时，为什么已经出现在组的最低资源量里。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/plugins/proportion/proportion.go">Volcano：proportion 插件</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/plugins/drf/drf.go">Volcano：DRF 插件</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/plugins/capacity/capacity.go">Volcano：capacity 插件</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/plugins/priority/priority.go">Volcano：priority 插件</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/framework/session_plugins.go">Volcano：Session 回调顺序</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/util.go">Volcano：配置组合校验</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/actions/preempt/preempt.go">Volcano：传统 preempt</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/actions/reclaim/reclaim.go">Volcano：传统 reclaim</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/plugins/gang/gang.go">Volcano：Gang 的就绪与受害者检查</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/tree/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/actions/gangpreempt">Volcano：gangpreempt 扩展路径</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/tree/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/actions/gangreclaim">Volcano：gangreclaim 扩展路径</a></li>
+<li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/">Kubernetes：污点与容忍</a></li>
+</ul>
+<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 8 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-07-volcano-gang/">上一篇：第 7 篇 · Volcano 源码阅读：一次调度怎样满足 Gang 约束</a><a href="/kuberay-volcano-09-kuberay-volcano/">下一篇：第 9 篇 · KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></div></nav></div>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Ray/" class="print-no-link">#Ray</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/" class="print-no-link">#分布式计算</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
+      
+        <a href="/tags/Kubernetes/" class="print-no-link">#Kubernetes</a>
+      
+        <a href="/tags/KubeRay/" class="print-no-link">#KubeRay</a>
+      
+        <a href="/tags/Volcano/" class="print-no-link">#Volcano</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Volcano 源码阅读：多个作业怎样共享与竞争资源</div>
+      <div>https://tanxinyu.work/kuberay-volcano-08-volcano-queues/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>谭新宇</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年9月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/kuberay-volcano-07-volcano-gang/" title="Volcano 源码阅读：一次调度怎样满足 Gang 约束">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Volcano 源码阅读：一次调度怎样满足 Gang 约束</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/kuberay-volcano-05-high-availability/" title="KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复">
+                        <span class="hidden-mobile">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments">
+      
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>

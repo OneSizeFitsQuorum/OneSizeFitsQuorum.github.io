@@ -1,0 +1,45 @@
+/* Only the imported series uses these reading styles. */
+.series-article, .series-directory { min-width: 0; overflow-wrap: anywhere; }
+.post-content:has(.series-article) { padding-left: 2rem; padding-right: 2rem; }
+.series-nav { margin: 1.5rem 0 2rem; padding: 1rem 1.2rem; border: 1px solid #b8c9d9; border-left: 4px solid #527b9b; border-radius: .35rem; background: rgba(110, 150, 180, .07); font-size: .9rem; }
+.series-nav-title { display: flex; flex-wrap: wrap; gap: .5rem 1rem; justify-content: space-between; }
+.series-nav-title > a { font-weight: 600; }
+.series-nav-title > span, .series-subtitle { opacity: .8; }
+.series-nav .series-subtitle { margin: .45rem 0 .8rem; }
+.series-nav summary { cursor: pointer; padding: .35rem 0; }
+.series-nav ol { margin: .6rem 0 1rem; padding-left: 1.7rem; }
+.series-nav li { padding: .2rem 0; }
+.series-nav .is-current { font-weight: 600; }
+.series-step-links { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: .8rem; }
+.series-step-links > :last-child { text-align: right; }
+.series-article .series-figure { margin: 1.5rem 0 2rem; }
+.series-figure-scroll { width: 100%; overflow-x: auto; border: 1px solid #dce4eb; border-radius: .3rem; background: #fff; overscroll-behavior-x: contain; }
+.series-figure-scroll > a { display: block; width: 100%; }
+.series-figure-scroll img { display: block; width: 100%; min-width: 720px; max-width: none; height: auto; margin: 0; background: #fff; }
+.markdown-body .series-figure figcaption { display: block; font-size: .86rem; line-height: 1.7; margin-top: .6rem; opacity: .85; }
+.series-figure figcaption > a { white-space: nowrap; }
+.series-table-scroll { width: 100%; overflow-x: auto; margin: 1.25rem 0; overscroll-behavior-x: contain; }
+.series-table-scroll > table { display: table; width: 100%; min-width: 640px; margin: 0; }
+.series-article pre, .series-article figure.highlight { max-width: 100%; overflow-x: auto; overflow-wrap: normal; }
+.series-article :not(pre) > code { overflow-wrap: anywhere; }
+.series-directory { max-width: 900px; margin: 0 auto; }
+.series-index ol { padding-left: 1.8rem; }
+.series-index li { margin: 1rem 0 1.3rem; padding-left: .35rem; }
+.series-index li > a { font-weight: 600; }
+.series-index li > p { margin: .4rem 0 0; font-size: .94rem; opacity: .85; }
+/* Chronological neighbors are ambiguous when all chapters share a migration date. */
+.post-content:has(.series-article) .post-prevnext { display: none; }
+@media (max-width: 767px) {
+  .post-content:has(.series-article) { padding-left: 1rem; padding-right: 1rem; }
+  body:has(.series-article, .series-directory) #live2d-widget { display: none; }
+  .series-nav { padding: .9rem; }
+  .series-step-links { grid-template-columns: 1fr; gap: .65rem; }
+  .series-step-links > :last-child { text-align: left; }
+  .series-article { font-size: 16px; line-height: 1.85; }
+  .series-figure figcaption::after { content: '宽图可左右滑动，或打开原图缩放。'; display: block; margin-top: .3rem; }
+}
+@media print {
+  .series-nav { display: none; }
+  .series-figure-scroll, .series-table-scroll { overflow: visible; }
+  .series-figure-scroll img, .series-table-scroll > table { min-width: 0; width: 100%; }
+}

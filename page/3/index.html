@@ -63,6 +63,10 @@
 
 
 
+  
+<link rel="stylesheet" href="/css/blog-series.css">
+
+
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
@@ -138,6 +142,18 @@
               <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
                 <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/kuberay-volcano/" target="_self">
+                <i class="iconfont icon-book"></i>
+                <span>源码系列</span>
               </a>
             </li>
           
@@ -244,23 +260,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/jiu-kun-parallel-program-optimization-contest/" target="_self">
-          <img src="/./jiu-kun-parallel-program-optimization-contest/contest.jpeg" srcset="/img/loading.gif" lazyload alt="第一届九坤并行程序优化大赛总结">
+        <a href="/have-we-reached-consensus-on-consensus/" target="_self">
+          <img src="/./have-we-reached-consensus-on-consensus/1.png" srcset="/img/loading.gif" lazyload alt="Have we reached consensus on consensus？">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/jiu-kun-parallel-program-optimization-contest/" target="_self">
-          第一届九坤并行程序优化大赛总结
+        <a href="/have-we-reached-consensus-on-consensus/" target="_self">
+          Have we reached consensus on consensus？
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/jiu-kun-parallel-program-optimization-contest/" target="_self">
+      <a class="index-excerpt " href="/have-we-reached-consensus-on-consensus/" target="_self">
         <div>
-          背景2021 年 9 月，量化头部公司九坤举办了其第一届并行程序优化大赛，相关介绍可参考 推送。赛题如下：  赛题是 C/C++ 的 codebase，然而我与一起组队的两位同学基本都对 C/C++ 不太熟悉，于是我们起名叫做了”只会 JAVA 队”。作为三个在体系结构几乎一窍不通的小白，在一个多月断断续续的不到 10 次线下沟通中，我们逐渐对体系结构入了门，在 192 个队伍脱颖而出，并在决赛取
+          背景分享一下前不久在 PingCAP 实习时做的有关共识算法及其应用的介绍（已经删除了部分不便公开的内容）。 这次分享主要针对 Raft 和 Paxos 做了相对详细的介绍，并从学术界和工业界的不同视角对比了他们的异同，最后也基于 TiKV 当前架构现状和其他系统的架构设计从一个 intern 的视角拍脑袋介绍了几个可能的演进方向。 回到 Raft 和 Multi Paxos 孰优孰劣这一圣战问题
         </div>
       </a>
 
@@ -268,8 +284,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-11-24 22:15" pubdate>
-              2021-11-24
+            <time datetime="2022-11-07 11:02" pubdate>
+              2022-11-07
             </time>
           </div>
         
@@ -278,197 +294,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E9%AB%98%E6%80%A7%E8%83%BD%E8%AE%A1%E7%AE%97/">#高性能计算</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2021-summer-of-code/" target="_self">
-          <img src="/./2021-summer-of-code/2021-summer-of-code.jpeg" srcset="/img/loading.gif" lazyload alt="2021 中科院开源之夏总结">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2021-summer-of-code/" target="_self">
-          2021 中科院开源之夏总结
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/2021-summer-of-code/" target="_self">
-        <div>
-          2021 年暑假，我参与了中科院组织的开源之夏活动，题目为 《Apache IoTDB 分布式混沌测试框架》。 有关该项目的详细信息可以查看该 文档。 从结果来看，这份工作发现了 Apache IoTDB 当前分布式版本存在的很多问题，有一些容易解决的问题已经得到了修复，然而也有一些较复杂的问题到今天依然存在，这也多多少少间接引起了我们的一次大规模重构，勉强算是一件有意义的工作吧。 令人略感遗憾的
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-30 22:33" pubdate>
-              2021-09-30
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/IoTDB/">#IoTDB</a>
-            
-              <a href="/tags/%E6%B5%8B%E8%AF%95/">#测试</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/15-445/" target="_self">
-          <img src="/./15-445/15-445.png" srcset="/img/loading.gif" lazyload alt="15-445 数据库课程学习总结">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/15-445/" target="_self">
-          15-445 数据库课程学习总结
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/15-445/" target="_self">
-        <div>
-          背景众所周知，CMU 15-445/721 是数据库的入门神课，类似于 MIT 6.824 之于分布式系统一样。由于前半年学习了 MIT 6.824 课程后感觉个人收获很大，因此在今年暑假，我抽时间学习完了 CMU 15-445 的网课，现做一概要总结。 总结15-445 可以当做数据库的入门课程，授课老师是著名网红教授 Andy Pavlo，以下是他的 Google Scholar 主页，还是非
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-12 15:12" pubdate>
-              2021-09-12
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">#数据库</a>
-            
-              <a href="/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/">#网红课</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/awesome-blog/" target="_self">
-          <img src="/./awesome-blog/awesome.png" srcset="/img/loading.gif" lazyload alt="Awesome 学习资料分享">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/awesome-blog/" target="_self">
-          Awesome 学习资料分享
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/awesome-blog/" target="_self">
-        <div>
-          计划长期维护一个自己学习过且觉得不错的资料列表，希望自己不断更新：  重学 Java 设计模式 什么是“凤凰架构” 程序员的自我修养 为什么系列 DDIA 线上故障排查全套路
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-07-30 12:33" pubdate>
-              2021-07-30
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%BC%80%E6%BA%90/">#开源</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/6-824/" target="_self">
-          <img src="/./6-824/6-824.png" srcset="/img/loading.gif" lazyload alt="6.824 分布式系统课程学习总结">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/6-824/" target="_self">
-          6.824 分布式系统课程学习总结
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/6-824/" target="_self">
-        <div>
-          Lab2021 年 6 月 30 日，本人总算刷完了 6.824 的 lab 并整理完了文档，发篇博客庆祝一下！！！ 目前能够稳定通过 6.824 lab 所有的测试，并尽可能的提升了代码可读性。 不保证绝对的 bug-free，但每个 lab 均测试 500 次以上，无一 fail。 为了遵守课程代码开放协议，只开源了文档，具体可参考 repo。 配合 raft 博士论文翻译 和 raft 算法
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-06-30 21:59" pubdate>
-              2021-06-30
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
-            
-              <a href="/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/">#网红课</a>
+              <a href="/tags/%E5%88%86%E4%BA%AB/">#分享</a>
             
               <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
@@ -484,23 +310,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/cops-thesis/" target="_self">
-          <img src="/./cops-thesis/architecture.png" srcset="/img/loading.gif" lazyload alt="COPS 论文阅读">
+        <a href="/tikv-source-code-reading-write/" target="_self">
+          <img src="/./tikv-source-code-reading-module/tikv-logo.png" srcset="/img/loading.gif" lazyload alt="TiKV 源码阅读三部曲（三）写流程">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/cops-thesis/" target="_self">
-          COPS 论文阅读
+        <a href="/tikv-source-code-reading-write/" target="_self">
+          TiKV 源码阅读三部曲（三）写流程
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/cops-thesis/" target="_self">
+      <a class="index-excerpt " href="/tikv-source-code-reading-write/" target="_self">
         <div>
-          背景考虑这么一个问题：对于大型网站的异地复制，公司存在多个数据中心，每个数据中心拥有全量数据，读均为本地读。那么写应该怎么实现？一致性应该如何取舍？ 对于以上背景，Spanner 和 Facebook/Memcached 已经给出了他们自己的解决方案：  Spanner：  线性一致性。 通过 Paxos 和 2PC 实现分布式写事务。 写入需要等待 quorum 的数据中心返回 ack，性能较低
+          背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。 TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，
         </div>
       </a>
 
@@ -508,8 +334,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-06-09 20:41" pubdate>
-              2021-06-09
+            <time datetime="2022-10-05 18:37" pubdate>
+              2022-10-05
             </time>
           </div>
         
@@ -520,7 +346,9 @@
             
               <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/TiKV/">#TiKV</a>
             
           </div>
         
@@ -532,23 +360,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/scaling-memcached-thesis/" target="_self">
-          <img src="/./scaling-memcached-thesis/architecture.png" srcset="/img/loading.gif" lazyload alt="Facebook 的 Memcached 系统扩展论文阅读">
+        <a href="/tikv-source-code-reading-read/" target="_self">
+          <img src="/./tikv-source-code-reading-module/tikv-logo.png" srcset="/img/loading.gif" lazyload alt="TiKV 源码阅读三部曲（二）读流程">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/scaling-memcached-thesis/" target="_self">
-          Facebook 的 Memcached 系统扩展论文阅读
+        <a href="/tikv-source-code-reading-read/" target="_self">
+          TiKV 源码阅读三部曲（二）读流程
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/scaling-memcached-thesis/" target="_self">
+      <a class="index-excerpt " href="/tikv-source-code-reading-read/" target="_self">
         <div>
-          背景本篇论文由 Facebook 2013 年在 NSDI 上发表，其系统地介绍了 Facebook 公司内部对于大规模缓存系统的使用实践。 这篇论文没有太多新的想法，但却传达了一个很重要的理念：不同的场景有不同的系统需求。在成本有限的情况下，并不一定线性一致性就是最好的，对于有些场景，最终一致性带来的收益远超我们的想像。 对于大部分 2C 应用，随着用户数量的逐渐增加，其后台数据存储系统大致是如
+          背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。 TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，
         </div>
       </a>
 
@@ -556,152 +384,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-05-30 13:56" pubdate>
-              2021-05-30
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/bitcoin/" target="_self">
-          <img src="/./bitcoin/bitcoin.jpeg" srcset="/img/loading.gif" lazyload alt="Bitcoin 论文阅读">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/bitcoin/" target="_self">
-          Bitcoin 论文阅读
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/bitcoin/" target="_self">
-        <div>
-          相关背景2008 年，中本聪设计出了比特币和区块链。在今天，区块链成为了热门的技术，其通过分布式账本技术和共识机制，构建了低成本互信机制。 区块链三个根本特性是去中心化、实现点对点的价值传递和低成本信任机制。 介绍区块链是一个划时代的技术，其使得我们能够不假装相信一个中央机构而实现可信的交易。 下面简单讨论一下一些设计要点： 首先，在公网的 P2P 系统中，我们必须设计出支持拜占庭容错的共识算法。
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-05-25 16:14" pubdate>
-              2021-05-25
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/spanner-thesis/" target="_self">
-          <img src="/./spanner-thesis/google-spanner-logo.png" srcset="/img/loading.gif" lazyload alt="Spanner 论文阅读">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/spanner-thesis/" target="_self">
-          Spanner 论文阅读
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/spanner-thesis/" target="_self">
-        <div>
-          相关背景Google Spanner 是 Google 一篇跨时代的论文，开启了 NewSQL 时代的序幕。 其主要有三点特色：  2PC + 共识组来避免 2PC 的无限超时阻塞。 GPS 原子钟同步技术以支持快速的只读事务。 支持 ACID 的全球型 NewSQL 数据库。  介绍暂仅搬运一些资料，之后有时间再补。  6.824 讲义 6.824 视频 论文 Spanner 白皮书 Spann
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-05-20 00:28" pubdate>
-              2021-05-20
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
-            
-              <a href="/tags/Google/">#Google</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/farm-thesis/" target="_self">
-          <img src="/./farm-thesis/2pc.png" srcset="/img/loading.gif" lazyload alt="Farm 论文阅读">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/farm-thesis/" target="_self">
-          Farm 论文阅读
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/farm-thesis/" target="_self">
-        <div>
-          相关背景Fram 结合了乐观事务和硬件优势，在保证可串行化的基础上实现了高性能的分布式事务框架。虽然其系统仅是一个原型系统，但其思想十分具有指导意义。 其主要利用了三点硬件特性：  NV RAM：减少磁盘 IO 对性能的影响。（一次 RAM 写大致需要 200ns，一次 SSD 写大致需要 100us，一次 HDD 写大致需要 100ms） Kernal Bypass：本地应用直接与网卡交互，无系
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-05-10 09:31" pubdate>
-              2021-05-10
+            <time datetime="2022-10-05 17:37" pubdate>
+              2022-10-05
             </time>
           </div>
         
@@ -712,7 +396,351 @@
             
               <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/TiKV/">#TiKV</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/tikv-source-code-reading-module/" target="_self">
+          <img src="/./tikv-source-code-reading-module/tikv-logo.png" srcset="/img/loading.gif" lazyload alt="TiKV 源码阅读三部曲（一）重要模块">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/tikv-source-code-reading-module/" target="_self">
+          TiKV 源码阅读三部曲（一）重要模块
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/tikv-source-code-reading-module/" target="_self">
+        <div>
+          背景TiKV 是一个支持事务的分布式 Key-Value 数据库，目前已经是 CNCF 基金会 的顶级项目。 作为一个新同学，需要一定的前期准备才能够有能力参与 TiKV 社区的代码开发，包括但不限于学习 Rust 语言，理解 TiKV 的原理和在前两者的基础上了解熟悉 TiKV 的源码。 TiKV 官方源码解析文档 详细地介绍了 TiKV 3.x 版本重要模块的设计要点，主要流程和相应代码片段，
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-10-05 16:37" pubdate>
+              2022-10-05
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/TiKV/">#TiKV</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/naive-kvengine-in-rust/" target="_self">
+          <img src="/./naive-kvengine-in-rust/talent-plan-logo.png" srcset="/img/loading.gif" lazyload alt="Talent-Plan：用 Rust 实现简易 KV 引擎">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/naive-kvengine-in-rust/" target="_self">
+          Talent-Plan：用 Rust 实现简易 KV 引擎
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/naive-kvengine-in-rust/" target="_self">
+        <div>
+          版本 官网版本  前期准备Rust 学习  半小时学习 Rust Rustling 及 解答 Rust 语言圣经 及 习题 Rust 官方文档 Talent Plan Percolator Lab  过关过程Rust Project 1: The Rust toolbox本 project 过关代码可参考该 commit。 主要参照了 README 来完成本 project，具体过程比较 triv
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-08-28 22:48" pubdate>
+              2022-08-28
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/">#存储引擎</a>
+            
+              <a href="/tags/Rust/">#Rust</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/percolator-in-rust/" target="_self">
+          <img src="/./percolator-in-rust/talent-plan-logo.png" srcset="/img/loading.gif" lazyload alt="Talent-Plan：用 Rust 实现 Percolator 算法">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/percolator-in-rust/" target="_self">
+          Talent-Plan：用 Rust 实现 Percolator 算法
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/percolator-in-rust/" target="_self">
+        <div>
+          版本 官网版本  前期准备Rust 学习  半小时学习 Rust Rustling 及 解答 Rust 语言圣经 及 习题 Rust 官方文档  Percolator 学习  论文 TinyKV lab4 文档  过关思路在基本环境搭建好之后，观察发现 lab 只有 13 个测试，测试全部 AC 即可通过项目。实际上一个生产级别的 Percolator 实现这些测试是远远不够的，需要考虑和测试的
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-08-25 11:36" pubdate>
+              2022-08-25
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
+            
+              <a href="/tags/Rust/">#Rust</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/talent-plan-transaction-talk/" target="_self">
+          <img src="/./talent-plan-transaction-talk/1.png" srcset="/img/loading.gif" lazyload alt="分布式事务概述和对应代码框架介绍">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/talent-plan-transaction-talk/" target="_self">
+          分布式事务概述和对应代码框架介绍
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/talent-plan-transaction-talk/" target="_self">
+        <div>
+          背景分享一下前两天在 Talent Plan Community 做的有关分布式事务和 Distributed-Txn 代码框架的介绍。 这次分享除了对 2021 VLDB summer school 中讲授的若干重要主题进行了概述，还着重介绍了事件排序这一很本质的问题，此外也参考了不少优质资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。由于本人水平有限，如有原理错误欢迎与我沟通~
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-04-21 17:44" pubdate>
+              2022-04-21
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E4%BA%AB/">#分享</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/talent-plan-raft-talk/" target="_self">
+          <img src="/./talent-plan-raft-talk/1.png" srcset="/img/loading.gif" lazyload alt="Raft 算法和对应代码框架介绍">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/talent-plan-raft-talk/" target="_self">
+          Raft 算法和对应代码框架介绍
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/talent-plan-raft-talk/" target="_self">
+        <div>
+          背景分享一下前不久在 Talent Plan Community 做的有关 Raft 算法和 Etcd/TinyKV 代码框架的介绍。 这次分享对 Raft 算法和对应实现做了较为系统的调研整理，不仅对若干经典问题做了介绍，也提供了不少优质参考资料，现在 share 出来希望能对这块知识感兴趣的同学有帮助。 注：以下仅为图片，可以在 此处 在线浏览 PPT 原件。 内容
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-02 10:10" pubdate>
+              2022-03-02
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E4%BA%AB/">#分享</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
+            
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2021-annual-summary/" target="_self">
+          <img src="/./2021-annual-summary/scenery.jpeg" srcset="/img/loading.gif" lazyload alt="2021 年终总结：记我在清华 Apache IoTDB 组的成长">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2021-annual-summary/" target="_self">
+          2021 年终总结：记我在清华 Apache IoTDB 组的成长
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/2021-annual-summary/" target="_self">
+        <div>
+          前言2021 年即将结束，这一年忙忙碌碌收获许多，也认识到了定期总结定期反省的重要性。今年回家后意识到自己应该养成写年终总结的习惯了，于是断断续续用近一周的时间写了第一次年终总结，算给自己的一整年一个交代。希望我的经历和感悟能给大家一些启发。 首先进行一个简单的自我介绍，我叫谭新宇，清华本硕，现在清华大学软件学院 Apache IoTDB 组就读研二，师从王建民/黄向东老师，我对分布式系统，时序数
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-24 23:37" pubdate>
+              2022-01-24
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">#年终总结</a>
+            
+              <a href="/tags/IoTDB/">#IoTDB</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/tinykv/" target="_self">
+          <img src="/./tinykv/overview.png" srcset="/img/loading.gif" lazyload alt="2021 Talent Plan KV 学习营结营总结">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/tinykv/" target="_self">
+          2021 Talent Plan KV 学习营结营总结
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/tinykv/" target="_self">
+        <div>
+          背景2021 年 11 月 ~ 2022 年 1 月 ，PingCAP 举办了第一届 Talent Plan KV 学习营，相关介绍可参考 推送。 在本次比赛中，由于我们小组的两位成员之前都刷过 MIT 6.824，已经对教学级别的 raft 有一定的了解，所以参加此次比赛的目的就是去感受一下生产级别分布式 KV 的代码实现，学习实践一下 lsm, etcd, raftstore 和 percol
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-14 17:23" pubdate>
+              2022-01-14
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
+            
+              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
             
           </div>
         
@@ -724,7 +752,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/2/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/#board">4</a><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><a class="extend next" rel="next" href="/page/4/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/2/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/#board">4</a><a class="page-number" href="/page/5/#board">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/#board">7</a><a class="extend next" rel="next" href="/page/4/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

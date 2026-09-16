@@ -63,6 +63,10 @@
 
 
 
+  
+<link rel="stylesheet" href="/css/blog-series.css">
+
+
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
@@ -138,6 +142,18 @@
               <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
                 <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/kuberay-volcano/" target="_self">
+                <i class="iconfont icon-book"></i>
+                <span>源码系列</span>
               </a>
             </li>
           
@@ -244,23 +260,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/distributed-transactions/" target="_self">
-          <img src="/./distributed-transactions/2pc.jpeg" srcset="/img/loading.gif" lazyload alt="分布式事务简介">
+        <a href="/jiu-kun-parallel-program-optimization-contest/" target="_self">
+          <img src="/./jiu-kun-parallel-program-optimization-contest/contest.jpeg" srcset="/img/loading.gif" lazyload alt="第一届九坤并行程序优化大赛总结">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/distributed-transactions/" target="_self">
-          分布式事务简介
+        <a href="/jiu-kun-parallel-program-optimization-contest/" target="_self">
+          第一届九坤并行程序优化大赛总结
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/distributed-transactions/" target="_self">
+      <a class="index-excerpt " href="/jiu-kun-parallel-program-optimization-contest/" target="_self">
         <div>
-          前言事务是作为单个逻辑工作单元执行的一系列操作。一个逻辑工作单元必须有四个属性，称为原子性、一致性、隔离性和持久性 (ACID) 属性。分布式事务则是尝试在多节点的环境下实现这些语义。 分布式事务涉及的知识内容较多，本篇博客并没有将其彻底整理清楚，只是简单记录了一下 6.824 课程所学。 内容对于分布式事务，可以将其细化为并发控制和原子提交两个子问题。前者是在说如何保证并发事务的串行隔离性，后者
+          背景2021 年 9 月，量化头部公司九坤举办了其第一届并行程序优化大赛，相关介绍可参考 推送。赛题如下：  赛题是 C/C++ 的 codebase，然而我与一起组队的两位同学基本都对 C/C++ 不太熟悉，于是我们起名叫做了”只会 JAVA 队”。作为三个在体系结构几乎一窍不通的小白，在一个多月断断续续的不到 10 次线下沟通中，我们逐渐对体系结构入了门，在 192 个队伍脱颖而出，并在决赛取
         </div>
       </a>
 
@@ -268,8 +284,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-04-29 13:46" pubdate>
-              2021-04-29
+            <time datetime="2021-11-24 22:15" pubdate>
+              2021-11-24
             </time>
           </div>
         
@@ -278,7 +294,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
+              <a href="/tags/%E9%AB%98%E6%80%A7%E8%83%BD%E8%AE%A1%E7%AE%97/">#高性能计算</a>
             
           </div>
         
@@ -290,23 +306,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/aurora-thesis/" target="_self">
-          <img src="/./aurora-thesis/Aurora.png" srcset="/img/loading.gif" lazyload alt="Aurora 论文阅读">
+        <a href="/2021-summer-of-code/" target="_self">
+          <img src="/./2021-summer-of-code/2021-summer-of-code.jpeg" srcset="/img/loading.gif" lazyload alt="2021 中科院开源之夏总结">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/aurora-thesis/" target="_self">
-          Aurora 论文阅读
+        <a href="/2021-summer-of-code/" target="_self">
+          2021 中科院开源之夏总结
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/aurora-thesis/" target="_self">
+      <a class="index-excerpt " href="/2021-summer-of-code/" target="_self">
         <div>
-          相关背景Amazon Aurora 是一种与 MySQL 和 PostgreSQL 兼容的关系数据库，专为云而打造，既具有传统企业数据库的性能和可用性，又具有开源数据库的简单性和成本效益。 Amazon Aurora 的速度最高可以达到标准 MySQL 数据库的五倍、标准 PostgreSQL 数据库的三倍。它可以实现商用数据库的安全性、可用性和可靠性，而成本只有商用数据库的 1/10。 关于 A
+          2021 年暑假，我参与了中科院组织的开源之夏活动，题目为 《Apache IoTDB 分布式混沌测试框架》。 有关该项目的详细信息可以查看该 文档。 从结果来看，这份工作发现了 Apache IoTDB 当前分布式版本存在的很多问题，有一些容易解决的问题已经得到了修复，然而也有一些较复杂的问题到今天依然存在，这也多多少少间接引起了我们的一次大规模重构，勉强算是一件有意义的工作吧。 令人略感遗憾的
         </div>
       </a>
 
@@ -314,204 +330,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-04-20 23:44" pubdate>
-              2021-04-20
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/frangipani-thesis/" target="_self">
-          <img src="/./frangipani-thesis/architecture.png" srcset="/img/loading.gif" lazyload alt="Frangipani 论文阅读">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/frangipani-thesis/" target="_self">
-          Frangipani 论文阅读
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/frangipani-thesis/" target="_self">
-        <div>
-          前言Frangipani 是一篇很古老的分布式存储论文，其设计思想在今天看来有很多已经过时了，但也有一定的参考意义。 该论文主要介绍了三个方面的工作：  cache coherence distributed transactions distributed crash recovery  内容具体内容可以参考此 博客 和 6.824 课程的 讲义，后者较为详细。 有关后两个工作可以直接参考以上博
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-04-10 19:24" pubdate>
-              2021-04-10
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/chain-replication-thesis/" target="_self">
-          <img src="/./chain-replication-thesis/chain-replication.jpeg" srcset="/img/loading.gif" lazyload alt="Chain Replication 论文阅读">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/chain-replication-thesis/" target="_self">
-          Chain Replication 论文阅读
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/chain-replication-thesis/" target="_self">
-        <div>
-          前言对于 raft、paxos 这类共识算法，leader 节点需要将客户端的写请求编号并发送给所有 follower 以期望达成共识，这一定程度上导致写性能无法随节点个数线性增长，因为 leader 同步的数据量会随着节点数的增长而增长，从而使得主节点承载着更大的压力，往往成为了瓶颈。 2004 年，Chain Replication （之后简称 cr）方案被提出，其也能够保证多副本间的线性一致
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-04-09 22:20" pubdate>
-              2021-04-09
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
-            
-              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/zookeeper-thesis/" target="_self">
-          <img src="/./zookeeper-thesis/zookeeper.jpeg" srcset="/img/loading.gif" lazyload alt="Zookeeper 论文阅读">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/zookeeper-thesis/" target="_self">
-          Zookeeper 论文阅读
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/zookeeper-thesis/" target="_self">
-        <div>
-          前言Zookeeper 作为一个划时代的分布式协调服务，是 Hadoop 技术栈的重要组件。 本篇博客将讨论一些 zk 论文的知识点。 内容最近比较忙，没多少时间总结了，论文内容概要可以参考这篇 博客，更详细的细节可以参考这篇 博客。 讨论zk or etcd?同为分布式协调服务和元数据存储服务的产品：老大哥 zk 伴随 NoSQL 运动崛起，坐拥 hadoop 技术栈孤独求败；后起之秀 etcd
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-04-08 19:16" pubdate>
-              2021-04-08
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
-            
-              <a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#共识算法</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/cluster-iotdb-idea-debugger/" target="_self">
-          <img src="/./cluster-iotdb-idea-debugger/iotdb.png" srcset="/img/loading.gif" lazyload alt="利用 IDEA 对分布式 IoTDB 进行调试">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/cluster-iotdb-idea-debugger/" target="_self">
-          利用 IDEA 对分布式 IoTDB 进行调试
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/cluster-iotdb-idea-debugger/" target="_self">
-        <div>
-          前言在单机数据库中，寻找 bug 相对较为简单。因为一旦可以复现 bug，那我们可以利用 IDE 在服务端打断点一步步执行并跟踪查看堆栈信息来判断代码出错的位置从而最终找到问题。 在分布式数据库中，找 bug 就变得相对困难了。一方面是因为分布式数据库较难利用 IDE 打断点，其往往通过打 log 的方式来记录错误情况，另一方面是一条客户端请求过来后往往伴随着若干并行和跨节点的 rpc，因此如果通
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-04-07 22:44" pubdate>
-              2021-04-07
+            <time datetime="2021-09-30 22:33" pubdate>
+              2021-09-30
             </time>
           </div>
         
@@ -522,7 +342,7 @@
             
               <a href="/tags/IoTDB/">#IoTDB</a>
             
-              <a href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E9%85%8D%E7%BD%AE/">#开发工具配置</a>
+              <a href="/tags/%E6%B5%8B%E8%AF%95/">#测试</a>
             
           </div>
         
@@ -534,23 +354,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/consistency-and-consensus/" target="_self">
-          <img src="/./consistency-and-consensus/background.png" srcset="/img/loading.gif" lazyload alt="一致性模型与共识算法">
+        <a href="/15-445/" target="_self">
+          <img src="/./15-445/15-445.png" srcset="/img/loading.gif" lazyload alt="15-445 数据库课程学习总结">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/consistency-and-consensus/" target="_self">
-          一致性模型与共识算法
+        <a href="/15-445/" target="_self">
+          15-445 数据库课程学习总结
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/consistency-and-consensus/" target="_self">
+      <a class="index-excerpt " href="/15-445/" target="_self">
         <div>
-          前言有关一致性模型和共识算法的一致性模型这两个问题，最近阅读了一些优质博客，学到了一些新的东西，同时感觉一些定义比较混乱，特此记录一下自己的理解。 一致性模型一致性问题是分布式领域最为基础也是最重要的问题，具体来历可以参考此 博客。 一般来讲，分布式系统中的一致性按照对一致性要求的不同，主要分为强一致性，弱一致性这两大类，前者是基于 safety 的概念，后者是基于 liveness 的概念。 强
+          背景众所周知，CMU 15-445/721 是数据库的入门神课，类似于 MIT 6.824 之于分布式系统一样。由于前半年学习了 MIT 6.824 课程后感觉个人收获很大，因此在今年暑假，我抽时间学习完了 CMU 15-445 的网课，现做一概要总结。 总结15-445 可以当做数据库的入门课程，授课老师是著名网红教授 Andy Pavlo，以下是他的 Google Scholar 主页，还是非
         </div>
       </a>
 
@@ -558,8 +378,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-04-02 16:37" pubdate>
-              2021-04-02
+            <time datetime="2021-09-12 15:12" pubdate>
+              2021-09-12
             </time>
           </div>
         
@@ -567,6 +387,104 @@
         
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">#数据库</a>
+            
+              <a href="/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/">#网红课</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/awesome-blog/" target="_self">
+          <img src="/./awesome-blog/awesome.png" srcset="/img/loading.gif" lazyload alt="Awesome 学习资料分享">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/awesome-blog/" target="_self">
+          Awesome 学习资料分享
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/awesome-blog/" target="_self">
+        <div>
+          计划长期维护一个自己学习过且觉得不错的资料列表，希望自己不断更新：  重学 Java 设计模式 什么是“凤凰架构” 程序员的自我修养 为什么系列 DDIA 线上故障排查全套路
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-07-30 12:33" pubdate>
+              2021-07-30
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%BC%80%E6%BA%90/">#开源</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/6-824/" target="_self">
+          <img src="/./6-824/6-824.png" srcset="/img/loading.gif" lazyload alt="6.824 分布式系统课程学习总结">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/6-824/" target="_self">
+          6.824 分布式系统课程学习总结
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/6-824/" target="_self">
+        <div>
+          Lab2021 年 6 月 30 日，本人总算刷完了 6.824 的 lab 并整理完了文档，发篇博客庆祝一下！！！ 目前能够稳定通过 6.824 lab 所有的测试，并尽可能的提升了代码可读性。 不保证绝对的 bug-free，但每个 lab 均测试 500 次以上，无一 fail。 为了遵守课程代码开放协议，只开源了文档，具体可参考 repo。 配合 raft 博士论文翻译 和 raft 算法
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-06-30 21:59" pubdate>
+              2021-06-30
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
+            
+              <a href="/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/">#网红课</a>
             
               <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
             
@@ -582,23 +500,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/flp-theory/" target="_self">
-          <img src="/./flp-theory/flp.png" srcset="/img/loading.gif" lazyload alt="FLP 不可能定理介绍">
+        <a href="/cops-thesis/" target="_self">
+          <img src="/./cops-thesis/architecture.png" srcset="/img/loading.gif" lazyload alt="COPS 论文阅读">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/flp-theory/" target="_self">
-          FLP 不可能定理介绍
+        <a href="/cops-thesis/" target="_self">
+          COPS 论文阅读
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/flp-theory/" target="_self">
+      <a class="index-excerpt " href="/cops-thesis/" target="_self">
         <div>
-          前言FLP 不可能定理与 CAP，BASE 定理等一样，都是分布式系统的基本理论，因此我们有必要了解该理论。 本博客摘抄了此 博客 中对 FLP 不可能定理的部分描述。 定义1985 年，Fisher、Lynch、Paterson 三位科学家就发表了关于分布式一致性问题的不可能定理：在完全异步的分布式网络中，故障容错问题无法被解决。（ We have shown that a natural an
+          背景考虑这么一个问题：对于大型网站的异地复制，公司存在多个数据中心，每个数据中心拥有全量数据，读均为本地读。那么写应该怎么实现？一致性应该如何取舍？ 对于以上背景，Spanner 和 Facebook/Memcached 已经给出了他们自己的解决方案：  Spanner：  线性一致性。 通过 Paxos 和 2PC 实现分布式写事务。 写入需要等待 quorum 的数据中心返回 ack，性能较低
         </div>
       </a>
 
@@ -606,54 +524,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-03-28 11:44" pubdate>
-              2021-03-28
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA/">#分布式系统理论</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/time-clock-order-in-distributed-system-thesis/" target="_self">
-          <img src="/./time-clock-order-in-distributed-system-thesis/order.png" srcset="/img/loading.gif" lazyload alt="Time, Clocks, and the Ordering of Events in a Distributed System 论文阅读">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/time-clock-order-in-distributed-system-thesis/" target="_self">
-          Time, Clocks, and the Ordering of Events in a Distributed System 论文阅读
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/time-clock-order-in-distributed-system-thesis/" target="_self">
-        <div>
-          背景这篇论文是 Leslie Lamport 于 1978 年发表的，并在 2007 年被选入 SOSP 的名人堂，被誉为第一篇真正的”分布式系统”论文，该论文曾一度成为计算机科学史上被引用最多的论文（截止 2022 年 3 月 6 日已达到 13071 次）。论文的作者 Lamport 享有分布式计算原理之父的美誉，并且因其对分布式系统研究作出的卓越贡献，于 2013 年被授予了图灵奖。 这篇论
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-03-21 20:00" pubdate>
-              2021-03-21
+            <time datetime="2021-06-09 20:41" pubdate>
+              2021-06-09
             </time>
           </div>
         
@@ -676,23 +548,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/vm-ft-thesis/" target="_self">
-          <img src="/./vm-ft-thesis/architecture.png" srcset="/img/loading.gif" lazyload alt="VM-FT 论文阅读">
+        <a href="/scaling-memcached-thesis/" target="_self">
+          <img src="/./scaling-memcached-thesis/architecture.png" srcset="/img/loading.gif" lazyload alt="Facebook 的 Memcached 系统扩展论文阅读">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/vm-ft-thesis/" target="_self">
-          VM-FT 论文阅读
+        <a href="/scaling-memcached-thesis/" target="_self">
+          Facebook 的 Memcached 系统扩展论文阅读
         </a>
       </h2>
 
       
-      <a class="index-excerpt " href="/vm-ft-thesis/" target="_self">
+      <a class="index-excerpt " href="/scaling-memcached-thesis/" target="_self">
         <div>
-          背景本论文主要介绍了一个用于提供容错虚拟机 (fault-tolerant virtual machine) 的企业级商业系统，该系统包含了两台位于不同物理机的虚拟机，其中一台为 primary，另一台为 backup，backup 备份了 primary 的所有执行。当 primary 出现故障时，backup 可以上线接管 primary 的工作，以此来提供容错。 内容论文内容可以参考此 博客
+          背景本篇论文由 Facebook 2013 年在 NSDI 上发表，其系统地介绍了 Facebook 公司内部对于大规模缓存系统的使用实践。 这篇论文没有太多新的想法，但却传达了一个很重要的理念：不同的场景有不同的系统需求。在成本有限的情况下，并不一定线性一致性就是最好的，对于有些场景，最终一致性带来的收益远超我们的想像。 对于大部分 2C 应用，随着用户数量的逐渐增加，其后台数据存储系统大致是如
         </div>
       </a>
 
@@ -700,8 +572,152 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-03-13 10:47" pubdate>
-              2021-03-13
+            <time datetime="2021-05-30 13:56" pubdate>
+              2021-05-30
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
+            
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/bitcoin/" target="_self">
+          <img src="/./bitcoin/bitcoin.jpeg" srcset="/img/loading.gif" lazyload alt="Bitcoin 论文阅读">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/bitcoin/" target="_self">
+          Bitcoin 论文阅读
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/bitcoin/" target="_self">
+        <div>
+          相关背景2008 年，中本聪设计出了比特币和区块链。在今天，区块链成为了热门的技术，其通过分布式账本技术和共识机制，构建了低成本互信机制。 区块链三个根本特性是去中心化、实现点对点的价值传递和低成本信任机制。 介绍区块链是一个划时代的技术，其使得我们能够不假装相信一个中央机构而实现可信的交易。 下面简单讨论一下一些设计要点： 首先，在公网的 P2P 系统中，我们必须设计出支持拜占庭容错的共识算法。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-05-25 16:14" pubdate>
+              2021-05-25
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/spanner-thesis/" target="_self">
+          <img src="/./spanner-thesis/google-spanner-logo.png" srcset="/img/loading.gif" lazyload alt="Spanner 论文阅读">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/spanner-thesis/" target="_self">
+          Spanner 论文阅读
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/spanner-thesis/" target="_self">
+        <div>
+          相关背景Google Spanner 是 Google 一篇跨时代的论文，开启了 NewSQL 时代的序幕。 其主要有三点特色：  2PC + 共识组来避免 2PC 的无限超时阻塞。 GPS 原子钟同步技术以支持快速的只读事务。 支持 ACID 的全球型 NewSQL 数据库。  介绍暂仅搬运一些资料，之后有时间再补。  6.824 讲义 6.824 视频 论文 Spanner 白皮书 Spann
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-05-20 00:28" pubdate>
+              2021-05-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
+            
+              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
+            
+              <a href="/tags/Google/">#Google</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/farm-thesis/" target="_self">
+          <img src="/./farm-thesis/2pc.png" srcset="/img/loading.gif" lazyload alt="Farm 论文阅读">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/farm-thesis/" target="_self">
+          Farm 论文阅读
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/farm-thesis/" target="_self">
+        <div>
+          相关背景Fram 结合了乐观事务和硬件优势，在保证可串行化的基础上实现了高性能的分布式事务框架。虽然其系统仅是一个原型系统，但其思想十分具有指导意义。 其主要利用了三点硬件特性：  NV RAM：减少磁盘 IO 对性能的影响。（一次 RAM 写大致需要 200ns，一次 SSD 写大致需要 100us，一次 HDD 写大致需要 100ms） Kernal Bypass：本地应用直接与网卡交互，无系
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-05-10 09:31" pubdate>
+              2021-05-10
             </time>
           </div>
         
@@ -724,7 +740,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/3/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><a class="extend next" rel="next" href="/page/5/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/3/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><a class="page-number" href="/page/7/#board">7</a><a class="extend next" rel="next" href="/page/5/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 
