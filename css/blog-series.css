@@ -23,16 +23,23 @@
 .series-article pre, .series-article figure.highlight { max-width: 100%; overflow-x: auto; overflow-wrap: normal; }
 .series-article :not(pre) > code { overflow-wrap: anywhere; }
 .series-directory { max-width: 900px; margin: 0 auto; }
-.series-index ol { padding-left: 1.8rem; }
-.series-index li { margin: 1rem 0 1.3rem; padding-left: .35rem; }
-.series-index li > a { font-weight: 600; }
-.series-index li > p { margin: .4rem 0 0; font-size: .94rem; opacity: .85; }
-/* Chronological neighbors are ambiguous when all chapters share a migration date. */
+.series-index ol { padding-left: 0; }
+.series-index li { margin: 1rem 0 1.3rem; padding-left: 0; }
+.series-index li::marker { color: transparent; font-size: 0; }
+.series-card { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 1.2rem; align-items: center; }
+.series-card .series-cover { display: block; border: 0; }
+.series-card .series-cover img { display: block; width: 100%; height: auto; margin: 0; border-radius: .4rem; border: 1px solid #dce4eb; }
+.series-card-copy > a { font-weight: 600; }
+.series-card-copy > p { margin: .4rem 0 0; font-size: .94rem; opacity: .85; }
+.index-img img[src^="/img/kuberay-volcano/"] { height: auto; aspect-ratio: 8 / 5; object-fit: contain; }
+/* Series navigation follows reading order independently of chronological neighbors. */
 .post-content:has(.series-article) .post-prevnext { display: none; }
 @media (max-width: 767px) {
   .post-content:has(.series-article) { padding-left: 1rem; padding-right: 1rem; }
-  body:has(.series-article, .series-directory) #live2d-widget { display: none; }
+  body:has(.series-article, .series-directory, .index-img img[src^="/img/kuberay-volcano/"]) #live2d-widget { display: none; }
   .series-nav { padding: .9rem; }
+  .series-card { grid-template-columns: minmax(0, 1fr); gap: .8rem; }
+  .series-card .series-cover { max-width: 420px; }
   .series-step-links { grid-template-columns: 1fr; gap: .65rem; }
   .series-step-links > :last-child { text-align: left; }
   .series-article { font-size: 16px; line-height: 1.85; }

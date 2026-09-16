@@ -259,7 +259,13 @@
   <div class="row mx-auto index-card">
     
     
-    <article class="col-12 col-md-12 mx-auto index-info">
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/kuberay-volcano-00-reading-guide/" target="_self">
+          <img src="/img/kuberay-volcano/cover-00.svg" srcset="/img/loading.gif" lazyload alt="源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
         <a href="/kuberay-volcano-00-reading-guide/" target="_self">
@@ -268,7 +274,7 @@
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-00-reading-guide/" target="_self">
+      <a class="index-excerpt " href="/kuberay-volcano-00-reading-guide/" target="_self">
         <div>
           从一个 Python 程序的计算与部署需求出发，解释 Ray、Kubernetes、KubeRay 与 Volcano 的职责和采用条件，并给出全系列的源码阅读路线。
         </div>
@@ -278,7 +284,7 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-09-15 16:00" pubdate>
+            <time datetime="2026-09-15 23:45" pubdate>
               2026-09-15
             </time>
           </div>
@@ -311,9 +317,9 @@
             
               <a href="/tags/Ray/">#Ray</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
               <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
             
               <a href="/tags/Kubernetes/">#Kubernetes</a>
             
@@ -330,7 +336,13 @@
   <div class="row mx-auto index-card">
     
     
-    <article class="col-12 col-md-12 mx-auto index-info">
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/kuberay-volcano-01-architecture/" target="_self">
+          <img src="/img/kuberay-volcano/cover-01.svg" srcset="/img/loading.gif" lazyload alt="KubeRay 源码阅读：从 RayJob 看组件分工与协作">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
         <a href="/kuberay-volcano-01-architecture/" target="_self">
@@ -339,7 +351,7 @@
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-01-architecture/" target="_self">
+      <a class="index-excerpt " href="/kuberay-volcano-01-architecture/" target="_self">
         <div>
           沿一次 RayJob 提交，追踪 RayCluster、head、worker 和 submitter 的创建、状态交接与清理，分清集群管理与用户计算。
         </div>
@@ -349,7 +361,7 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-09-15 16:00" pubdate>
+            <time datetime="2026-09-15 23:40" pubdate>
               2026-09-15
             </time>
           </div>
@@ -382,9 +394,9 @@
             
               <a href="/tags/Ray/">#Ray</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
               <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
             
               <a href="/tags/Kubernetes/">#Kubernetes</a>
             
@@ -399,76 +411,13 @@
   <div class="row mx-auto index-card">
     
     
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/kuberay-volcano-03-concurrency/" target="_self">
-          KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/kuberay-volcano-02-reconcile/" target="_self">
+          <img src="/img/kuberay-volcano/cover-02.svg" srcset="/img/loading.gif" lazyload alt="KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile">
         </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-03-concurrency/" target="_self">
-        <div>
-          以 100 个 RayCluster 为推演场景，分析协调协程、队列键锁、缓存滞后与 expectations，区分管理并发和 Ray 计算并发。
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-09-15 16:00" pubdate>
-              2026-09-15
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Ray/">#Ray</a>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
-            
-              <a href="/tags/Kubernetes/">#Kubernetes</a>
-            
-              <a href="/tags/KubeRay/">#KubeRay</a>
-            
-          </div>
-        
       </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
     
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
+    <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
         <a href="/kuberay-volcano-02-reconcile/" target="_self">
@@ -477,7 +426,7 @@
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-02-reconcile/" target="_self">
+      <a class="index-excerpt " href="/kuberay-volcano-02-reconcile/" target="_self">
         <div>
           从 worker Pod 的状态变化进入监听、缓存和工作队列，跟踪一次 Reconcile，以及事件、延时和错误怎样触发下一轮协调。
         </div>
@@ -487,7 +436,7 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-09-15 16:00" pubdate>
+            <time datetime="2026-09-15 23:35" pubdate>
               2026-09-15
             </time>
           </div>
@@ -520,9 +469,9 @@
             
               <a href="/tags/Ray/">#Ray</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
               <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
             
               <a href="/tags/Kubernetes/">#Kubernetes</a>
             
@@ -537,7 +486,88 @@
   <div class="row mx-auto index-card">
     
     
-    <article class="col-12 col-md-12 mx-auto index-info">
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/kuberay-volcano-03-concurrency/" target="_self">
+          <img src="/img/kuberay-volcano/cover-03.svg" srcset="/img/loading.gif" lazyload alt="KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/kuberay-volcano-03-concurrency/" target="_self">
+          KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/kuberay-volcano-03-concurrency/" target="_self">
+        <div>
+          以 100 个 RayCluster 为推演场景，分析协调协程、队列键锁、缓存滞后与 expectations，区分管理并发和 Ray 计算并发。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-09-15 23:30" pubdate>
+              2026-09-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Ray/">#Ray</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/kuberay-volcano-04-recovery/" target="_self">
+          <img src="/img/kuberay-volcano/cover-04.svg" srcset="/img/loading.gif" lazyload alt="KubeRay 源码阅读：Operator 重启后如何继续工作">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
         <a href="/kuberay-volcano-04-recovery/" target="_self">
@@ -546,7 +576,7 @@
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-04-recovery/" target="_self">
+      <a class="index-excerpt " href="/kuberay-volcano-04-recovery/" target="_self">
         <div>
           把中断放在资源创建与状态写回之间，沿持久化身份、对象查询和重试分支，分析 Operator 重启后的恢复依据与防重边界。
         </div>
@@ -556,7 +586,7 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-09-15 16:00" pubdate>
+            <time datetime="2026-09-15 23:25" pubdate>
               2026-09-15
             </time>
           </div>
@@ -589,9 +619,9 @@
             
               <a href="/tags/Ray/">#Ray</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
               <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
             
               <a href="/tags/Kubernetes/">#Kubernetes</a>
             
@@ -606,220 +636,13 @@
   <div class="row mx-auto index-card">
     
     
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/kuberay-volcano-06-volcano-architecture/" target="_self">
-          Volcano 源码阅读：从 Pod 到作业
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/kuberay-volcano-05-high-availability/" target="_self">
+          <img src="/img/kuberay-volcano/cover-05.svg" srcset="/img/loading.gif" lazyload alt="KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复">
         </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-06-volcano-architecture/" target="_self">
-        <div>
-          从几个 Pod 争用资源的问题进入 Volcano，区分 Job、PodGroup、Queue，以及 Scheduler、Controller Manager 和 Admission 的协作。
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-09-15 16:00" pubdate>
-              2026-09-15
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Ray/">#Ray</a>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
-            
-              <a href="/tags/Kubernetes/">#Kubernetes</a>
-            
-              <a href="/tags/KubeRay/">#KubeRay</a>
-            
-              <a href="/tags/Volcano/">#Volcano</a>
-            
-          </div>
-        
       </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
     
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/kuberay-volcano-07-volcano-gang/" target="_self">
-          Volcano 源码阅读：一次调度怎样满足 Gang 约束
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-07-volcano-gang/" target="_self">
-        <div>
-          跟踪一个 PodGroup 在 Session 中的准入、试分配、Gang 检查、提交与绑定，解释分配撤销和部分绑定失败的处理边界。
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-09-15 16:00" pubdate>
-              2026-09-15
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Ray/">#Ray</a>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
-            
-              <a href="/tags/Kubernetes/">#Kubernetes</a>
-            
-              <a href="/tags/KubeRay/">#KubeRay</a>
-            
-              <a href="/tags/Volcano/">#Volcano</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/kuberay-volcano-08-volcano-queues/" target="_self">
-          Volcano 源码阅读：多个作业怎样共享与竞争资源
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-08-volcano-queues/" target="_self">
-        <div>
-          用有明确前提的数字例子分析 Queue 份额、DRF、优先级和资源回收，区分策略计算、节点放置与实际 Pod 占用。
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-09-15 16:00" pubdate>
-              2026-09-15
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Ray/">#Ray</a>
-            
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
-            
-              <a href="/tags/Kubernetes/">#Kubernetes</a>
-            
-              <a href="/tags/KubeRay/">#KubeRay</a>
-            
-              <a href="/tags/Volcano/">#Volcano</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
+    <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
         <a href="/kuberay-volcano-05-high-availability/" target="_self">
@@ -828,7 +651,7 @@
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-05-high-availability/" target="_self">
+      <a class="index-excerpt " href="/kuberay-volcano-05-high-availability/" target="_self">
         <div>
           从 Operator 的 Lease 选主与接管，追到 Kubernetes 控制面、Ray head、GCS 和 RayService，分别核对管理恢复、计算恢复与请求可用性。
         </div>
@@ -838,7 +661,7 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-09-15 16:00" pubdate>
+            <time datetime="2026-09-15 23:20" pubdate>
               2026-09-15
             </time>
           </div>
@@ -871,9 +694,9 @@
             
               <a href="/tags/Ray/">#Ray</a>
             
-              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
-            
               <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
             
               <a href="/tags/Kubernetes/">#Kubernetes</a>
             
@@ -888,18 +711,24 @@
   <div class="row mx-auto index-card">
     
     
-    <article class="col-12 col-md-12 mx-auto index-info">
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/kuberay-volcano-06-volcano-architecture/" target="_self">
+          <img src="/img/kuberay-volcano/cover-06.svg" srcset="/img/loading.gif" lazyload alt="Volcano 源码阅读：从 Pod 到作业">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/kuberay-volcano-09-kuberay-volcano/" target="_self">
-          KubeRay 与 Volcano：从 RayJob 到 PodGroup
+        <a href="/kuberay-volcano-06-volcano-architecture/" target="_self">
+          Volcano 源码阅读：从 Pod 到作业
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/kuberay-volcano-09-kuberay-volcano/" target="_self">
+      <a class="index-excerpt " href="/kuberay-volcano-06-volcano-architecture/" target="_self">
         <div>
-          沿 KubeRay 的 Volcano 适配器，核对 PodGroup、成员标记、submitter 启动依赖与资源记账，再分析完成、暂停和重试后的清理。
+          从几个 Pod 争用资源的问题进入 Volcano，区分 Job、PodGroup、Queue，以及 Scheduler、Controller Manager 和 Admission 的协作。
         </div>
       </a>
 
@@ -907,7 +736,7 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-09-15 16:00" pubdate>
+            <time datetime="2026-09-15 23:15" pubdate>
               2026-09-15
             </time>
           </div>
@@ -940,9 +769,240 @@
             
               <a href="/tags/Ray/">#Ray</a>
             
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
               <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
             
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
+            
+              <a href="/tags/Volcano/">#Volcano</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/kuberay-volcano-07-volcano-gang/" target="_self">
+          <img src="/img/kuberay-volcano/cover-07.svg" srcset="/img/loading.gif" lazyload alt="Volcano 源码阅读：一次调度怎样满足 Gang 约束">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/kuberay-volcano-07-volcano-gang/" target="_self">
+          Volcano 源码阅读：一次调度怎样满足 Gang 约束
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/kuberay-volcano-07-volcano-gang/" target="_self">
+        <div>
+          跟踪一个 PodGroup 在 Session 中的准入、试分配、Gang 检查、提交与绑定，解释分配撤销和部分绑定失败的处理边界。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-09-15 23:10" pubdate>
+              2026-09-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Ray/">#Ray</a>
+            
               <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
+            
+              <a href="/tags/Volcano/">#Volcano</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/kuberay-volcano-08-volcano-queues/" target="_self">
+          <img src="/img/kuberay-volcano/cover-08.svg" srcset="/img/loading.gif" lazyload alt="Volcano 源码阅读：多个作业怎样共享与竞争资源">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/kuberay-volcano-08-volcano-queues/" target="_self">
+          Volcano 源码阅读：多个作业怎样共享与竞争资源
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/kuberay-volcano-08-volcano-queues/" target="_self">
+        <div>
+          用有明确前提的数字例子分析 Queue 份额、DRF、优先级和资源回收，区分策略计算、节点放置与实际 Pod 占用。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-09-15 23:05" pubdate>
+              2026-09-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Ray/">#Ray</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
+            
+              <a href="/tags/Kubernetes/">#Kubernetes</a>
+            
+              <a href="/tags/KubeRay/">#KubeRay</a>
+            
+              <a href="/tags/Volcano/">#Volcano</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/kuberay-volcano-09-kuberay-volcano/" target="_self">
+          <img src="/img/kuberay-volcano/cover-09.svg" srcset="/img/loading.gif" lazyload alt="KubeRay 与 Volcano：从 RayJob 到 PodGroup">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/kuberay-volcano-09-kuberay-volcano/" target="_self">
+          KubeRay 与 Volcano：从 RayJob 到 PodGroup
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/kuberay-volcano-09-kuberay-volcano/" target="_self">
+        <div>
+          沿 KubeRay 的 Volcano 适配器，核对 PodGroup、成员标记、submitter 启动依赖与资源记账，再分析完成、暂停和重试后的清理。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-09-15 23:00" pubdate>
+              2026-09-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Ray/">#Ray</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">#源码阅读</a>
+            
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">#分布式计算</a>
             
               <a href="/tags/Kubernetes/">#Kubernetes</a>
             
