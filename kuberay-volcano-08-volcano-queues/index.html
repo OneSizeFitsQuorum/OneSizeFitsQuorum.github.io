@@ -23,7 +23,7 @@
   
     <meta name="description" content="用有明确前提的数字例子分析 Queue 份额、DRF、优先级和资源回收，区分策略计算、节点放置与实际 Pod 占用。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Volcano 源码阅读：多个作业怎样共享与竞争资源">
+<meta property="og:title" content="第 8 篇｜Volcano 资源竞争：队列份额与作业调度">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-08-volcano-queues/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="用有明确前提的数字例子分析 Queue 份额、DRF、优先级和资源回收，区分策略计算、节点放置与实际 Pod 占用。">
@@ -45,7 +45,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Volcano 源码阅读：多个作业怎样共享与竞争资源 - 谭新宇的博客</title>
+  <title>第 8 篇｜Volcano 资源竞争：队列份额与作业调度 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -239,7 +239,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Volcano 源码阅读：多个作业怎样共享与竞争资源"></span>
+            <span id="subtitle" data-typed-text="第 8 篇｜Volcano 资源竞争：队列份额与作业调度"></span>
           
         </div>
 
@@ -263,7 +263,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          6.3k 字
+          6.2k 字
         
       </span>
     
@@ -321,7 +321,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Volcano 源码阅读：多个作业怎样共享与竞争资源</h1>
+            <h1 id="seo-header">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</h1>
             
               <p id="updated-time" class="note note-info" style="display: none">
                 
@@ -337,7 +337,7 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 8 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">KubeRay 源码阅读：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">Volcano 源码阅读：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></li><li class="is-current"><a href="/kuberay-volcano-08-volcano-queues/" aria-current="page">Volcano 源码阅读：多个作业怎样共享与竞争资源</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-07-volcano-gang/">上一篇：第 7 篇 · Volcano 源码阅读：一次调度怎样满足 Gang 约束</a><a href="/kuberay-volcano-09-kuberay-volcano/">下一篇：第 9 篇 · KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上一篇的 Gang 检查回答了一组 Pod 能否满足最低要求。现在有两个作业都在等资源：<code>demo-job</code> 和独立提交的 <code>demo-job-b</code>。它们应该按提交时间排队，按优先级选择，还是按已经占用的资源量轮流获得机会？</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 8 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li class="is-current"><a href="/kuberay-volcano-08-volcano-queues/" aria-current="page">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-07-volcano-gang/">上一篇：第 7 篇｜Volcano Gang 调度：成组分配与绑定</a><a href="/kuberay-volcano-09-kuberay-volcano/">下一篇：第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上一篇的 Gang 检查回答了一组 Pod 能否满足最低要求。现在有两个作业都在等资源：<code>demo-job</code> 和独立提交的 <code>demo-job-b</code>。它们应该按提交时间排队，按优先级选择，还是按已经占用的资源量轮流获得机会？</p>
 <p>Volcano 把这些选择放在不同层次：Queue 表达资源策略，作业和成员各有排序，节点还有自己的放置约束。本文沿用 Volcano <code>d8984501e4ad</code>，先看 proportion 插件怎样计算队列份额，再看 drf 插件怎样比较作业占用各类资源的比例，最后讨论传统 preempt（队列内抢占）和 reclaim（跨队列回收）路径。默认配置仍承接第七篇；分析驱逐时会显式增加对应 Action。数字例子只演示算法，不表示主案例已经修改配置或完成压测。</p>
 <h2 id="Queue-的配置与份额"><span id="1-Queue-里配置的值，和本轮算出的份额" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Queue-的配置与份额" class="headerlink" title="Queue 的配置与份额"></a>Queue 的配置与份额</h2><h3 id="配置值、需求与已分配量"><a href="#配置值、需求与已分配量" class="headerlink" title="配置值、需求与已分配量"></a>配置值、需求与已分配量</h3><p>先看两个作业都提交到 <code>ray-batch</code> 的情况。它们共享该 Queue 的资源策略；作业之间如何排序，稍后再看。讨论跨队列分配时，另设一个对比场景：第二个作业在提交时就指定新建的 <code>ray-batch-b</code>。这是两个提交条件不同的例子，没有把运行中的作业迁移到另一队列。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/01-queues.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。"><img src="/kuberay-volcano-08-volcano-queues/01-queues.svg" alt="两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。" width="960" height="370" style="--diagram-width:960px"></a></div><figcaption>两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。 <a href="/kuberay-volcano-08-volcano-queues/01-queues.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
@@ -511,7 +511,7 @@
 <li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/tree/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/actions/gangreclaim">Volcano：gangreclaim 扩展路径</a></li>
 <li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/">Kubernetes：污点与容忍</a></li>
 </ul>
-<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 8 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-07-volcano-gang/">上一篇：第 7 篇 · Volcano 源码阅读：一次调度怎样满足 Gang 约束</a><a href="/kuberay-volcano-09-kuberay-volcano/">下一篇：第 9 篇 · KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></div></nav></div>
+<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 8 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-07-volcano-gang/">上一篇：第 7 篇｜Volcano Gang 调度：成组分配与绑定</a><a href="/kuberay-volcano-09-kuberay-volcano/">下一篇：第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></div></nav></div>
                 
               </div>
             
@@ -566,7 +566,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Volcano 源码阅读：多个作业怎样共享与竞争资源</div>
+      <div>第 8 篇｜Volcano 资源竞争：队列份额与作业调度</div>
       <div>https://tanxinyu.work/kuberay-volcano-08-volcano-queues/</div>
     </div>
     <div class="license-meta">
@@ -611,9 +611,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/kuberay-volcano-07-volcano-gang/" title="Volcano 源码阅读：一次调度怎样满足 Gang 约束">
+                      <a href="/kuberay-volcano-07-volcano-gang/" title="第 7 篇｜Volcano Gang 调度：成组分配与绑定">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Volcano 源码阅读：一次调度怎样满足 Gang 约束</span>
+                        <span class="hidden-mobile">第 7 篇｜Volcano Gang 调度：成组分配与绑定</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -621,8 +621,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/kuberay-volcano-09-kuberay-volcano/" title="KubeRay 与 Volcano：从 RayJob 到 PodGroup">
-                        <span class="hidden-mobile">KubeRay 与 Volcano：从 RayJob 到 PodGroup</span>
+                      <a href="/kuberay-volcano-09-kuberay-volcano/" title="第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作">
+                        <span class="hidden-mobile">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

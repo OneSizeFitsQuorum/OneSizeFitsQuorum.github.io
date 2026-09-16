@@ -23,7 +23,7 @@
   
     <meta name="description" content="把中断放在资源创建与状态写回之间，沿持久化身份、对象查询和重试分支，分析 Operator 重启后的恢复依据与防重边界。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="KubeRay 源码阅读：Operator 重启后如何继续工作">
+<meta property="og:title" content="第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-04-recovery/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="把中断放在资源创建与状态写回之间，沿持久化身份、对象查询和重试分支，分析 Operator 重启后的恢复依据与防重边界。">
@@ -44,7 +44,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>KubeRay 源码阅读：Operator 重启后如何继续工作 - 谭新宇的博客</title>
+  <title>第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -238,7 +238,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="KubeRay 源码阅读：Operator 重启后如何继续工作"></span>
+            <span id="subtitle" data-typed-text="第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作"></span>
           
         </div>
 
@@ -320,7 +320,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">KubeRay 源码阅读：Operator 重启后如何继续工作</h1>
+            <h1 id="seo-header">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</h1>
             
               <p id="updated-time" class="note note-info" style="display: none">
                 
@@ -336,7 +336,7 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 4 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a></li><li class="is-current"><a href="/kuberay-volcano-04-recovery/" aria-current="page">KubeRay 源码阅读：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">Volcano 源码阅读：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">Volcano 源码阅读：多个作业怎样共享与竞争资源</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-03-concurrency/">上一篇：第 3 篇 · KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a><a href="/kuberay-volcano-05-high-availability/">下一篇：第 5 篇 · KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第三篇提到，一轮协调中创建资源成功，后面的状态更新仍可能失败。假设 <code>demo-job</code> 的 submitter Job 已经创建，Operator 却在写回 RayJob 状态前退出了。新 Operator 读到的仍是 <code>Initializing</code>，它会再提交一次计算吗？如果丢失的是 Ray Jobs API 的提交响应，答案又有什么不同？</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 4 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li class="is-current"><a href="/kuberay-volcano-04-recovery/" aria-current="page">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-03-concurrency/">上一篇：第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a><a href="/kuberay-volcano-05-high-availability/">下一篇：第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第三篇提到，一轮协调中创建资源成功，后面的状态更新仍可能失败。假设 <code>demo-job</code> 的 submitter Job 已经创建，Operator 却在写回 RayJob 状态前退出了。新 Operator 读到的仍是 <code>Initializing</code>，它会再提交一次计算吗？如果丢失的是 Ray Jobs API 的提交响应，答案又有什么不同？</p>
 <p>本文继续使用第一篇的例子：RayJob 新建专用 RayCluster，通过 <code>K8sJobMode</code> 提交镜像中的程序，完成后等待 60 秒清理集群。讨论重试时，另设 <code>spec.backoffLimit: 1</code>，允许失败后再执行一次；submitter 使用默认命令。下文把一次完整的作业执行称为“执行轮次（attempt）”：它会经过多轮 <code>Reconcile</code>，可能跨过 Operator 重启，也可能包含提交程序自身的重试。</p>
 <p>源码固定为 KubeRay <code>6bf05eb17a3e</code> 与 Ray <code>3f785c0711b9</code>。以下故障窗口均由源码推演，没有进行故障注入实验。五处代码均为连续真实节选，仅调整缩进。</p>
 <h2 id="重启后的状态与流程"><span id="1-重启后还能读到哪些状态" class="series-legacy-anchor" aria-hidden="true"></span><a href="#重启后的状态与流程" class="headerlink" title="重启后的状态与流程"></a>重启后的状态与流程</h2><h3 id="持久化状态与进程内状态"><a href="#持久化状态与进程内状态" class="headerlink" title="持久化状态与进程内状态"></a>持久化状态与进程内状态</h3><p>先看只有 Operator 进程退出的情况，Kubernetes 控制面和 Ray 集群仍正常。旧进程的缓存、工作队列和函数执行现场随之丢失，RayJob、RayCluster 等 API 对象却还在，Ray 程序也可能一直在运行。</p>
@@ -449,7 +449,7 @@
 <li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/architecture/garbage-collection/">Kubernetes 垃圾回收</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/ray/blob/3f785c0711b94f93f97fea2a438abcd6a9738655/src/ray/gcs/gcs_server.cc">Ray：src/ray/gcs/gcs_server.cc</a></li>
 </ul>
-<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 4 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-03-concurrency/">上一篇：第 3 篇 · KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a><a href="/kuberay-volcano-05-high-availability/">下一篇：第 5 篇 · KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></div></nav></div>
+<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 4 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-03-concurrency/">上一篇：第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a><a href="/kuberay-volcano-05-high-availability/">下一篇：第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></div></nav></div>
                 
               </div>
             
@@ -502,7 +502,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>KubeRay 源码阅读：Operator 重启后如何继续工作</div>
+      <div>第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</div>
       <div>https://tanxinyu.work/kuberay-volcano-04-recovery/</div>
     </div>
     <div class="license-meta">
@@ -547,9 +547,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/kuberay-volcano-03-concurrency/" title="KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster">
+                      <a href="/kuberay-volcano-03-concurrency/" title="第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</span>
+                        <span class="hidden-mobile">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -557,8 +557,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/kuberay-volcano-05-high-availability/" title="KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复">
-                        <span class="hidden-mobile">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</span>
+                      <a href="/kuberay-volcano-05-high-availability/" title="第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复">
+                        <span class="hidden-mobile">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

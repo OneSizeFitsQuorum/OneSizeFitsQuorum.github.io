@@ -23,7 +23,7 @@
   
     <meta name="description" content="从几个 Pod 争用资源的问题进入 Volcano，区分 Job、PodGroup、Queue，以及 Scheduler、Controller Manager 和 Admission 的协作。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Volcano 源码阅读：从 Pod 到作业">
+<meta property="og:title" content="第 6 篇｜Volcano 架构：从 Pod 到作业">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-06-volcano-architecture/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="从几个 Pod 争用资源的问题进入 Volcano，区分 Job、PodGroup、Queue，以及 Scheduler、Controller Manager 和 Admission 的协作。">
@@ -45,7 +45,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Volcano 源码阅读：从 Pod 到作业 - 谭新宇的博客</title>
+  <title>第 6 篇｜Volcano 架构：从 Pod 到作业 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -239,7 +239,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Volcano 源码阅读：从 Pod 到作业"></span>
+            <span id="subtitle" data-typed-text="第 6 篇｜Volcano 架构：从 Pod 到作业"></span>
           
         </div>
 
@@ -263,7 +263,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          6.4k 字
+          6.3k 字
         
       </span>
     
@@ -321,7 +321,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Volcano 源码阅读：从 Pod 到作业</h1>
+            <h1 id="seo-header">第 6 篇｜Volcano 架构：从 Pod 到作业</h1>
             
               <p id="updated-time" class="note note-info" style="display: none">
                 
@@ -337,7 +337,7 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 6 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">KubeRay 源码阅读：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></li><li class="is-current"><a href="/kuberay-volcano-06-volcano-architecture/" aria-current="page">Volcano 源码阅读：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">Volcano 源码阅读：多个作业怎样共享与竞争资源</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-05-high-availability/">上一篇：第 5 篇 · KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a><a href="/kuberay-volcano-07-volcano-gang/">下一篇：第 7 篇 · Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前五篇讨论了 KubeRay 怎样把一个 RayJob 变成运行中的 Ray 集群。这里还留着一个问题：Operator 已经创建了 Pod，集群却没有足够的空闲资源，几套 Ray 集群该怎样分配这些资源？</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 6 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li class="is-current"><a href="/kuberay-volcano-06-volcano-architecture/" aria-current="page">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-05-high-availability/">上一篇：第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a><a href="/kuberay-volcano-07-volcano-gang/">下一篇：第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前五篇讨论了 KubeRay 怎样把一个 RayJob 变成运行中的 Ray 集群。这里还留着一个问题：Operator 已经创建了 Pod，集群却没有足够的空闲资源，几套 Ray 集群该怎样分配这些资源？</p>
 <p>第三篇里的协调并发数决定多少个 RayCluster 可以同时被检查。调大这个数字，Operator 可以更快地创建 Pod，却不会增加机器上的 CPU、内存和 GPU。接下来四篇沿着这条边界，阅读负责批调度的 Volcano：这一篇先看对象、进程和协作关系，第七篇跟踪一次成组调度，第八篇分析资源竞争，第九篇回到 KubeRay 的接入实现。</p>
 <p>源码基线为 Volcano <code>d8984501e4ad</code>，KubeRay 仍为 <code>6bf05eb17a3e</code>。下面的资源数量用于源码推演，没有进行集群实验。主案例继续使用 <code>default/demo-job</code>，一个 head Pod、<code>compute</code> 组的两个 worker Pod，使用 K8sJobMode，关闭自动扩缩容。相对前五篇，这里新增的条件是启用 Volcano。</p>
 <h2 id="成组调度的需求"><span id="1-为什么要把几个-Pod-放在一起考虑" class="series-legacy-anchor" aria-hidden="true"></span><a href="#成组调度的需求" class="headerlink" title="成组调度的需求"></a>成组调度的需求</h2><p>假设有两个独立提交的 RayJob：<code>demo-job</code> 和 <code>demo-job-b</code>。为了只看调度问题，先把每个作业所需的三个 Ray Pod 简化为三个等大的资源槽，并假定业务需要三个成员都到齐才能有效计算。submitter 稍后才创建，其资源要求在第九篇单独计算。</p>
@@ -476,7 +476,7 @@
 <li><a target="_blank" rel="noopener" href="https://volcano.sh/docs/scheduler/overview/">Volcano 官方调度架构</a></li>
 <li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/">Kubernetes：PriorityClass 与优先级</a></li>
 </ul>
-<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 6 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-05-high-availability/">上一篇：第 5 篇 · KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a><a href="/kuberay-volcano-07-volcano-gang/">下一篇：第 7 篇 · Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></div></nav></div>
+<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 6 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-05-high-availability/">上一篇：第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a><a href="/kuberay-volcano-07-volcano-gang/">下一篇：第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></div></nav></div>
                 
               </div>
             
@@ -531,7 +531,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Volcano 源码阅读：从 Pod 到作业</div>
+      <div>第 6 篇｜Volcano 架构：从 Pod 到作业</div>
       <div>https://tanxinyu.work/kuberay-volcano-06-volcano-architecture/</div>
     </div>
     <div class="license-meta">
@@ -576,9 +576,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/kuberay-volcano-05-high-availability/" title="KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复">
+                      <a href="/kuberay-volcano-05-high-availability/" title="第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</span>
+                        <span class="hidden-mobile">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -586,8 +586,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/kuberay-volcano-07-volcano-gang/" title="Volcano 源码阅读：一次调度怎样满足 Gang 约束">
-                        <span class="hidden-mobile">Volcano 源码阅读：一次调度怎样满足 Gang 约束</span>
+                      <a href="/kuberay-volcano-07-volcano-gang/" title="第 7 篇｜Volcano Gang 调度：成组分配与绑定">
+                        <span class="hidden-mobile">第 7 篇｜Volcano Gang 调度：成组分配与绑定</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

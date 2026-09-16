@@ -23,7 +23,7 @@
   
     <meta name="description" content="从计算与部署需求出发，解释 Ray、Kubernetes、KubeRay 与 Volcano 的职责和采用条件，给出面向使用者的架构与设计阅读路线。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano">
+<meta property="og:title" content="第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-00-reading-guide/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="从计算与部署需求出发，解释 Ray、Kubernetes、KubeRay 与 Volcano 的职责和采用条件，给出面向使用者的架构与设计阅读路线。">
@@ -45,7 +45,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano - 谭新宇的博客</title>
+  <title>第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -239,7 +239,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano"></span>
+            <span id="subtitle" data-typed-text="第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano"></span>
           
         </div>
 
@@ -321,7 +321,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</h1>
+            <h1 id="seo-header">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</h1>
             
               <p id="updated-time" class="note note-info" style="display: none">
                 
@@ -337,7 +337,7 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 0 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li class="is-current"><a href="/kuberay-volcano-00-reading-guide/" aria-current="page">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">KubeRay 源码阅读：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">Volcano 源码阅读：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">Volcano 源码阅读：多个作业怎样共享与竞争资源</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></li></ol></details><div class="series-step-links"><span>从这里开始阅读</span><a href="/kuberay-volcano-01-architecture/">下一篇：第 1 篇 · KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>假设手里有一个 Python 程序，要处理一批数据。在自己的电脑上，装好依赖、执行 <code>python main.py</code> 就能开始跑。后来数据多了，希望用几台机器一起计算。这时会遇到两类问题：程序怎样利用多台机器，以及这些机器上的程序由谁部署和管理。</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 0 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li class="is-current"><a href="/kuberay-volcano-00-reading-guide/" aria-current="page">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><span>从这里开始阅读</span><a href="/kuberay-volcano-01-architecture/">下一篇：第 1 篇｜KubeRay 架构：组件分工与协作</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>假设手里有一个 Python 程序，要处理一批数据。在自己的电脑上，装好依赖、执行 <code>python main.py</code> 就能开始跑。后来数据多了，希望用几台机器一起计算。这时会遇到两类问题：程序怎样利用多台机器，以及这些机器上的程序由谁部署和管理。</p>
 <p>这套文章面向希望理解系统原理的 Ray、KubeRay 和 Volcano 使用者，分别沿集群管理和批调度两条线解释架构与设计。源码用来核对组件如何协作、配置怎样影响行为，以及各项能力成立的条件。理解这些机制之前，先要知道 Ray 在运行什么、Kubernetes 管理什么。下面从计算需求出发，逐步引入这些项目，再解释它们为什么可以组合使用。</p>
 <p>这里选择 Kubernetes 上的 Ray 部署作为研究场景。Ray 也可以在单机或多台机器上直接运行，不要求先安装 Kubernetes；选用 Kubernetes 和 KubeRay 以后，也可以先使用默认调度器，按工作负载的需要再考虑 Volcano。文章的阅读顺序不代表部署时必须把这些组件全部装上。</p>
 <p>本文假设你运行过程序、用过命令行，不要求 Kubernetes、Ray 或 Volcano 使用经验。先解释基础概念，再走一遍从声明到程序运行的过程，最后讨论资源竞争为什么会引出批调度。集群安装和具体运维留给各项目的使用文档。熟悉 Ray、Kubernetes、KubeRay，以及 Pod、Controller 和 CRD 的读者，可以从第一篇开始；第六篇会介绍 Volcano 的资源模型。</p>
@@ -587,7 +587,7 @@
 <li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/">Kubernetes：Pod 生命周期与就绪条件</a></li>
 <li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/">Kubernetes：标签与选择器</a></li>
 </ul>
-<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 0 篇 / 共 10 篇</span></div><div class="series-step-links"><span>从这里开始阅读</span><a href="/kuberay-volcano-01-architecture/">下一篇：第 1 篇 · KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></div></nav></div>
+<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 0 篇 / 共 10 篇</span></div><div class="series-step-links"><span>从这里开始阅读</span><a href="/kuberay-volcano-01-architecture/">下一篇：第 1 篇｜KubeRay 架构：组件分工与协作</a></div></nav></div>
                 
               </div>
             
@@ -642,7 +642,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</div>
+      <div>第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</div>
       <div>https://tanxinyu.work/kuberay-volcano-00-reading-guide/</div>
     </div>
     <div class="license-meta">
@@ -691,8 +691,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/kuberay-volcano-01-architecture/" title="KubeRay 源码阅读：从 RayJob 看组件分工与协作">
-                        <span class="hidden-mobile">KubeRay 源码阅读：从 RayJob 看组件分工与协作</span>
+                      <a href="/kuberay-volcano-01-architecture/" title="第 1 篇｜KubeRay 架构：组件分工与协作">
+                        <span class="hidden-mobile">第 1 篇｜KubeRay 架构：组件分工与协作</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

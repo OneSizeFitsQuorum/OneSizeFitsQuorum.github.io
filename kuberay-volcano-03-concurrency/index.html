@@ -23,7 +23,7 @@
   
     <meta name="description" content="以 100 个 RayCluster 为推演场景，分析协调协程、队列键锁、缓存滞后与 expectations，区分管理并发和 Ray 计算并发。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster">
+<meta property="og:title" content="第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-03-concurrency/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="以 100 个 RayCluster 为推演场景，分析协调协程、队列键锁、缓存滞后与 expectations，区分管理并发和 Ray 计算并发。">
@@ -44,7 +44,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster - 谭新宇的博客</title>
+  <title>第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -238,7 +238,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster"></span>
+            <span id="subtitle" data-typed-text="第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster"></span>
           
         </div>
 
@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          9.1k 字
+          9k 字
         
       </span>
     
@@ -320,7 +320,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</h1>
+            <h1 id="seo-header">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</h1>
             
               <p id="updated-time" class="note note-info" style="display: none">
                 
@@ -336,7 +336,7 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 3 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></li><li class="is-current"><a href="/kuberay-volcano-03-concurrency/" aria-current="page">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">KubeRay 源码阅读：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">Volcano 源码阅读：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">Volcano 源码阅读：多个作业怎样共享与竞争资源</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-02-reconcile/">上一篇：第 2 篇 · KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a><a href="/kuberay-volcano-04-recovery/">下一篇：第 4 篇 · KubeRay 源码阅读：Operator 重启后如何继续工作</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第二篇追到了请求入队和一轮协调的返回。现在把第一篇的 <code>demo-job</code> 放大来看：每个作业创建一套专用 RayCluster，包含一个 head 和 <code>compute</code> 组的两个 worker。如果同一个 Kubernetes 集群里同时有 100 套这样的 RayCluster，Operator 怎样安排管理工作？每套集群各占一个协程，还是大家排队处理？配置中的协调并发数设为 2，又限制了什么？</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 3 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li class="is-current"><a href="/kuberay-volcano-03-concurrency/" aria-current="page">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-02-reconcile/">上一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a><a href="/kuberay-volcano-04-recovery/">下一篇：第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第二篇追到了请求入队和一轮协调的返回。现在把第一篇的 <code>demo-job</code> 放大来看：每个作业创建一套专用 RayCluster，包含一个 head 和 <code>compute</code> 组的两个 worker。如果同一个 Kubernetes 集群里同时有 100 套这样的 RayCluster，Operator 怎样安排管理工作？每套集群各占一个协程，还是大家排队处理？配置中的协调并发数设为 2，又限制了什么？</p>
 <p>要回答这个问题，先把协调与计算分开。协调并发数限制一个 Controller 同时执行多少轮 <code>Reconcile</code>；函数返回后，Ray 集群仍继续运行，协调协程则可以去检查另一个对象。至于 100 个集群能否得到及时管理，还要看事件产生得多快、每轮处理多久，以及 Kubernetes API 能承受多少请求。</p>
 <p>本文基于 KubeRay <code>6bf05eb17a3e</code>，依赖版本按该提交的 <code>go.mod</code> 核对为 controller-runtime <code>v0.24.1</code>、client-go <code>v0.37.0</code>。以下时间线用于解释源码行为，100 个集群是讨论场景，没有进行容量实测。</p>
 <h2 id="Controller-的协调并发"><span id="1-两个协调协程怎样照看-100-个集群" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Controller-的协调并发" class="headerlink" title="Controller 的协调并发"></a>Controller 的协调并发</h2><h3 id="多个集群共享协调协程"><a href="#多个集群共享协调协程" class="headerlink" title="多个集群共享协调协程"></a>多个集群共享协调协程</h3><p>每个 Controller 有自己的工作队列。队列里的工作项用来标识待协调对象，标准 <code>reconcile.Request</code> 只包含 namespace 和 name，不携带完整对象或原始事件。下文的“键”就是队列用来区分对象的这个标识。沿用前两篇的名称，<code>default/demo-job-abcde</code> 表示下一轮应读取并检查哪一个 RayCluster。</p>
@@ -442,7 +442,7 @@
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/blob/6bf05eb17a3e2e06fb454471265b2afa34d66e90/ray-operator/controllers/ray/metrics/client_go_metrics.go">KubeRay：ray-operator/controllers/ray/metrics/client_go_metrics.go</a></li>
 <li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/">Kubernetes：Pod 生命周期与 Terminating 显示</a></li>
 </ul>
-<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 3 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-02-reconcile/">上一篇：第 2 篇 · KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a><a href="/kuberay-volcano-04-recovery/">下一篇：第 4 篇 · KubeRay 源码阅读：Operator 重启后如何继续工作</a></div></nav></div>
+<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 3 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-02-reconcile/">上一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a><a href="/kuberay-volcano-04-recovery/">下一篇：第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></div></nav></div>
                 
               </div>
             
@@ -495,7 +495,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</div>
+      <div>第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</div>
       <div>https://tanxinyu.work/kuberay-volcano-03-concurrency/</div>
     </div>
     <div class="license-meta">
@@ -540,9 +540,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/kuberay-volcano-02-reconcile/" title="KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile">
+                      <a href="/kuberay-volcano-02-reconcile/" title="第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</span>
+                        <span class="hidden-mobile">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -550,8 +550,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/kuberay-volcano-04-recovery/" title="KubeRay 源码阅读：Operator 重启后如何继续工作">
-                        <span class="hidden-mobile">KubeRay 源码阅读：Operator 重启后如何继续工作</span>
+                      <a href="/kuberay-volcano-04-recovery/" title="第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作">
+                        <span class="hidden-mobile">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

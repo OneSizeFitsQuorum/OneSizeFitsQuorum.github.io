@@ -23,7 +23,7 @@
   
     <meta name="description" content="以一次 RayJob 提交说明各类资源的用途，解释 KubeRay、Kubernetes 与 Ray 如何分工完成集群准备、程序执行和收尾。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="KubeRay 源码阅读：从 RayJob 看组件分工与协作">
+<meta property="og:title" content="第 1 篇｜KubeRay 架构：组件分工与协作">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-01-architecture/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="以一次 RayJob 提交说明各类资源的用途，解释 KubeRay、Kubernetes 与 Ray 如何分工完成集群准备、程序执行和收尾。">
@@ -44,7 +44,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>KubeRay 源码阅读：从 RayJob 看组件分工与协作 - 谭新宇的博客</title>
+  <title>第 1 篇｜KubeRay 架构：组件分工与协作 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -238,7 +238,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="KubeRay 源码阅读：从 RayJob 看组件分工与协作"></span>
+            <span id="subtitle" data-typed-text="第 1 篇｜KubeRay 架构：组件分工与协作"></span>
           
         </div>
 
@@ -320,7 +320,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">KubeRay 源码阅读：从 RayJob 看组件分工与协作</h1>
+            <h1 id="seo-header">第 1 篇｜KubeRay 架构：组件分工与协作</h1>
             
               <p id="updated-time" class="note note-info" style="display: none">
                 
@@ -336,7 +336,7 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li class="is-current"><a href="/kuberay-volcano-01-architecture/" aria-current="page">KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">KubeRay 源码阅读：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">Volcano 源码阅读：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">Volcano 源码阅读：多个作业怎样共享与竞争资源</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇 · 源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇 · KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第零篇从计算与部署需求解释了 Ray、Kubernetes 和 KubeRay 的分工。这篇沿一次 RayJob 提交进入源码，追踪资源之间的交接。</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li class="is-current"><a href="/kuberay-volcano-01-architecture/" aria-current="page">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第零篇从计算与部署需求解释了 Ray、Kubernetes 和 KubeRay 的分工。这篇沿一次 RayJob 提交进入源码，追踪资源之间的交接。</p>
 <p>向 Kubernetes 提交一个 RayJob 后，集群里会陆续出现 RayCluster、head Pod、worker Pod，以及一个用来提交作业的 Kubernetes Job。用户只创建了一个对象，剩下的资源是谁创建的？这些资源准备好之后，程序又由谁启动？</p>
 <p>本例用一个名叫 <code>demo-job</code> 的 RayJob 运行 Python 程序。KubeRay 为它准备专用集群，包含一个 head Pod 和两个 worker Pod；集群就绪后提交程序，成功完成后等待 60 秒清理集群。程序及依赖已经放进运行镜像，暂不启用自动扩缩容。</p>
 <p>下文把这个提交用 Job 称为 submitter Job，它创建的 Pod 称为 submitter Pod。第一至第五篇的基础案例不启用 Volcano；第六至第九篇再增加批调度配置，分析多个作业竞争资源时的行为。</p>
@@ -555,7 +555,7 @@
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/ray/blob/3f785c0711b94f93f97fea2a438abcd6a9738655/doc/source/ray-core/key-concepts.md">Ray Core 概念与环境依赖</a></li>
 <li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/">Kubernetes：annotations</a></li>
 </ul>
-<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇 · 源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇 · KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></div></nav></div>
+<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav></div>
                 
               </div>
             
@@ -608,7 +608,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>KubeRay 源码阅读：从 RayJob 看组件分工与协作</div>
+      <div>第 1 篇｜KubeRay 架构：组件分工与协作</div>
       <div>https://tanxinyu.work/kuberay-volcano-01-architecture/</div>
     </div>
     <div class="license-meta">
@@ -653,9 +653,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/kuberay-volcano-00-reading-guide/" title="源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano">
+                      <a href="/kuberay-volcano-00-reading-guide/" title="第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</span>
+                        <span class="hidden-mobile">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -663,8 +663,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/kuberay-volcano-02-reconcile/" title="KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile">
-                        <span class="hidden-mobile">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</span>
+                      <a href="/kuberay-volcano-02-reconcile/" title="第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile">
+                        <span class="hidden-mobile">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

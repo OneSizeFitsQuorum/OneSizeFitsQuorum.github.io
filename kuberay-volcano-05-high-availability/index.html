@@ -23,7 +23,7 @@
   
     <meta name="description" content="从 Operator 的 Lease 选主与接管，追到 Kubernetes 控制面、Ray head、GCS 和 RayService，分别核对管理恢复、计算恢复与请求可用性。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复">
+<meta property="og:title" content="第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-05-high-availability/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="从 Operator 的 Lease 选主与接管，追到 Kubernetes 控制面、Ray head、GCS 和 RayService，分别核对管理恢复、计算恢复与请求可用性。">
@@ -44,7 +44,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复 - 谭新宇的博客</title>
+  <title>第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -238,7 +238,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复"></span>
+            <span id="subtitle" data-typed-text="第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复"></span>
           
         </div>
 
@@ -320,7 +320,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</h1>
+            <h1 id="seo-header">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</h1>
             
               <p id="updated-time" class="note note-info" style="display: none">
                 
@@ -336,7 +336,7 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 5 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">KubeRay 源码阅读：Operator 重启后如何继续工作</a></li><li class="is-current"><a href="/kuberay-volcano-05-high-availability/" aria-current="page">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">Volcano 源码阅读：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">Volcano 源码阅读：多个作业怎样共享与竞争资源</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-04-recovery/">上一篇：第 4 篇 · KubeRay 源码阅读：Operator 重启后如何继续工作</a><a href="/kuberay-volcano-06-volcano-architecture/">下一篇：第 6 篇 · Volcano 源码阅读：从 Pod 到作业</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>demo-job</code> 正在运行，负责它的 Operator Pod 突然退出。已有的 Ray 计算可能继续执行，但谁来补 worker、回写作业状态、清理集群？如果退出的是 head Pod，答案又会不同。</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 5 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li class="is-current"><a href="/kuberay-volcano-05-high-availability/" aria-current="page">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-04-recovery/">上一篇：第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a><a href="/kuberay-volcano-06-volcano-architecture/">下一篇：第 6 篇｜Volcano 架构：从 Pod 到作业</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>demo-job</code> 正在运行，负责它的 Operator Pod 突然退出。已有的 Ray 计算可能继续执行，但谁来补 worker、回写作业状态、清理集群？如果退出的是 head Pod，答案又会不同。</p>
 <p>第四篇已经解释了进程重启后怎样依靠已有资源继续协调。这篇接着看备用 Operator 如何获得处理资格，再把故障移到 Kubernetes 控制面和 Ray 节点，分别检查管理流程与计算受什么影响。最后单独用 RayService 分析服务切换时的请求表现。</p>
 <p>阅读基线为 KubeRay <code>6bf05eb17a3e</code>、Ray <code>3f785c0711b9</code>，依赖 controller-runtime <code>v0.24.1</code>、client-go <code>v0.37.0</code>。引用文件与基线一致；下文是源码分析和有条件的故障推演，没有集群实测数据。</p>
 <h2 id="Operator-的主备与接管"><span id="1-开了选主，为什么仍只有一个-Operator" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Operator-的主备与接管" class="headerlink" title="Operator 的主备与接管"></a>Operator 的主备与接管</h2><h3 id="选主配置与副本部署"><a href="#选主配置与副本部署" class="headerlink" title="选主配置与副本部署"></a>选主配置与副本部署</h3><p>选主是在多个 Operator 实例中确定由谁负责协调资源；负责协调的实例称为主实例或 leader，其余实例等待接管。选主开关和实际部署几个副本来自不同配置。</p>
@@ -508,7 +508,7 @@
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/blob/6bf05eb17a3e2e06fb454471265b2afa34d66e90/ray-operator/controllers/ray/utils/validation.go">KubeRay：ray-operator/controllers/ray/utils/validation.go</a></li>
 <li><a target="_blank" rel="noopener" href="https://helm.sh/docs/topics/charts/">Helm chart、模板与 values</a></li>
 </ul>
-<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 5 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-04-recovery/">上一篇：第 4 篇 · KubeRay 源码阅读：Operator 重启后如何继续工作</a><a href="/kuberay-volcano-06-volcano-architecture/">下一篇：第 6 篇 · Volcano 源码阅读：从 Pod 到作业</a></div></nav></div>
+<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 5 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-04-recovery/">上一篇：第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a><a href="/kuberay-volcano-06-volcano-architecture/">下一篇：第 6 篇｜Volcano 架构：从 Pod 到作业</a></div></nav></div>
                 
               </div>
             
@@ -561,7 +561,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</div>
+      <div>第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</div>
       <div>https://tanxinyu.work/kuberay-volcano-05-high-availability/</div>
     </div>
     <div class="license-meta">
@@ -606,9 +606,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/kuberay-volcano-04-recovery/" title="KubeRay 源码阅读：Operator 重启后如何继续工作">
+                      <a href="/kuberay-volcano-04-recovery/" title="第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">KubeRay 源码阅读：Operator 重启后如何继续工作</span>
+                        <span class="hidden-mobile">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -616,8 +616,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/kuberay-volcano-06-volcano-architecture/" title="Volcano 源码阅读：从 Pod 到作业">
-                        <span class="hidden-mobile">Volcano 源码阅读：从 Pod 到作业</span>
+                      <a href="/kuberay-volcano-06-volcano-architecture/" title="第 6 篇｜Volcano 架构：从 Pod 到作业">
+                        <span class="hidden-mobile">第 6 篇｜Volcano 架构：从 Pod 到作业</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
