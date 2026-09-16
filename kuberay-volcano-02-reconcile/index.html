@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          7.4k 字
+          7.6k 字
         
       </span>
     
@@ -337,7 +337,7 @@
               <div class="markdown-body">
                 
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 2 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></li><li class="is-current"><a href="/kuberay-volcano-02-reconcile/" aria-current="page">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">KubeRay 源码阅读：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">Volcano 源码阅读：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">Volcano 源码阅读：多个作业怎样共享与竞争资源</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-01-architecture/">上一篇：第 1 篇 · KubeRay 源码阅读：从 RayJob 看组件分工与协作</a><a href="/kuberay-volcano-03-concurrency/">下一篇：第 3 篇 · KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a></div></nav><p>第一篇里，RayJob <code>default/demo-job</code> 创建了专用 RayCluster，示例名称为 <code>default/demo-job-abcde</code>，包含一个 head Pod 和 <code>compute</code> 组的两个 worker Pod。RayJob Controller 要等集群就绪，才会创建 submitter Job。假设最后一个 worker Pod 已经进入 <code>Running</code>，Ready 条件也刚变为 True，这个变化怎样传到 Operator，又怎样让作业继续提交？</p>
-<p>这篇从 Pod 的变化往下追：事件从哪里进入 Controller，队列保存了什么，一轮 <code>Reconcile</code> 返回后又由谁安排下一轮。把这条链路串起来，才能解释“资源已经变了，Operator 却没有继续处理”可能卡在哪里。</p>
+<p>这篇从 Pod 的变化往下追：事件从哪里进入 Controller，队列保存了什么，一轮 <code>Reconcile</code> 返回后又由谁安排下一轮。这条链路解释了声明式管理怎样持续工作，以及为什么 Pod 就绪与作业开始提交之间还要经过几次状态交接。</p>
 <p>阅读基线是 KubeRay <code>6bf05eb17a3e</code> 和它依赖的 controller-runtime <code>v0.24.1</code>。图中展示源码路径，时间间隔为示意，没有运行集群实验。</p>
 <h2 id="1-Operator-怎么知道-Pod-变了"><a href="#1-Operator-怎么知道-Pod-变了" class="headerlink" title="1. Operator 怎么知道 Pod 变了"></a>1. Operator 怎么知道 Pod 变了</h2><p>导引中负责回报 Pod 状态的 kubelet，会把本节点观察到的结果写入 API Server。Operator 通过 watch 接收所关注资源的变化通知；这是 Kubernetes API 提供的监听机制。</p>
 <p>管理这些对象同步和通知的客户端组件叫 informer：它维护本地缓存，并把变化交给注册的事件处理器，源码中通常称为 handler。处理器再决定把哪个对象放进待协调队列。第一篇所说的 Controller 通过资源状态交接，在这里展开成了这条通知链路。</p>
@@ -360,7 +360,7 @@
 <p>Pod 先触发 RayCluster 协调。RayCluster Controller 重新观察 Pod，计算集群状态并写回 API。RayJob Controller 通过自己注册的 <code>Owns(RayCluster)</code> 观察到变化，再检查 <code>demo-job</code> 是否可以进入提交阶段。这是两次不同 Controller 的处理，中间由资源状态衔接。</p>
 <p>本例中，<code>calculateStatus</code> 还要确认资源维护没有报错、Pod 总数符合预期，且 <code>CheckAllPodsRunning</code> 检查通过。这个函数不仅检查 Pod 的 phase 是否为 <code>Running</code>，也会检查已有的 Ready 条件；只要某个 Ready 条件不是 True，就返回 false。因此，“Pod 已 Running”不能单独作为集群就绪的依据。这里特意说“已有的条件”：此函数没有额外拒绝缺少 Ready 条件的 Pod，不能把实现改述成“必须找到 Ready=True 才通过”。</p>
 <p>上面那组 predicate 还有一个容易读错的地方：它写在 <code>For(RayCluster)</code> 上，只筛选这一条监听路径。对 RayCluster 的更新，只改 status 通常不会改变 generation，因此不会仅凭 generation 条件触发它自身的协调；label 和 annotation 的变化则有另外两个条件。<code>Owns(Pod)</code> 没有套上同一组过滤条件，Pod 状态变化仍然可以触发集群协调。RayJob 对下级 RayCluster 的监听也独立配置。</p>
-<p>判断事件为什么没有入队时，应当沿当前 Controller 的这条监听路径检查过滤条件。另一个 Controller 或另一条监听上的过滤器，可能与它无关。</p>
+<p>事件筛选按监听路径分别生效，所以同一次资源更新可能触发上级 Controller，却不触发管理该资源的 Controller 自身。这让各层可以按自己的职责响应变化。</p>
 <h2 id="3-进入-Reconcile-后，重新读取对象"><a href="#3-进入-Reconcile-后，重新读取对象" class="headerlink" title="3. 进入 Reconcile 后，重新读取对象"></a>3. 进入 Reconcile 后，重新读取对象</h2><p>从队列取出请求时，触发它的 Pod 可能已经又更新过几次，甚至已经删除。协调逻辑必须依据当前能读到的对象作判断。</p>
 <p>RayCluster 的 <code>Reconcile</code> 开头就进行了读取。下面是连续节选：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go">instance := &amp;rayv1.RayCluster&#123;&#125;<br><span class="hljs-keyword">if</span> err = r.Get(ctx, request.NamespacedName, instance); err == <span class="hljs-literal">nil</span> &#123;<br>    <span class="hljs-keyword">return</span> r.rayClusterReconcile(ctx, instance)<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -370,11 +370,11 @@
 <p>假设配置要求两个 worker，本轮只观察到一个，Controller 会结合已有 Pod 和尚未被缓存观察到的创建记录，判断是否需要补建。如果 Pod 数量已满足，但尚未全部达到就绪条件，就继续观察并更新 status。发出 Pod 创建请求以后，它不必一直占着这个协调协程等待容器启动，后面的事件或延时请求会带来下一轮检查。</p>
 <p><code>spec</code> 与 <code>status</code> 在这里分别承担不同作用。<code>spec</code> 保存使用者的期望，<code>status</code> 保存 Controller 已观察到的集群情况。实际 Pod、Service 等对象也参与判断。只读某一个 status 字段，不能代替完整的资源检查。</p>
 <p>由于每轮都会重新比较期望和当前状态，多次相似事件可以合并，不必逐条重放历史通知。不过，同一个对象仍会反复检查，写入动作也得考虑重复调用。幂等要求重复执行同一操作不会额外产生一次效果；控制循环本身不会替被调用的外部接口实现这个要求。</p>
-<h2 id="4-返回以后，谁安排下一轮"><a href="#4-返回以后，谁安排下一轮" class="headerlink" title="4. 返回以后，谁安排下一轮"></a>4. 返回以后，谁安排下一轮</h2><p>除了等待资源事件，Controller 还可以主动要求稍后重查。</p>
+<h2 id="4-返回以后，谁安排下一轮"><a href="#4-返回以后，谁安排下一轮" class="headerlink" title="4. 返回以后，谁安排下一轮"></a>4. 返回以后，谁安排下一轮</h2><p>除了等待资源事件，Controller 还可以主动要求稍后重查。协调函数返回两类信息：<code>Result</code> 表达是否以及何时再查，<code>error</code> 表达本轮是否失败。框架把二者一起解释，决定怎样安排下一轮。</p>
 <p>RayJob 等待集群就绪时，或者轮询 Ray Jobs API 时，相关变化不一定立刻表现成一个它所监听的 Kubernetes 事件。因此，代码会返回 <code>RequeueAfter</code>，请求稍后再处理同一个对象。</p>
 <p><code>RayJob.Reconcile</code> 的收尾部分包含下面的代码。两段之间省略了一次指标更新：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> err = r.updateRayJobStatus(ctx, originalRayJobInstance, rayJobInstance); err != <span class="hljs-literal">nil</span> &#123;<br>    logger.Info(<span class="hljs-string">&quot;Failed to update RayJob status&quot;</span>, <span class="hljs-string">&quot;error&quot;</span>, err)<br>    <span class="hljs-keyword">return</span> ctrl.Result&#123;RequeueAfter: RayJobDefaultRequeueDuration&#125;, err<br>&#125;<br><span class="hljs-comment">// ... 指标更新省略。</span><br><span class="hljs-keyword">return</span> ctrl.Result&#123;RequeueAfter: RayJobDefaultRequeueDuration&#125;, <span class="hljs-literal">nil</span><br></code></pre></td></tr></table></figure>
-<p>这两处都返回了相同的延时，实际是否采用，还要看 error。框架先处理错误：普通 error 非空时走限速重试，并忽略 <code>RequeueAfter</code>。这里由 rate limiter 决定重试的等待时间，避免失败请求立即反复执行。</p>
+<p>这两处都返回了相同的延时，实际是否采用，还要看 error。框架先处理错误：普通 error 非空时走限速重试，并忽略 <code>RequeueAfter</code>。rate limiter 即限速器，在这里决定重试的等待时间，避免失败请求立即反复执行。<code>TerminalError</code> 则是明确标记为“不由本次错误自动重试”的错误类型，后续资源变化仍可触发新的协调。</p>
 <p>在 controller-runtime <code>reconcileHandler</code> 中，成功且设置延时的分支使用下面两行连续代码：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">c.Queue.Forget(req)<br>c.Queue.AddWithOpts(priorityqueue.AddOpts&#123;After: result.RequeueAfter, Priority: <span class="hljs-built_in">new</span>(priority)&#125;, req)<br></code></pre></td></tr></table></figure>
 <p><code>Forget</code> 先清除这次请求的限速重试记录，下一行再安排延时入队。这里使用的是本版本优先级队列的 <code>AddWithOpts</code>；旧版本里常见的 <code>AddAfter</code> 并不是这份源码的调用。</p>

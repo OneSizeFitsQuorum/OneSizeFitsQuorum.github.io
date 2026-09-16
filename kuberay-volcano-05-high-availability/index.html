@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          29 分钟
+          30 分钟
         
       </span>
     
@@ -382,7 +382,7 @@
 <p>持有者身份也不是固定的 Deployment 名称。<code>NewResourceLock</code> 的连续节选如下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go">id, err := os.Hostname()<br><span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>&#125;<br>id = id + <span class="hljs-string">&quot;_&quot;</span> + <span class="hljs-type">string</span>(uuid.NewUUID())<br></code></pre></td></tr></table></figure>
 <p>hostname 与 UUID 组合起来，区分每次启动的进程实例。Lease 的 <code>holderIdentity</code> 记录当前持有者身份，Pod 是否 Ready 则描述就绪探针的结果，二者表达的状态不同。</p>
-<p><code>readyz</code> 是供就绪探针访问的检查接口。KubeRay 为它注册的是 <code>healthz.Ping</code>，没有检查当前实例是否持有 Lease。所以两个 Pod 同时 Ready 完全可能是正常的主备状态，还要结合持有者身份、续约变化和协调日志判断。</p>
+<p><code>readyz</code> 是供就绪探针访问的检查接口。KubeRay 为它注册的是 <code>healthz.Ping</code>，没有检查当前实例是否持有 Lease。因此，两个 Pod 同时 Ready 可以是正常的主备状态；当前由谁负责协调，以 Lease 的持有者和续约情况为依据。</p>
 <p>主备之间通过 API Server 中的同一个 Lease 竞争领导权，关系如图 1。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-05-high-availability/01-leader.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 1：Operator 实例竞争同一 Lease"><img src="/kuberay-volcano-05-high-availability/01-leader.svg" alt="图 1：Operator 实例竞争同一 Lease" width="960" height="410" style="--diagram-width:960px"></a></div><figcaption>图 1：Operator 实例竞争同一 Lease <a href="/kuberay-volcano-05-high-availability/01-leader.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>每个实例通过 API Server 读写同一个 Lease，leader 持续续约。候选者观察到租约不再有效后尝试更新，API 的版本冲突检查裁决竞争写入。client-go 根据本地观察时间判断租约是否有效，不能只拿本机时间减去 <code>renewTime</code> 就复现其全部判断。</p>
@@ -398,7 +398,7 @@
 <p>接管后也不要求把每个内存细节复原。比如 RayService 把旧集群的待删除时间放在本地 map 中，新实例观察到待清理集群后可以重新安排延迟。其结果可能是清理晚一些，不能把旧进程的定时器视为持久化承诺，见 <code>cleanUpRayClusterInstance</code>。</p>
 <h2 id="4-Kubernetes-控制面失联时，备用能做什么"><a href="#4-Kubernetes-控制面失联时，备用能做什么" class="headerlink" title="4. Kubernetes 控制面失联时，备用能做什么"></a>4. Kubernetes 控制面失联时，备用能做什么</h2><p>主备都无法访问 API Server 时，备用无法更新 Lease，leader 也无法正常续约；CR、Pod 的查询和写入同样受阻。若 API Server 的存储依赖 etcd 不可用，继续增加 Operator 副本无法补上这条依赖。</p>
 <p>已有 Ray 进程在节点和网络正常时可能继续执行，但补建 Pod、扩容、调度新增资源和回写状态会受到影响。kubelet 对本机容器的处理，与控制面创建、调度一个新 Pod 是不同路径。故障范围应先区分“某个 Operator 到 API 的链路断了”与“所有实例都访问不了控制面”。</p>
-<p>图 3 把这些依赖放在一起。图中的 Redis 是供 GCS 使用的外部键值存储服务，其恢复条件在下一节展开。API 调用和存储访问关系也限定了恢复范围：某个组件拥有备用实例，并不意味着它依赖的控制面与存储也同时可用。</p>
+<p>图 3 把这些依赖放在一起。GCS（Global Control Service）是 Ray 保存和管理集群元数据的服务，例如节点、actor 等信息。图中的 Redis 是可供 GCS 使用的外部键值存储服务，其恢复条件在下一节展开。API 调用和存储访问关系也限定了恢复范围：某个组件拥有备用实例，并不意味着它依赖的控制面与存储也同时可用。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-05-high-availability/03-faults.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 3：Operator、Kubernetes、Ray 与持久化存储的故障边界"><img src="/kuberay-volcano-05-high-availability/03-faults.svg" alt="图 3：Operator、Kubernetes、Ray 与持久化存储的故障边界" width="960" height="480" style="--diagram-width:960px"></a></div><figcaption>图 3：Operator、Kubernetes、Ray 与持久化存储的故障边界 <a href="/kuberay-volcano-05-high-availability/03-faults.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <h2 id="5-worker、head-和-GCS-的恢复条件"><a href="#5-worker、head-和-GCS-的恢复条件" class="headerlink" title="5. worker、head 和 GCS 的恢复条件"></a>5. worker、head 和 GCS 的恢复条件</h2><p>worker Pod 丢失后，KubeRay 根据仍有效的期望配置补足 Pod，Kubernetes 调度并启动容器。该节点上的 task、actor 能否恢复，则取决于 Ray 的重试、重启策略及状态来源。普通 task 的 <code>max_retries</code> 约束重试；actor 的 <code>max_restarts</code> 默认是零，即使允许重启，也需要应用恢复其内存状态。例如，程序可以把进度写入检查点，再由重启后的程序读取；检查点中保存哪些内容、怎样恢复，需要应用自己实现。</p>
 <p>head 还承载 GCS 等进程。默认内存 GCS 丢失后，重建一个 head Pod 无法还原原集群元数据，更不会恢复 driver 的 Python 调用栈。第一篇的普通 <code>demo-job</code> 不能因此获得断点续跑能力。Pod 补建也受配置限制，例如已标记为 provisioned（完成初始资源准备），且带 <code>ray.io/disable-provisioned-head-restart</code> 禁用标记的集群会跳过 head 重建，见 <code>reconcilePods</code>。</p>
@@ -406,7 +406,7 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (RayConfig::<span class="hljs-built_in">instance</span>().<span class="hljs-built_in">gcs_storage</span>() == kInMemoryStorage) &#123;<br>  <span class="hljs-keyword">if</span> (!config_.redis_address.<span class="hljs-built_in">empty</span>()) &#123;<br>    <span class="hljs-built_in">RAY_LOG</span>(INFO) &lt;&lt; <span class="hljs-string">&quot;Using external Redis for KV storage: &quot;</span><br>                  &lt;&lt; <span class="hljs-built_in">BuildAddress</span>(config_.redis_address, config_.redis_port);<br>    <span class="hljs-keyword">return</span> StorageType::REDIS_PERSIST;<br>  &#125;<br>  <span class="hljs-keyword">return</span> StorageType::IN_MEMORY;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>因此不能仅看到 <code>gcs_storage</code> 默认是 <code>memory</code>，就认定显式 Redis 配置无效。GCS 重启时从后端加载元数据；恢复要求 Redis 数据仍在、可访问，并使用相同存储命名空间。这里的“存储命名空间”用来区分不同 Ray 集群的后端数据，与 Kubernetes namespace 是两种范围。KubeRay 的 <code>configureRedisFT</code> 默认用 RayCluster UID 隔离数据。同一个 CR 更换 head 保持 UID，删掉再建同名 CR 则不会保持；自定义 <code>externalStorageNamespace</code> 也不应让两个活跃集群误用同一份状态。</p>
 <p>GCS 把元数据保存在这里，所有 Ray 对象、actor 内存和业务检查点并不会因此一起保存。Redis 自身故障后还能保留多少数据，要继续看它的可用性、落盘和复制策略。</p>
-<p>数据保留还受集群删除流程影响。Redis 路径默认启用清理，Controller 会通过 finalizer 和清理 Job 删除对应存储命名空间的数据；外部 Redis 不等于永久归档。若要分析删后恢复，应先核对清理配置和数据是否仍在。</p>
+<p>数据保留还受集群删除流程影响。Redis 路径默认启用清理，Controller 会通过 finalizer 和清理 Job 删除对应存储命名空间的数据。因此，外部 Redis 可以为 GCS 重启提供恢复来源，但这份数据仍受集群清理策略管理，不能当作永久归档。</p>
 <p>GCS 恢复期间，存活 worker 上已有计算和对象可能继续可用，但 actor 创建、节点注册等依赖 GCS 的操作暂停。KubeRay 在启用 GCS 容错且用户未覆盖时，把 worker 重连超时设为 600 秒；这只是等待预算，超时仍会退出。head 故障还会带走其上的其他进程。锁定版 GCS 文档把官方支持的 Redis 容错范围限定在 KubeRay 上的 Ray Serve，不能据此承诺任意 RayJob 自动恢复。</p>
 <p>此源码还存在 <code>backend: rocksdb</code>。RocksDB 是进程内使用的键值存储库，这条路径要把数据文件放在可恢复的持久卷上，并限制为单个写入者。它还要求开启默认关闭的 alpha 实验特性 <code>GCSFaultToleranceEmbeddedStorage</code>，使用支持该后端的 Linux Ray 镜像。本文不展开这条路径，也不把它当作稳定发布保证。</p>
 <h2 id="6-RayService-切换，能保证每个请求成功吗"><a href="#6-RayService-切换，能保证每个请求成功吗" class="headerlink" title="6. RayService 切换，能保证每个请求成功吗"></a>6. RayService 切换，能保证每个请求成功吗</h2><p>这里换成一个持续提供 Ray Serve 服务的独立例子，对应第一篇资源关系图的右侧。RayService 与 <code>demo-job</code> 是两种使用方式；RayJob 完成后不会进入 RayService 的状态机。</p>

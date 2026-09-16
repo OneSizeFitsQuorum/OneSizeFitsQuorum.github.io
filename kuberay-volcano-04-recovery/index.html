@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          8.5k 字
+          8.7k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          27 分钟
+          28 分钟
         
       </span>
     
@@ -387,12 +387,13 @@
 <p>图 2 展示专用集群、<code>K8sJobMode</code> 下的主要路径，并把重试画成新的执行轮次。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-04-recovery/02-lifecycle.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 2：RayJob 管理状态、执行状态与重试"><img src="/kuberay-volcano-04-recovery/02-lifecycle.svg" alt="图 2：RayJob 管理状态、执行状态与重试" width="960" height="515" style="--diagram-width:960px"></a></div><figcaption>图 2：RayJob 管理状态、执行状态与重试 <a href="/kuberay-volcano-04-recovery/02-lifecycle.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p><code>New</code> 在 API 中用空字符串表示。Controller 先为它初始化身份并写入 <code>Initializing</code>，后续轮次才准备集群和 submitter。进入 <code>Running</code> 后，Controller 检查 submitter，再用 <code>GetJobInfo</code> 查询 Ray。沿正常终态判断路径，Ray 作业已经结束且 submitter 也已结束，才能收尾；submitter 失败或期限检查也能提前使管理流程失败。</p>
-<p>这个版本支持 RayJob 级重试。状态分支推进到统一写回处时，<code>checkBackoffLimitAndUpdateStatusIfNeeded</code> 更新失败次数，并检查是否还有重试额度。对于 <code>backoffLimit: 1</code>，第一次可重试失败会写成 <code>Retrying</code>，第二次失败才耗尽额度。<code>DeadlineExceeded</code> 和 <code>JobStatusCheckTimeoutExceeded</code> 被明确排除在重试之外。<code>Running</code> 分支附近仍有“不支持 retries”的旧注释，应以这些执行分支为准。</p>
+<p>这个版本支持 RayJob 级重试。状态分支推进到统一写回处时，<code>checkBackoffLimitAndUpdateStatusIfNeeded</code> 更新失败次数，并检查是否还有重试额度。对于 <code>backoffLimit: 1</code>，第一次可重试失败会写成 <code>Retrying</code>，第二次失败才耗尽额度。另有两种失败原因被排除在重试之外：<code>DeadlineExceeded</code> 表示超过配置的执行期限，<code>JobStatusCheckTimeoutExceeded</code> 表示持续查询作业状态失败、超过允许的等待时间。<code>Running</code> 分支附近仍有“不支持 retries”的旧注释，但当前执行分支已包含上述重试逻辑。</p>
 <p>进入 <code>Retrying</code> 后，Controller 删除旧 RayCluster 和 submitter Job，等到查询确认两个对象都不存在，再清空本轮集群名、submission ID 等状态，回到 <code>New</code>。这里检查的是对象删除完成；submitter 使用后台级联删除，即先删除上级 Job，再由垃圾回收器异步清理其 Pod，不能据此断言所有下级 Pod 都已退出。</p>
 <p>这时再看两个名字相近的配置，就容易区分了：<code>spec.submitterConfig.backoffLimit</code> 控制 Kubernetes Job 重试提交程序，继续使用当前 Ray 作业身份；<code>spec.backoffLimit</code> 控制整次 RayJob 执行的重试，需要重新准备执行环境。</p>
 <p>Operator 重启本身不会记作执行失败，也不会直接开启新的执行轮次。如果这段时间里 Ray 已经完成程序，接管后的 Controller 可以查到结果，再把状态补写到 Kubernetes。若读到的已是 <code>Retrying</code>，它则继续本轮清理；旧资源尚未删除时，不会先清空身份去创建下一套资源。</p>
 <p>图中还列出几条主案例之外的分支。暂停先经过 <code>Suspending</code> 清理，再进入 <code>Suspended</code>，恢复时回到 <code>New</code>。InteractiveMode 把实际提交留给使用者，<code>Waiting</code> 是相应的等待阶段；配置校验失败则进入 <code>ValidationFailed</code>。正常终态映射中，Ray 的 <code>STOPPED</code> 可以对应管理状态 <code>Complete</code>，所以成功应核对 <code>jobStatus: SUCCEEDED</code>。使用已有集群的 <code>clusterSelector</code> 模式不允许配置正数的 RayJob 重试额度。</p>
 <h2 id="3-先保存身份，再创建资源"><a href="#3-先保存身份，再创建资源" class="headerlink" title="3. 先保存身份，再创建资源"></a>3. 先保存身份，再创建资源</h2><p>同一个执行轮次里，每轮协调都要找到同一套资源。主案例的查找依据是 <code>status.rayClusterName</code> 中的 <code>demo-job-abcde</code>，以及 <code>status.jobId</code> 中的 submission ID；前者用于 Kubernetes 查询，后者用于 Ray Jobs 查询。</p>
+<p>这里沿用第一篇的提交标识：<code>spec.jobId</code> 是用户可选填的值，<code>status.jobId</code> 保存本轮实际采用的值，提交命令再将它作为 <code>--submission-id</code> 传给 Ray。没有填写前者时，由 Controller 自动生成。它们在这条流程中传递的是同一个 Ray 作业提交标识，与 driver 的内部 JobID 各有用途。</p>
 <p><code>initRayJobStatusIfNeed</code> 只在状态中的 submission ID 为空时选择它：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> rayJob.Spec.SubmissionMode != rayv1.InteractiveMode &amp;&amp; rayJob.Status.JobId == <span class="hljs-string">&quot;&quot;</span> &#123;<br>    <span class="hljs-keyword">if</span> rayJob.Spec.JobId != <span class="hljs-string">&quot;&quot;</span> &#123;<br>        rayJob.Status.JobId = rayJob.Spec.JobId<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        rayJob.Status.JobId = utils.GenerateRayJobId(rayJob.Name)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>同一函数也会选定 RayCluster 名称。自动生成的名称带随机后缀，随后与 <code>Initializing</code> 一起写回 status。<code>New</code> 分支不会接着执行 <code>Initializing</code> 分支，因此身份尚未写入成功时，这条路径还没有创建集群。</p>

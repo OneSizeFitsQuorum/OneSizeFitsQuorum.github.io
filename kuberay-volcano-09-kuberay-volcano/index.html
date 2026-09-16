@@ -263,7 +263,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          8.3k 字
+          8.5k 字
         
       </span>
     
@@ -275,7 +275,7 @@
         
         
           <!-- compatible with older versions-->
-          26 分钟
+          27 分钟
         
       </span>
     
@@ -380,7 +380,8 @@
 <p><code>handleRayJob</code> 用 RayJob 名生成 <code>ray-demo-job-pg</code>，owner reference 指向 RayJob。RayCluster Controller 后续也会调用适配器，但 <code>handleRayCluster</code> 发现集群来自 RayJob 时直接返回，避免再创建一份以随机集群名命名的 PodGroup。</p>
 <p>直接创建 RayCluster 是另一条路径：组名取自 RayCluster 名，owner reference 指向 RayCluster。若 RayJob 使用 <code>clusterSelector</code> 引用已有集群，当前适配器的 <code>handleRayJob</code> 会因没有 <code>RayClusterSpec</code> 而报“不支持引用已有 RayCluster 的 Gang 调度”。专用集群例子不能原样套到已有集群模式。</p>
 <p><code>syncPodGroup</code> 先按 namespace/name 查询，找不到时创建；创建遇到 AlreadyExists 时返回，让后续观察继续收敛。已存在时比较 <code>minMember</code> 和 <code>minResources</code>，变化才更新。</p>
-<p>这里也有一个动态管理限制：这条更新分支只同步最低成员和资源量。Queue、PriorityClass 等字段在创建时填写，不能据此认为运行中改 RayJob label 就会把已有 PodGroup 自动迁移到另一个 Queue。要支持这类操作，需要另外明确更新规则和执行时机。</p>
+<p>这里也有一个动态管理限制：这条更新分支只同步最低成员和资源量。Queue、PriorityClass 等字段在创建时填写，运行中改 RayJob label 不会通过这条分支把已有 PodGroup 自动迁移到另一个 Queue。因此，本篇的队列选择以创建时的声明为准。</p>
+<p>下面的关系图还会出现三类元数据。label 是供选择和识别对象的标签，annotation 是组件按约定读取的注解；owner reference 表示资源拥有关系。图中的 <code>group-name</code> 注解关联同一个 PodGroup，<code>task-spec</code> 注解区分组内角色：<code>headgroup</code> 是 head，<code>compute</code> 是沿用的 worker 组名，<code>submittergroup</code> 是提交程序。这些值只是成员分类名称，不是另外三个 Kubernetes 资源。第 5 节再对照完整字段名。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-09-kuberay-volcano/02-metadata.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：主案例的拥有关系与调度关联。实线表示 owner 链，虚线表示 PodGroup 关联。submitter Pod 由 Kubernetes Job Controller 创建；三类 Pod 的 task-spec 值各不相同。"><img src="/kuberay-volcano-09-kuberay-volcano/02-metadata.svg" alt="主案例的拥有关系与调度关联。实线表示 owner 链，虚线表示 PodGroup 关联。submitter Pod 由 Kubernetes Job Controller 创建；三类 Pod 的 task-spec 值各不相同。" width="960" height="503" style="--diagram-width:960px"></a></div><figcaption>主案例的拥有关系与调度关联。实线表示 owner 链，虚线表示 PodGroup 关联。submitter Pod 由 Kubernetes Job Controller 创建；三类 Pod 的 task-spec 值各不相同。 <a href="/kuberay-volcano-09-kuberay-volcano/02-metadata.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <h2 id="3-为什么最低成员数不包含-submitter"><a href="#3-为什么最低成员数不包含-submitter" class="headerlink" title="3. 为什么最低成员数不包含 submitter"></a>3. 为什么最低成员数不包含 submitter</h2><p>假设 head、一个 worker、submitter 的资源需求向量分别是 H、W、S。没有自动扩缩容时，适配器调用 <code>CalculateDesiredReplicas</code> 和 <code>CalculateDesiredResources</code>，得到 head 加全部期望 worker 的规模。<code>handleRayJob</code> 再追加 submitter 的资源需求。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
@@ -509,7 +510,7 @@
 <p>更新为零也不等于节点资源已经释放。特别是对象刚进入删除流程时，Pod 可能还在终止。实际占用仍要随 Pod 生命周期与调度器观察变化。PodGroup 本身可以继续存在，最终是否由垃圾回收删除，要看拥有它的 RayJob 或 RayCluster 是否被删除。</p>
 <p>暂停与整次执行重试使用相同的清理阶段：先等待集群和 submitter Job 删除完成，再调用批调度资源清理，成功后才重置集群名、作业 ID 等状态。这个分支清理出错会返回错误，下一轮继续处理。新的执行重新初始化时，RayCluster 名和 submission ID 可以改变，仍存活的 RayJob 则继续使用按其名称生成的 PodGroup，并重新填写需求。</p>
 <p>终态分支的错误处理不同。<code>Complete/Failed</code> 用 Go 的 defer 安排函数返回前执行清理，失败时记录事件和日志，但不会把该错误作为本次 Reconcile 的返回值。是否再次调用清理，要看外层是否安排重查以及后续是否有资源事件，不能一概写成“清理失败一定立即自动重试”。</p>
-<p>watch 关系也要一起核对。Volcano factory 给 RayCluster Reconciler 增加 <code>Owns(PodGroup)</code>；RayJob 的 <code>SetupWithManager</code> 并没有直接注册 PodGroup watch。本例 PodGroup 的 owner 是 RayJob，因此不能假设它每次变化都会通过 RayCluster 的 Owns 直接触发 RayJob。RayJob 继续依赖自己的资源观察和既有重查流程。</p>
+<p>PodGroup 的状态变化怎样传回管理流程，也受监听关系约束。Volcano factory 给 RayCluster Reconciler 增加 <code>Owns(PodGroup)</code>；RayJob 的 <code>SetupWithManager</code> 并没有直接注册 PodGroup watch。本例 PodGroup 的 owner 是 RayJob，因此它的变化不会通过这条 RayCluster Owns 监听直接触发 RayJob。RayJob 继续依赖自己的资源观察和既有重查流程。</p>
 <p>从使用者的角度看，一次作业的完整生命周期由几层能力共同支撑：提交平台保存代码包和业务记录，KubeRay 维护集群与提交过程，Volcano 决定 Pod 如何获得资源，Ray 执行用户计算。前面的创建顺序、资源记账、失败重试和回收条件，解释了这些组件怎样衔接，也限定了各自能够提供的保证。理解这套分工，才能把业务需要的代码版本、结果保存和重试语义安排在相应层次。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/blob/6bf05eb17a3e2e06fb454471265b2afa34d66e90/ray-operator/controllers/ray/batchscheduler/volcano/volcano_scheduler.go">KubeRay：Volcano 适配器完整实现</a></li>

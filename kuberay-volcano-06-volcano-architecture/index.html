@@ -263,7 +263,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          6.3k 字
+          6.4k 字
         
       </span>
     
@@ -275,7 +275,7 @@
         
         
           <!-- compatible with older versions-->
-          20 分钟
+          21 分钟
         
       </span>
     
@@ -382,7 +382,7 @@
 <p>Queue 是集群级资源，用来组织共享资源的工作负载。与按 namespace 区分的 PodGroup 不同，Queue 在整个 Kubernetes 集群里按名称识别，一个队列可以被多个命名空间中的 PodGroup 引用。它有权重、资源上限、保障资源和状态等信息；资源策略插件读取这些配置，决定哪些作业可以进入调度、哪个队列应先获得资源。</p>
 <p>后文会检查 Queue 是否处于 <code>Open</code>，这是允许接纳新作业的开放状态。它说明队列可接受工作，至于资源是否足够，还要继续计算。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-06-volcano-architecture/02-resources.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：原生 Volcano Job 和 RayJob 是两条提交路径。各自的控制器维护工作负载，并通过 PodGroup 表达调度要求；Queue 可被多个 PodGroup 引用。实线表示管理关系，虚线表示调度关联。"><img src="/kuberay-volcano-06-volcano-architecture/02-resources.svg" alt="原生 Volcano Job 和 RayJob 是两条提交路径。各自的控制器维护工作负载，并通过 PodGroup 表达调度要求；Queue 可被多个 PodGroup 引用。实线表示管理关系，虚线表示调度关联。" width="960" height="485" style="--diagram-width:960px"></a></div><figcaption>原生 Volcano Job 和 RayJob 是两条提交路径。各自的控制器维护工作负载，并通过 PodGroup 表达调度要求；Queue 可被多个 PodGroup 引用。实线表示管理关系，虚线表示调度关联。 <a href="/kuberay-volcano-06-volcano-architecture/02-resources.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>主案例的 Queue 命名为 <code>ray-batch</code>，PodGroup 命名为 <code>ray-demo-job-pg</code>。Pod 通过 <code>scheduling.k8s.io/group-name</code> annotation 指向组。这个关联与 owner reference 是两回事：前者供调度器归组，后者表达 Kubernetes 对象的拥有关系，影响事件映射和垃圾回收。</p>
+<p>主案例的 Queue 命名为 <code>ray-batch</code>，PodGroup 命名为 <code>ray-demo-job-pg</code>。annotation 是写在对象元数据中的键值注解，组件按约定读取它；这里 Pod 的 <code>scheduling.k8s.io/group-name</code> annotation 填写组名，让调度器知道它属于哪一组。owner reference 则表达 Kubernetes 对象的拥有关系，影响事件映射和垃圾回收。把几个 Pod 关联到同一个组，并不会让 PodGroup 接管它们的创建与删除。</p>
 <p>Volcano Scheduler 内部还有一个 <code>JobInfo</code>。它是调度器组织 PodGroup 和成员信息的内存模型，不能看到变量名 <code>job</code> 就认定来源一定是 Volcano Job。KubeRay 创建的 PodGroup 同样可以形成这里的 JobInfo。</p>
 <h2 id="3-核心模块分别运行在哪里"><a href="#3-核心模块分别运行在哪里" class="headerlink" title="3. 核心模块分别运行在哪里"></a>3. 核心模块分别运行在哪里</h2><p>把基本部署拆开看，有三个主要的常驻服务角色：Scheduler、Controller Manager 和 Admission Webhook。Webhook 是供 API Server 调用的 HTTP 回调服务；这里的 Admission 指资源写入前的准入处理，可以校验请求或补全字段。这三个角色可以分别部署，也可以有多个副本。这里数的是职责与进程角色，实际 Pod 数量由安装配置决定。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
@@ -424,7 +424,7 @@
 <p>这个先准入、后创建成员的过程，可以减少原生作业在资源不足时生成大量等待中的 Pod。也说明两端靠资源状态协作：Controller 写出需求，Scheduler 更新调度状态，Controller 从后续观察中得知下一步可以继续。</p>
 <p>KubeRay 的路径有所不同。RayJob Controller 创建 PodGroup 和 RayCluster，RayCluster Controller 随后维护 head、worker Pod。它不会复用 Volcano Job Controller 的那套“等待 PodGroup 准入再创建 task”的流程。因此，接入 Volcano 后仍可能看到已经创建、尚未调度的 Ray Pod。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-06-volcano-architecture/04-handoff.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：KubeRay 路径的一次提交。箭头表示经 API 的请求或观察，以及节点启动动作；Ray 作业提交发生在 RayCluster 就绪以后。Volcano Job Controller 不参与创建这些 Ray Pod。"><img src="/kuberay-volcano-06-volcano-architecture/04-handoff.svg" alt="KubeRay 路径的一次提交。箭头表示经 API 的请求或观察，以及节点启动动作；Ray 作业提交发生在 RayCluster 就绪以后。Volcano Job Controller 不参与创建这些 Ray Pod。" width="960" height="662" style="--diagram-width:960px"></a></div><figcaption>KubeRay 路径的一次提交。箭头表示经 API 的请求或观察，以及节点启动动作；Ray 作业提交发生在 RayCluster 就绪以后。Volcano Job Controller 不参与创建这些 Ray Pod。 <a href="/kuberay-volcano-06-volcano-architecture/04-handoff.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>Pod 出现后，Scheduler 根据 <code>schedulerName</code> 处理属于自己的待调度 Pod，再通过 annotation 找到 PodGroup。Queue 策略和 Gang 约束参与资源分配；选好节点后，通过 Kubernetes API 把 Pod 与该 Node 的关系确定下来，这一步称为绑定（Bind）。绑定完成只说明确定了运行位置，节点上的 kubelet 还要观察结果、调用容器运行时启动容器。</p>
+<p>Pod 出现后，<code>spec.schedulerName</code> 指定由哪个调度器处理它，本例填写 <code>volcano</code>。Volcano Scheduler 接手这些待调度 Pod，再通过 annotation 找到 PodGroup。Queue 策略和 Gang 约束参与资源分配；选好节点后，通过 Kubernetes API 把 Pod 与该 Node 的关系确定下来，这一步称为绑定（Bind）。绑定完成只说明确定了运行位置，节点上的 kubelet 还要观察结果、调用容器运行时启动容器。</p>
 <p>KubeRay 继续观察集群是否就绪。等到条件满足，RayJob Controller 创建 submitter 的 Kubernetes Job，后者生成 submitter Pod。它也要经过调度、启动，才有进程调用 Ray Jobs API 提交程序。Volcano 在这里安排 Pod；用户函数和 actor 在 Ray 集群内部怎样执行，仍由 Ray 负责。</p>
 <h2 id="5-工作负载管理与调度的分工"><a href="#5-工作负载管理与调度的分工" class="headerlink" title="5. 工作负载管理与调度的分工"></a>5. 工作负载管理与调度的分工</h2><p>现在可以给几个容易混用的词划出范围。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">

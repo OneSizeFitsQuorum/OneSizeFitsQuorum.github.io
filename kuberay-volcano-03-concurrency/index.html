@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          8.9k 字
+          9k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          28 分钟
+          29 分钟
         
       </span>
     
@@ -349,7 +349,8 @@
 <p>等待 Pod 就绪时，Controller 可以返回 <code>RequeueAfter</code>，让后续轮次继续检查。返回后协调协程就释放了；如果本轮还在等待 HTTP 响应，它仍占着一个并发名额。因此，提高协调并发数可能缩短其他对象的排队时间，却不会直接提高 Ray task、actor 的执行并发，也不能据此推导可承载的集群总数。</p>
 <p>稳定集群也有管理开销。即使没有新的资源事件，队列仍可能出现待处理项。RayCluster 主流程末尾会安排周期性重新检查，间隔可由环境变量配置。这些检查通常不需要每轮都创建资源。</p>
 <h2 id="2-同一个对象为什么不会被两个协程同时处理"><a href="#2-同一个对象为什么不会被两个协程同时处理" class="headerlink" title="2. 同一个对象为什么不会被两个协程同时处理"></a>2. 同一个对象为什么不会被两个协程同时处理</h2><p>假设协程 1 正在协调 A，它的两个 worker Pod 又接连发生变化，事件都映射成 A 的工作项。此时协程 2 即使空闲，也不能从同一队列再取到 A，启动重叠的一轮。</p>
-<p>这部分要先确认实际用了哪种队列。controller-runtime <code>v0.24.1</code> 的 <code>NewTypedUnmanaged</code> 默认创建 <code>priorityqueue</code>；这份 KubeRay 配置没有覆盖 <code>NewQueue</code> 或关闭 <code>UsePriorityQueue</code>。client-go 是 Kubernetes 的 Go 客户端库，它的 <code>v0.37.0</code> 版本中，普通 workqueue 仍有 <code>dirty</code>、<code>processing</code> 集合，但不能拿它们当作这里实际使用的数据结构。</p>
+<p>队列需要同时记住哪些对象还要处理、哪些对象正在处理。本文版本使用优先级队列 <code>priorityqueue</code>：重复事件按对象标识合并，正在处理的标识被暂时锁定，直到本轮结束才允许再次交给协调协程。</p>
+<p>对应到实现，controller-runtime <code>v0.24.1</code> 的 <code>NewTypedUnmanaged</code> 默认创建这类队列；这份 KubeRay 配置没有通过 <code>NewQueue</code> 替换它，也没有关闭 <code>UsePriorityQueue</code>。client-go 是 Kubernetes 的 Go 客户端库，它的 <code>v0.37.0</code> 普通 workqueue 使用 <code>dirty</code>（仍待处理）和 <code>processing</code>（正在处理）集合。两种实现都需要管理这些处理状态，但下面跟踪的是 priorityqueue 的具体结构。</p>
 <p>priorityqueue 用按键索引的 <code>items</code> 合并重复入队，并分别管理已到期的 ready 项和延迟等待的 waiting 项。这里的 ready 表示队列项已经可以等待分配协调协程，与 Pod 或 RayCluster 是否就绪无关。交出工作项时，它会跳过已锁定的键，然后锁定本次选中的键。以下是 <code>handleReadyItems</code> 的连续节选：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> w.locked.Has(item.Key) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>&#125;<br><br>w.metrics.get(item.Key, item.Priority)<br>w.locked.Insert(item.Key)<br></code></pre></td></tr></table></figure>
 <p>队列内部按顺序遍历候选项，这里的 <code>return true</code> 表示继续寻找下一个可交出的项。Controller 处理函数用 <code>defer c.Queue.Done(obj)</code> 在本轮结束时通知队列，<code>Done</code> 再解除这个键的锁定。</p>
@@ -357,7 +358,7 @@
 <p>图中 A 正在处理时，新到的 A 可以登记为待处理项，但要等前一轮 <code>Done(A)</code> 后才可再次交出。反复登记同一个待处理键会合并；优先级取较高值，等待期限取较早值。队列按优先级选择已到期的项，同优先级再按入队次序排序，不能把整张图读成严格的先进先出（FIFO）。</p>
 <p>重新排队还会调整次序：延迟项到期进入 ready 时重新取得次序，提升优先级的项排到新优先级已有项之后。如果 A 已安排延迟重查，又因新事件立即入队，合并结果可以提前变为可处理。<code>RequeueAfter</code> 因而不保证“这段时间内绝不会再协调”，到期也不保证立刻拿到协调协程。</p>
 <p>锁定只发生在同一 Controller 实例的同一队列里。其他 Controller、其他进程和用户仍可以修改这个 Kubernetes 对象。由于重复事件会合并，协调函数还必须重新读取状态，不能依赖每条 Pod 事件都触发一次独立调用。</p>
-<p>如果积压主要来自 A 一个对象，增加协程也无法把 A 的两轮协调拆开并行。其他协程可以处理 B、C，A 仍要等待当前轮返回。遇到这种情况，应检查 A 为什么反复触发或单轮耗时很长，不能仅凭事件很多就把并发参数调高。</p>
+<p>如果积压主要来自 A 一个对象，增加协程也无法把 A 的两轮协调拆开并行。其他协程可以处理 B、C，A 仍要等待当前轮返回。因此，协调并发数主要影响不同对象之间的处理机会；单个对象推进多快，仍受每轮耗时和外部条件约束。</p>
 <h2 id="3-已经串行，为什么还需要-expectations"><a href="#3-已经串行，为什么还需要-expectations" class="headerlink" title="3. 已经串行，为什么还需要 expectations"></a>3. 已经串行，为什么还需要 expectations</h2><p>同一个对象串行处理后，是否就能避免重复创建 Pod？继续看 <code>demo-job</code> 的 <code>compute</code> 组：期望两个 worker，当前缓存只看到一个。第一轮补建 Pod，API 返回成功；第二轮紧接着开始，informer 缓存里却可能仍只有原来的一个。</p>
 <p>两轮函数完全串行，仍可能根据旧列表重复补 Pod。原因在读写路径：Manager 客户端的普通 <code>Get</code>、<code>List</code> 可以从缓存读取，创建、更新则请求 API Server。写入成功并不代表对应 watch 更新已经被本地缓存消费。启动时的缓存同步和 handler 初始事件同步，也不会让之后的每次读都与 API Server 同步。</p>
 <p>KubeRay 用 scale expectations 记录尚待观察到的 Pod 创建、删除结果。在 <code>createWorkerPod</code> 中，登记发生在创建返回成功之后。下面只省略失败分支中的事件记录：</p>
@@ -381,7 +382,7 @@
 <p><code>resourceVersion</code> 是对象的版本标记。客户端应原样携带它，不自行推算或递增。普通带版本的 Update 提交旧版本时，API Server 的版本比较会拒绝更新并返回 Conflict。RayCluster 的 <code>updateRayClusterStatus</code> 使用 <code>r.Status().Update(ctx, newInstance)</code>，把错误交回主流程。</p>
 <p>主流程在选择错误后执行以下判断。这是 <code>Reconcile</code> 返回处的连续节选：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> || inconsistent &#123;<br>    <span class="hljs-keyword">return</span> ctrl.Result&#123;RequeueAfter: DefaultRequeueDuration&#125;, err<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>同时返回错误和等待时间时，要继续检查框架。<code>reconcileHandler</code> 优先处理非空错误：普通错误通过 <code>AddWithOpts</code> 的 <code>RateLimited</code> 选项重新入队，忽略 <code>RequeueAfter</code>；终止型错误有单独分支。只有没有错误时，正的 <code>RequeueAfter</code> 才用于延迟入队。</p>
+<p>这里同时返回了错误和等待时间，框架按第二篇说明的规则处理。<code>reconcileHandler</code> 优先处理非空错误：普通错误通过 <code>AddWithOpts</code> 的 <code>RateLimited</code> 选项重新入队，忽略 <code>RequeueAfter</code>；终止型错误有单独分支。只有没有错误时，正的 <code>RequeueAfter</code> 才用于延迟入队。</p>
 <p>因此，版本冲突后会通过后续协调重新读取和计算，不能拿原来的旧对象原样重试并期待成功。缓存仍可能暂时落后，重试也可能再次冲突。版本检查保护一次对象更新，不会把 Pod 创建与 RayCluster status 更新组成事务。API 还支持只描述部分修改的 Patch 请求，其冲突条件取决于具体写法，不能一概套用这里的 Update 规则。</p>
 <p>比如本轮已经创建 Pod，随后写 status 发生冲突，先前成功的 Pod 创建不会被回滚。下一轮会结合重新读到的声明、Pod 和预期记录继续判断。因此，status 暂时没有反映最新进展时，实际资源也可能已经发生变化；跨对象的管理流程需要多轮协调才能完成。</p>
 <h2 id="6-怎样判断该不该提高并发数"><a href="#6-怎样判断该不该提高并发数" class="headerlink" title="6. 怎样判断该不该提高并发数"></a>6. 怎样判断该不该提高并发数</h2><p>同样是 100 个集群，稳定运行与同时扩容给 Operator 带来的负载差别很大。决定是否提高并发数之前，需要按 Controller 看请求在哪里等、处理多久，以及错误是否增多。</p>
@@ -409,7 +410,7 @@
 </tr>
 <tr>
 <td><code>controller_runtime_reconcile_errors_total</code></td>
-<td>错误速率是否上升，是否需要结合日志处理冲突或外部请求失败</td>
+<td>协调失败是否增多，重试是否带来额外管理负载</td>
 </tr>
 </tbody>
 </table>

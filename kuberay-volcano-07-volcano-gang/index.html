@@ -263,7 +263,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          6k 字
+          6.1k 字
         
       </span>
     
@@ -275,7 +275,7 @@
         
         
           <!-- compatible with older versions-->
-          19 分钟
+          20 分钟
         
       </span>
     
@@ -343,7 +343,7 @@
 <p>Session 是本轮调度的工作视图。<code>framework/session.go</code> 从 <code>cache.Snapshot()</code> 取得数据，在这份视图中组织后续计算。缓存快照在锁保护下构造，节点等对象被复制，避免一边试分配、一边直接改动 informer 更新中的长期状态。</p>
 <p><code>scheduler.go</code> 中打开 Session 的连续节选如下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go">ssn := framework.OpenSession(pc.cache, plugins, configurations)<br>ssn.SetSchGateManager(pc.schGateManager)<br><span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>	framework.CloseSession(ssn)<br>	metrics.UpdateE2eDuration(metrics.Duration(scheduleStartTime))<br>&#125;()<br></code></pre></td></tr></table></figure>
-<p>随后的循环依次调用配置中的 <code>action.Execute(ssn)</code>。每个 Action 看到前面 Action 在同一 Session 内造成的变化。关闭 Session 时再执行插件收尾和相应状态更新。</p>
+<p>随后的循环依次调用配置中的 <code>action.Execute(ssn)</code>。沿用第六篇的分工，Action 组织“准入、分配”等工作阶段，Plugin 提供阶段中要用的排序和约束判断。它们都在同一 Scheduler 进程里执行。每个 Action 看到前面 Action 在同一 Session 内造成的变化，关闭 Session 时再执行插件收尾和相应状态更新。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/01-session.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。"><img src="/kuberay-volcano-07-volcano-gang/01-session.svg" alt="长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。" width="960" height="440" style="--diagram-width:960px"></a></div><figcaption>长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。 <a href="/kuberay-volcano-07-volcano-gang/01-session.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>这份快照有明确的时间边界。调度器计算期间，节点可能故障，Pod 也可能被删除。Session 帮助本轮计算保持一致的工作视图，后续提交仍然需要错误处理，不能把快照里的“可以放下”视为现实已经完成。</p>
 <h2 id="2-配置决定执行哪些阶段"><a href="#2-配置决定执行哪些阶段" class="headerlink" title="2. 配置决定执行哪些阶段"></a>2. 配置决定执行哪些阶段</h2><p>当前基线在 <code>pkg/scheduler/util.go</code> 中定义的 <code>DefaultSchedulerConf</code> 是：</p>
@@ -396,12 +396,12 @@
 </table>
 </div>
 <p>一次 allocate 会在多个位置调用这些函数，插件不会简单地各执行一次就结束。表中先列出当前阅读所需的作用，各插件还可能注册其他判断函数。</p>
-<p><code>tiers</code> 把插件组织成有先后次序的层级；框架执行到一个判断点时，会调用插件为这个位置注册的函数，这些函数就是回调。各类回调与开关有不同的组合规则，阅读时应从 <code>Session.JobOrderFn</code>、<code>JobEnqueueable</code>、<code>JobReady</code> 等入口分别追踪，不能把一份插件列表理解为所有算法结果取平均。第八篇会给出排序回调遇到首个非零比较结果就返回的例子。</p>
+<p><code>tiers</code> 把插件组织成有先后次序的层级；框架执行到一个判断点时，会调用插件为这个位置注册的函数，这些函数就是回调。不同判断点分别组织回调：<code>Session.JobOrderFn</code> 比较作业先后，<code>JobEnqueueable</code> 判断能否进入调度，<code>JobReady</code> 判断组是否达到就绪门槛。它们的组合规则各有用途，一份插件列表并不表示把所有算法结果取平均。第八篇会给出排序回调遇到首个非零比较结果就返回的例子。</p>
 <h2 id="3-进入调度与满足-Gang-是两个判断"><a href="#3-进入调度与满足-Gang-是两个判断" class="headerlink" title="3. 进入调度与满足 Gang 是两个判断"></a>3. 进入调度与满足 Gang 是两个判断</h2><p>先看 <code>actions/enqueue/enqueue.go</code> 的核心分支：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> job.PodGroup.Spec.MinResources == <span class="hljs-literal">nil</span> || ssn.JobEnqueueable(job) &#123;<br>	ssn.JobEnqueued(job)<br>	job.PodGroup.Status.Phase = scheduling.PodGroupInqueue<br>	ssn.Jobs[job.UID] = job<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>有 <code>minResources</code> 时，enqueue 调用资源准入回调。选定配置中的 overcommit 从集群资源和已准入需求计算可接受量，proportion 还会检查 Queue 状态及相应资源上限。它们处理的是资源账目；并没有在这个分支里给三个 Pod 分别找到节点。</p>
 <p>源码中的另一个分支也不能略过：未设置 <code>minResources</code> 时，这个条件直接通过，不调用此处的 <code>JobEnqueueable</code>。后续成员分配仍有自己的检查，因此“经过 enqueue”不能一律改述成“所有资源准入回调都已通过”。</p>
-<p>通过后，当前 Session 中的 PodGroup phase 变成 <code>Inqueue</code>。这表示组进入调度流程。图里的状态更新还要经过后续写回才反映到 Kubernetes API，观察者不一定立即看到。</p>
+<p>通过后，当前 Session 中的 PodGroup phase（阶段字段）变成 <code>Inqueue</code>，表示这组 Pod 已进入调度流程。它与 KubeRay 等待协调对象的内存工作队列处于不同层次。图里的状态更新还要经过后续写回才反映到 Kubernetes API，观察者不一定立即看到。</p>
 <p>allocate 随后选择 Queue、JobInfo、成员 Pod 和节点。这里至少有两类不同的问题：队列还能不能拿这份资源；某一台节点能不能满足这个 Pod 的资源和放置条件。集群总共有四张空闲 GPU，如果分散在四台机器上，一个需要同机两张 GPU 的 Pod 仍然可能放不下。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/02-cycle.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：资源准入、节点试分配和组就绪是不同检查。图中只展开本例的 enqueue 与 allocate，省略 BestEffort、拓扑和其他扩展分支。"><img src="/kuberay-volcano-07-volcano-gang/02-cycle.svg" alt="资源准入、节点试分配和组就绪是不同检查。图中只展开本例的 enqueue 与 allocate，省略 BestEffort、拓扑和其他扩展分支。" width="960" height="454" style="--diagram-width:960px"></a></div><figcaption>资源准入、节点试分配和组就绪是不同检查。图中只展开本例的 enqueue 与 allocate，省略 BestEffort、拓扑和其他扩展分支。 <a href="/kuberay-volcano-07-volcano-gang/02-cycle.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>Gang 插件在 <code>OnSessionOpen</code> 注册就绪函数，以下为连续源码节选：</p>
