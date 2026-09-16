@@ -21,12 +21,12 @@
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
   
-    <meta name="description" content="沿 KubeRay 的 Volcano 适配器，核对 PodGroup、成员标记、submitter 启动依赖与资源记账，再分析完成、暂停和重试后的清理。">
+    <meta name="description" content="说明 KubeRay 如何把 Ray 集群的调度需求交给 Volcano，以及提交、完成、暂停和重试时两端如何协作。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="KubeRay 与 Volcano：从 RayJob 到 PodGroup">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-09-kuberay-volcano/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
-<meta property="og:description" content="沿 KubeRay 的 Volcano 适配器，核对 PodGroup、成员标记、submitter 启动依赖与资源记账，再分析完成、暂停和重试后的清理。">
+<meta property="og:description" content="说明 KubeRay 如何把 Ray 集群的调度需求交给 Volcano，以及提交、完成、暂停和重试时两端如何协作。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-09.svg?v=ray-20260916">
 <meta property="article:published_time" content="2026-09-15T15:00:00.000Z">
@@ -471,7 +471,7 @@
 <p>以上最后两项说的是适配器创建 PodGroup 的配置来源；并不表示这些 label 会自动替代所有 Pod 级优先级配置。分组 annotation 也不会改变 Pod 的 owner。</p>
 <p>这一条接入路径使用 KubeRay 的 Volcano 适配器，以及 Volcano Scheduler 的调度插件。Volcano 源码中的 Job Controller Ray 插件属于原生 Volcano Job 的框架支持路径，不是本例中创建 head、worker 的必经步骤。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-09-kuberay-volcano/04-lifecycle.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：从 RayJob 声明到用户程序提交，再到收尾。调度与绑定、容器启动、RayCluster 就绪和 Ray Jobs API 提交是不同阶段；时间间隔只表示先后关系。"><img src="/kuberay-volcano-09-kuberay-volcano/04-lifecycle.svg" alt="从 RayJob 声明到用户程序提交，再到收尾。调度与绑定、容器启动、RayCluster 就绪和 Ray Jobs API 提交是不同阶段；时间间隔只表示先后关系。" width="960" height="728" style="--diagram-width:960px"></a></div><figcaption>从 RayJob 声明到用户程序提交，再到收尾。调度与绑定、容器启动、RayCluster 就绪和 Ray Jobs API 提交是不同阶段；时间间隔只表示先后关系。 <a href="/kuberay-volcano-09-kuberay-volcano/04-lifecycle.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>如果 submitter 已经运行但 Ray 作业没有启动，应继续检查它连接的 Dashboard 地址和 Ray Jobs API 的提交结果。调度器已经把 Pod 放到节点上，不会代替 submitter 上传工作目录，也不会为业务保存版本化的代码包。Ray 的 <code>runtime_env</code> 用 <code>working_dir</code> 指定工作目录，用 <code>py_modules</code> 提供 Python 模块；本地内容的打包、上传属于相应客户端与 Ray 运行环境流程。若还要保存版本、管理业务记录并重复提交，则需要提交平台承担这些职责。本系列的镜像内程序案例没有执行这套上传流程。</p>
+<p>submitter Pod 运行以后，还要通过 Dashboard 地址访问 Ray Jobs API，才能把入口命令交给 Ray。调度器负责把 Pod 放到节点上，工作目录的上传与代码版本保存属于另一层职责。Ray 的 <code>runtime_env</code> 用 <code>working_dir</code> 指定工作目录，用 <code>py_modules</code> 提供 Python 模块；本地内容的打包、上传由相应客户端与 Ray 运行环境流程处理。若还要保存版本、管理业务记录并重复提交，则需要提交平台承担这些职责。本系列的镜像内程序案例没有执行这套上传流程。</p>
 <h2 id="6-完成、暂停和重试以后，PodGroup-怎么办"><a href="#6-完成、暂停和重试以后，PodGroup-怎么办" class="headerlink" title="6. 完成、暂停和重试以后，PodGroup 怎么办"></a>6. 完成、暂停和重试以后，PodGroup 怎么办</h2><p>主案例保留前五篇的结束配置：正常完成后等待 60 秒删除专用集群，保留 RayJob 等记录。在删除发生之前，存活的 head、worker 仍然占用节点资源。收尾不能只把 PodGroup 的资源量无条件置零。</p>
 <p><code>CleanupOnCompletion</code> 会用 <code>status.rayClusterName</code> 查实际集群，再重算需求：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
@@ -510,7 +510,7 @@
 <p>暂停与整次执行重试使用相同的清理阶段：先等待集群和 submitter Job 删除完成，再调用批调度资源清理，成功后才重置集群名、作业 ID 等状态。这个分支清理出错会返回错误，下一轮继续处理。新的执行重新初始化时，RayCluster 名和 submission ID 可以改变，仍存活的 RayJob 则继续使用按其名称生成的 PodGroup，并重新填写需求。</p>
 <p>终态分支的错误处理不同。<code>Complete/Failed</code> 用 Go 的 defer 安排函数返回前执行清理，失败时记录事件和日志，但不会把该错误作为本次 Reconcile 的返回值。是否再次调用清理，要看外层是否安排重查以及后续是否有资源事件，不能一概写成“清理失败一定立即自动重试”。</p>
 <p>watch 关系也要一起核对。Volcano factory 给 RayCluster Reconciler 增加 <code>Owns(PodGroup)</code>；RayJob 的 <code>SetupWithManager</code> 并没有直接注册 PodGroup watch。本例 PodGroup 的 owner 是 RayJob，因此不能假设它每次变化都会通过 RayCluster 的 Owns 直接触发 RayJob。RayJob 继续依赖自己的资源观察和既有重查流程。</p>
-<p>如果要在这套基础上自研任务托管，可以复用这样的分工：提交平台保存代码包和可重复提交的业务记录，KubeRay 维护集群与提交生命周期，Volcano 决定 Pod 如何获得资源。接口之间需要写清创建顺序、资源记账、失败重试和回收条件。尤其是运行中改队列、绑定部分失败、终态清理错误这几处，不能只靠“声明式”三个字省略处理过程。</p>
+<p>从使用者的角度看，一次作业的完整生命周期由几层能力共同支撑：提交平台保存代码包和业务记录，KubeRay 维护集群与提交过程，Volcano 决定 Pod 如何获得资源，Ray 执行用户计算。前面的创建顺序、资源记账、失败重试和回收条件，解释了这些组件怎样衔接，也限定了各自能够提供的保证。理解这套分工，才能把业务需要的代码版本、结果保存和重试语义安排在相应层次。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/blob/6bf05eb17a3e2e06fb454471265b2afa34d66e90/ray-operator/controllers/ray/batchscheduler/volcano/volcano_scheduler.go">KubeRay：Volcano 适配器完整实现</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/blob/6bf05eb17a3e2e06fb454471265b2afa34d66e90/ray-operator/controllers/ray/batchscheduler/interface/interface.go">KubeRay：BatchScheduler 接口</a></li>

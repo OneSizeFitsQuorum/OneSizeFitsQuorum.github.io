@@ -263,7 +263,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          6k 字
+          6.1k 字
         
       </span>
     
@@ -275,7 +275,7 @@
         
         
           <!-- compatible with older versions-->
-          19 分钟
+          20 分钟
         
       </span>
     
@@ -424,7 +424,7 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">futureUsed := attr.allocated.Clone().Add(totalReq)<br>allocatable, _ := futureUsed.LessEqualWithDimensionAndResourcesName(attr.deserved, totalReq)<br></code></pre></td></tr></table></figure>
 <p>这两行来自 <code>queueAllocatable</code> 的连续节选。排序决定先检查谁，可分配性决定这个候选还能不能继续拿资源。随后节点过滤仍可能失败，因此“队列有额度”和“Pod 能放下”还隔着一步。</p>
 <p>Queue 内部再按 JobOrder 回调选择作业。第七篇的配置把 <code>priority</code> 放在 <code>drf</code> 前面；<code>Session.JobOrderCompareFn</code> 按启用回调的顺序，遇到非零比较结果就返回。两个作业优先级不同时，前面的 priority 已经作出选择，不会再把 DRF 算出的份额与它加权平均。比较仍相同时，框架才使用创建时间和 UID 等后备规则。</p>
-<p>这里有两个不同的优先级：<code>Queue.spec.priority</code> 参与队列排序，PodGroup 引用的 PriorityClass 参与作业优先级。成员 Pod 还有自己的优先级字段。在调试“为什么它先运行”时，应先确认当前比较的是哪一层对象。</p>
+<p>这里有两个不同的优先级：<code>Queue.spec.priority</code> 参与队列排序，PodGroup 引用的 PriorityClass 参与作业优先级。成员 Pod 还有自己的优先级字段。这些配置作用于不同层次的对象，不能把其中一个值当作整条调度路径上的统一顺序。</p>
 <h2 id="4-CPU-和-GPU-混用时，怎样衡量份额"><a href="#4-CPU-和-GPU-混用时，怎样衡量份额" class="headerlink" title="4. CPU 和 GPU 混用时，怎样衡量份额"></a>4. CPU 和 GPU 混用时，怎样衡量份额</h2><p>只数 Pod 个数无法比较资源占用：一个 Pod 请求 1 核 CPU，另一个可能请求 8 核和一张 GPU。DRF，即 Dominant Resource Fairness，用一个作业占用各类资源的最大比例表示它的主导资源份额。</p>
 <p>单独构造一个数学例子：总资源为 16 核 CPU、4 张 GPU，两个作业同优先级，前面的排序回调没有分出先后。这里只看 DRF JobOrder 回调的比较，不声称这是主案例的实际配置。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
@@ -493,14 +493,9 @@
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。"><img src="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" alt="传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。" width="960" height="596" style="--diagram-width:960px"></a></div><figcaption>传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。 <a href="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>preempt 和 reclaim 同样使用 Statement。它们可以先推演受害成员退出后是否放得下等待者，并将等待者记为 Pipelined。没有满足要求时撤销尝试；提交驱逐以后，资源也不会在同一瞬间可用。Pod 终止、缓存观察到变化、等待成员重新分配和绑定，都有自己的时间窗口。</p>
 <p>对 Ray 应用来说，被驱逐的 worker 上可能有用户任务、actor 或内存中的对象。后续 Pod 被补回，不代表这些计算必然无损恢复。Ray 的重试设置、检查点以及应用处理重复执行的方式，仍需按第四、五篇的故障边界分析。</p>
-<h2 id="6-有空闲资源，为什么作业还在排队"><a href="#6-有空闲资源，为什么作业还在排队" class="headerlink" title="6. 有空闲资源，为什么作业还在排队"></a>6. 有空闲资源，为什么作业还在排队</h2><p>把本篇的判断按执行顺序放回现场，可以缩小排查范围：</p>
-<ol>
-<li>查看实际加载的 Action、插件和参数。没有启用驱逐，就先分析自然释放条件；作业未准入，则先查 enqueue。</li>
-<li>查看 Queue 是否 Open、PodGroup 的队列引用是否正确，再比较需求、上限、保障量、deserved 和 allocated。不要用实时 CPU 利用率替代资源请求账目。</li>
-<li>查看单个 Pod 的放置失败原因。资源碎片、GPU 型号、节点亲和性和存储条件，都可能让总量足够的资源无法使用。还要看节点污点：这是节点上用来排斥特定 Pod 的标记，相应 Pod 需要配置容忍条件才能通过这类检查。</li>
-<li>查看 Gang 的最低要求与可用成员。一个候选放不下，可能使本轮已试分配的部分被撤销。</li>
-<li>若已触发驱逐，检查受害 Pod 是否真正退出，以及等待成员的绑定和启动是否完成。</li>
-</ol>
+<h2 id="6-有空闲资源，为什么作业还在排队"><a href="#6-有空闲资源，为什么作业还在排队" class="headerlink" title="6. 有空闲资源，为什么作业还在排队"></a>6. 有空闲资源，为什么作业还在排队</h2><p>一组作业要获得运行机会，需要同时满足策略与实际资源条件。Queue 是否 Open、作业是否通过 enqueue 准入，决定它能否进入后续分配；需求、上限、保障量和本轮计算的 deserved 决定队列还能分配多少。这里的资源账目依据声明的请求与 allocated 占用，和机器上的实时 CPU 利用率含义不同。</p>
+<p>额度允许以后，还需要为具体 Pod 找到合适节点。资源碎片、GPU 型号、节点亲和性和存储条件，都可能让总量足够的资源无法使用。节点污点是节点上用来排斥特定 Pod 的标记，相应 Pod 需要配置容忍条件才能通过这类检查。若某个候选放不下，Gang 的最低要求还可能使本轮已试分配的部分被撤销。</p>
+<p>资源不足时能否驱逐已有 Pod，取决于实际启用的 Action、插件和参数。没有启用驱逐，就要等待资源自然释放；即使已经提交驱逐，受害 Pod 退出、等待成员绑定和容器启动也不会同时完成。因此，份额与优先级表达了竞争规则，实际运行机会还受节点条件和资源释放进度约束。</p>
 <p>回到本系列的问题，KubeRay 创建了多少 Pod，与 Volcano 当前允许哪一组占用资源，由不同的循环决定。下一篇会逐字段核对 KubeRay 如何生成 PodGroup，并解释 submitter 还不存在时，为什么已经出现在组的最低资源量里。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/plugins/proportion/proportion.go">Volcano：proportion 插件</a></li>

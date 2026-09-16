@@ -451,7 +451,7 @@
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/04-bind.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：提交把分配送入长期缓存，再异步执行绑定。失败成员需要重新同步；已经成功绑定的其他成员不会因本次失败自动回到未绑定状态。"><img src="/kuberay-volcano-07-volcano-gang/04-bind.svg" alt="提交把分配送入长期缓存，再异步执行绑定。失败成员需要重新同步；已经成功绑定的其他成员不会因本次失败自动回到未绑定状态。" width="960" height="596" style="--diagram-width:960px"></a></div><figcaption>提交把分配送入长期缓存，再异步执行绑定。失败成员需要重新同步；已经成功绑定的其他成员不会因本次失败自动回到未绑定状态。 <a href="/kuberay-volcano-07-volcano-gang/04-bind.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>在 <code>SchedulerCache.Bind</code> 中，失败成员会记录调度错误，执行相关 PreBind 回滚，并调用 <code>resyncTask</code> 重新同步。假设 head 和第一个 worker 已绑定成功，第二个 worker 因节点变化失败，前两个成功结果仍然存在；后续需要结合真实 Pod、Node 状态重新处理失败成员。</p>
 <p>所以 Gang 能在提交前避免明显不足的分配，却不保证所有容器同一时刻启动，也不保证多个绑定请求全部成功或全部回滚。镜像拉取、卷挂载、容器启动以及 Ray 节点加入集群，发生在更后面的阶段，各自可能失败。</p>
-<p>排查时应分别观察 PodGroup 是否准入、成员是否找到节点、绑定有没有错误、容器是否启动，以及 RayCluster 是否就绪。只看到 PodGroup 的阶段变化，还不足以说明程序已经开始执行。</p>
+<p>从使用者看到的进展来看，PodGroup 准入、成员分配、Pod 绑定、容器启动和 RayCluster 就绪是依次衔接的阶段。Gang 约束其中的成组分配条件；PodGroup 的阶段变化本身不表示用户程序已经开始执行。</p>
 <p>本篇暂时只有一个 Queue。加入第二个作业后，即使两组都满足 Gang 条件，也可能只有一组拿得到资源。下一篇沿 Queue 和资源策略插件，分析调度器怎样做这个选择。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/scheduler.go">Volcano：调度循环</a></li>

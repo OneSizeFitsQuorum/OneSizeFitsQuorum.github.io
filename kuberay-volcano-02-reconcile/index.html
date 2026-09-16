@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          7.5k 字
+          7.4k 字
         
       </span>
     
@@ -412,42 +412,10 @@
 </table>
 </div>
 <p><code>RequeueAfter</code> 指定的时间到了，请求还要等可用的协调协程；期间如果来了新事件，同一个对象又可能更早被处理。因此，“每隔两秒准确执行一次”并不是这里的调度语义。Reconcile 每次处理一轮，然后返回，不是每个对象长期占用一个循环。</p>
-<h2 id="5-资源已经变化，却没有继续处理"><a href="#5-资源已经变化，却没有继续处理" class="headerlink" title="5. 资源已经变化，却没有继续处理"></a>5. 资源已经变化，却没有继续处理</h2><p>假设最后一个 worker 已经就绪，作业却迟迟没有提交，可以沿前面的链路倒查。</p>
-<p>首先确认 Pod 位于 Operator 的监听范围内，并且相关标签没有被改坏。然后看 owner reference：如果 Pod 没有指向正确的 RayCluster，<code>Owns(Pod)</code> 就无法把事件映射到预期对象。再检查 RayCluster Controller 的日志，确认它是否进入了这一轮，以及是否在校验、删除或资源维护分支提前返回。</p>
-<p>如果 RayCluster 的状态已经更新，下一步看 RayJob 与集群之间的关系，再看 RayJob 当前状态是否满足提交条件。集群 Ready 以后仍可能在获取 Dashboard 地址或创建 submitter Job 时遇到错误，这些问题不会因为 Pod 已经就绪而自动消失。</p>
-<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
-<table>
-<thead>
-<tr>
-<th>检查位置</th>
-<th>要确认的事情</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>watch 与缓存</td>
-<td>namespace、标签筛选、RBAC、初始同步是否正常</td>
-</tr>
-<tr>
-<td>handler 与 predicate</td>
-<td>事件是否通过当前路径的过滤，能否找到正确的 owner</td>
-</tr>
-<tr>
-<td>队列与协调协程</td>
-<td>请求是否还在等待，是否存在大量重试或慢调用</td>
-</tr>
-<tr>
-<td>Reconcile 分支</td>
-<td>当前声明和状态让代码走到了哪里，是否有提前返回</td>
-</tr>
-<tr>
-<td>返回结果</td>
-<td>是等待下一次事件、安排延时，还是返回错误后限速重试</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>这些检查围绕同一条路径：Pod 更新进入缓存和事件处理器，RayCluster 请求入队，协调结果写回集群状态，RayJob 再接着处理。下一篇把这条路径放到 100 个 RayCluster 同时变化的场景里，分析哪些检查可以并行，以及同一个对象为什么不会被本地队列同时交给两个协调协程。</p>
+<h2 id="5-事件、队列与协调各自解决什么问题"><a href="#5-事件、队列与协调各自解决什么问题" class="headerlink" title="5. 事件、队列与协调各自解决什么问题"></a>5. 事件、队列与协调各自解决什么问题</h2><p>前面几层机制把“资源发生变化”和“重新执行管理逻辑”分开了。watch 与缓存把监听范围内的变化带到 Operator；事件处理器根据资源关系找出需要协调的对象；队列安排处理机会；Reconcile 再依据当前声明和状态决定动作。</p>
+<p>这种设计下，一个 Pod 事件不直接等于一次作业提交。以最后一个 worker 就绪为例，<code>Owns(Pod)</code> 根据拥有关系把事件映射到 RayCluster。RayCluster Controller 在后续协调中更新集群状态，RayJob Controller 再读取这个结果，继续获取 Dashboard 地址、创建 submitter Job。监听范围、标签筛选、访问权限和事件过滤共同限定了哪些变化能够进入这条路径。</p>
+<p>队列中的请求只指出需要重新观察哪个对象，因此多个变化可以合并处理，Controller 也能在等待外部条件时先返回。一次协调遇到错误，或集群尚未满足提交条件时，框架依据返回结果安排后续处理；资源事件又提供了新的触发机会。</p>
+<p>对使用者来说，声明已保存、Pod 已就绪、RayJob 已推进到下一阶段，可以出现在不同时间。它们通过上述交接逐步完成，并不要求一次 API 调用同时更新所有资源。下一篇把这条路径放到 100 个 RayCluster 同时变化的场景里，分析哪些协调可以并行，以及同一个对象为什么不会被本地队列同时交给两个协调协程。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/tree/6bf05eb17a3e2e06fb454471265b2afa34d66e90">KubeRay 源码基线（6bf05eb17a3e）</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/kubernetes-sigs/controller-runtime/tree/v0.24.1">controller-runtime 源码基线（v0.24.1）</a></li>

@@ -412,7 +412,7 @@
 </ol>
 <p>若丢失的是创建响应，Operator 当时无法判断服务端是否成功，恢复仍靠查询同一名称。缓存暂时没看到新对象时，可能再次发出创建请求；同类型、同命名空间的同名对象不能同时创建，服务端会拒绝冲突，后续协调再读。</p>
 <p>这条路径能在重复协调时复用已创建的资源，但依赖身份记录仍可读取、已有对象仍可识别。<code>getOrCreate</code> 中的查询和创建依然是两个操作，Kubernetes 写入、Ray 提交与用户程序向外部写结果也没有组成事务。因此，资源能被复用，并不足以承诺业务执行 exactly-once，也就是一次业务操作的效果恰好生效一次。</p>
-<p>也不能把这个例子推广为“任何阶段缺少 submitter 都会补建”。在 <code>Running</code> 分支中，Controller 读取 submitter Job 的错误会返回，并没有调用前面的创建函数；Ray 中查不到作业时，K8sJobMode 也不会直接改走 HTTP 提交。恢复动作由当前阶段决定，排查时必须同时看保存的阶段和实际对象。</p>
+<p>这条补建路径有明确的阶段范围。在 <code>Running</code> 分支中，Controller 读取 submitter Job 的错误会返回，并没有调用前面的创建函数；Ray 中查不到作业时，K8sJobMode 也不会直接改走 HTTP 提交。保存的阶段与实际对象共同决定恢复动作，所以“管理流程可恢复”不等于任意阶段缺少资源都会执行同一种补建。</p>
 <h2 id="5-提交响应丢失时，谁来防止重复"><a href="#5-提交响应丢失时，谁来防止重复" class="headerlink" title="5. 提交响应丢失时，谁来防止重复"></a>5. 提交响应丢失时，谁来防止重复</h2><p>前面的故障发生在 Kubernetes 资源创建时。如果再往后一步，submitter 已经向 Ray 提交程序，却没有收到响应，随后提交 Pod 被重试，会发生什么？默认脚本会先查询当前 submission ID，查得到就跳过提交，继续跟踪日志。</p>
 <p><code>BuildJobSubmitCommand</code> 把查询放进 shell 条件中：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> needsStatusCheck &#123;<br>    cmd = <span class="hljs-built_in">append</span>(cmd, <span class="hljs-string">&quot;if&quot;</span>, <span class="hljs-string">&quot;!&quot;</span>)<br>    cmd = <span class="hljs-built_in">append</span>(cmd, jobStatusCommand...)<br>    cmd = <span class="hljs-built_in">append</span>(cmd, <span class="hljs-string">&quot;;&quot;</span>, <span class="hljs-string">&quot;then&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -433,7 +433,7 @@
 <p>正常完成后的 TTL 清理走另一条路径。TTL 是 Time To Live，在这里指完成后保留资源多久。本例根据已保存的 <code>status.endTime</code> 加 60 秒计算期限，重启后可以重新计算剩余等待时间；在未启用删除 RayJob CR 的环境变量、也未另配删除策略时，只删除专用 RayCluster，保留 RayJob 和 submitter Job。</p>
 <p>到这里恢复的是作业管理流程。如果故障还带走了 head、driver 或 worker，丢失的进程内存和计算中间结果就需要另找恢复来源，RayJob 状态没有保存这些内容。Ray 自己的 <code>_recover_running_jobs</code> 会重新读取作业信息并恢复对非终态作业的监控；这个动作本身也没有重建用户的内存状态。</p>
 <p>GCS 中的元数据也不能一概称为永久保存。此版本的 <code>InitKVManager</code> 根据配置选择内存或持久化后端，故障后的保留条件随之不同。即使作业记录还在，它保存的也是命令、状态等信息，不能替代程序将训练进度写入检查点，也不能恢复已经丢失的普通进程内存。</p>
-<p>排查重启后的 <code>demo-job</code>，应先核对当前执行轮次的集群名和 submission ID，再看 Kubernetes 对象是否存在、Ray 是否仍保存对应作业记录。若已经进入新的执行轮次，还要核对前一次执行留下的外部结果。至于 Ray 元数据、task 和 actor 在各类节点故障后能恢复到什么程度，下一篇再按故障层次展开。</p>
+<p>回到 <code>demo-job</code>，管理流程恢复依赖本轮已保存的集群名和 submission ID，以及仍可读取的 Kubernetes 对象和 Ray 作业记录。它们让新 Operator 能识别已经完成的步骤。新的执行轮次则可能再次运行用户程序，业务仍需处理前一次执行留下的外部结果。至于 Ray 元数据、task 和 actor 在各类节点故障后能恢复到什么程度，下一篇再按故障层次展开。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/tree/6bf05eb17a3e2e06fb454471265b2afa34d66e90">KubeRay 源码基线（6bf05eb17a3e）</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/ray/tree/3f785c0711b94f93f97fea2a438abcd6a9738655">Ray 源码基线（3f785c0711b9）</a></li>

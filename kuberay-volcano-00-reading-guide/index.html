@@ -21,12 +21,12 @@
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
   
-    <meta name="description" content="从一个 Python 程序的计算与部署需求出发，解释 Ray、Kubernetes、KubeRay 与 Volcano 的职责和采用条件，并给出全系列的源码阅读路线。">
+    <meta name="description" content="从计算与部署需求出发，解释 Ray、Kubernetes、KubeRay 与 Volcano 的职责和采用条件，给出面向使用者的架构与设计阅读路线。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-00-reading-guide/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
-<meta property="og:description" content="从一个 Python 程序的计算与部署需求出发，解释 Ray、Kubernetes、KubeRay 与 Volcano 的职责和采用条件，并给出全系列的源码阅读路线。">
+<meta property="og:description" content="从计算与部署需求出发，解释 Ray、Kubernetes、KubeRay 与 Volcano 的职责和采用条件，给出面向使用者的架构与设计阅读路线。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-00.svg?v=ray-20260916">
 <meta property="article:published_time" content="2026-09-15T15:45:00.000Z">
@@ -338,7 +338,7 @@
               <div class="markdown-body">
                 
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 0 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li class="is-current"><a href="/kuberay-volcano-00-reading-guide/" aria-current="page">源码阅读导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">KubeRay 源码阅读：一次 Pod 变化怎样触发 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">KubeRay 源码阅读：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">KubeRay 源码阅读：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">KubeRay 源码阅读：从 Operator 主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">Volcano 源码阅读：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">Volcano 源码阅读：一次调度怎样满足 Gang 约束</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">Volcano 源码阅读：多个作业怎样共享与竞争资源</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">KubeRay 与 Volcano：从 RayJob 到 PodGroup</a></li></ol></details><div class="series-step-links"><span>从这里开始阅读</span><a href="/kuberay-volcano-01-architecture/">下一篇：第 1 篇 · KubeRay 源码阅读：从 RayJob 看组件分工与协作</a></div></nav><p>假设手里有一个 Python 程序，要处理一批数据。在自己的电脑上，装好依赖、执行 <code>python main.py</code> 就能开始跑。后来数据多了，希望用几台机器一起计算。这时会遇到两类问题：程序怎样利用多台机器，以及这些机器上的程序由谁部署和管理。</p>
-<p>这套文章研究 KubeRay 和 Volcano，分别沿集群管理和批调度两条线阅读源码。理解它们之前，先要知道 Ray 在运行什么、Kubernetes 管理什么。下面从计算需求出发，逐步引入这些项目，再解释它们为什么可以组合使用。</p>
+<p>这套文章面向希望理解系统原理的 Ray、KubeRay 和 Volcano 使用者，分别沿集群管理和批调度两条线解释架构与设计。源码用来核对组件如何协作、配置怎样影响行为，以及各项能力成立的条件。理解这些机制之前，先要知道 Ray 在运行什么、Kubernetes 管理什么。下面从计算需求出发，逐步引入这些项目，再解释它们为什么可以组合使用。</p>
 <p>这里选择 Kubernetes 上的 Ray 部署作为研究场景。Ray 也可以在单机或多台机器上直接运行，不要求先安装 Kubernetes；选用 Kubernetes 和 KubeRay 以后，也可以先使用默认调度器，按工作负载的需要再考虑 Volcano。文章的阅读顺序不代表部署时必须把这些组件全部装上。</p>
 <p>本文假设你运行过程序、用过命令行，不要求 Kubernetes、Ray 或 Volcano 使用经验。先解释基础概念，再走一遍从声明到程序运行的过程，最后讨论资源竞争为什么会引出批调度。集群安装和具体运维留给各项目的使用文档。熟悉 Ray、Kubernetes、KubeRay，以及 Pod、Controller 和 CRD 的读者，可以从第一篇开始；第六篇会介绍 Volcano 的资源模型。</p>
 <p>基础概念依据官方文档，引用集中在文末。KubeRay 源码沿用固定提交 <code>6bf05eb17a3e</code>，Ray 使用 <code>3f785c0711b9</code>，Volcano 使用 <code>d8984501e4ad</code>。下面的部署图用于解释职责，没有加入集群实测结果。</p>
@@ -460,14 +460,14 @@
 </tbody>
 </table>
 </div>
-<h2 id="8-从哪里进入后续源码阅读"><a href="#8-从哪里进入后续源码阅读" class="headerlink" title="8. 从哪里进入后续源码阅读"></a>8. 从哪里进入后续源码阅读</h2><p>第一至第五篇使用同一个主案例：在 <code>default</code> 命名空间提交 RayJob <code>demo-job</code>，由它新建专用 RayCluster，包含一个 head Pod 和 <code>compute</code> 组的两个 worker Pod，通过 Kubernetes Job 运行提交程序。第一篇会列出这些对象的名称与关系。先追资源由谁创建，再看等待和重试由谁安排，最后把故障放进这条流程里。</p>
+<h2 id="8-后续文章怎样展开架构与设计"><a href="#8-后续文章怎样展开架构与设计" class="headerlink" title="8. 后续文章怎样展开架构与设计"></a>8. 后续文章怎样展开架构与设计</h2><p>第一至第五篇使用同一个主案例：在 <code>default</code> 命名空间提交 RayJob <code>demo-job</code>，由它新建专用 RayCluster，包含一个 head Pod 和两个 worker Pod，通过 Kubernetes Job 运行提交程序。两个 worker 属于同一组，组名自取为 <code>compute</code>。第一篇会解释这些对象、组名与提交标识分别有什么用途。先看组件如何分工，再看协调与并发怎样组织，最后分析管理进程和计算环境各自的恢复条件。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
 <tr>
 <th>文章</th>
-<th>带着什么问题读</th>
-<th>读到哪里停下来核对</th>
+<th>要解释的问题</th>
+<th>对使用者的含义</th>
 </tr>
 </thead>
 <tbody>
@@ -479,7 +479,7 @@
 <tr>
 <td><a href="/kuberay-volcano-02-reconcile/">二：事件与 Reconcile</a></td>
 <td>Pod 状态变了，控制器怎样收到消息并继续处理？</td>
-<td>追到监听注册、事件队列和 Reconcile 的返回值</td>
+<td>理解声明、资源变化与状态回写为何分多轮完成</td>
 </tr>
 <tr>
 <td><a href="/kuberay-volcano-03-concurrency/">三：并发模型</a></td>
@@ -489,12 +489,12 @@
 <tr>
 <td><a href="/kuberay-volcano-04-recovery/">四：状态与恢复</a></td>
 <td>资源创建成功、状态还没写回，Operator 就重启了怎么办？</td>
-<td>看哪些身份和状态已经保存，以及重试前查询什么</td>
+<td>理解管理流程恢复与业务执行去重各自依赖什么</td>
 </tr>
 <tr>
 <td><a href="/kuberay-volcano-05-high-availability/">五：高可用</a></td>
 <td>Operator、head 或底层控制面故障，分别由谁恢复？</td>
-<td>检查选主、计算状态和服务切换各自的条件</td>
+<td>区分选主、计算状态和服务切换各自的条件</td>
 </tr>
 </tbody>
 </table>
@@ -505,8 +505,8 @@
 <thead>
 <tr>
 <th>文章</th>
-<th>带着什么问题读</th>
-<th>读到哪里停下来核对</th>
+<th>要解释的问题</th>
+<th>对使用者的含义</th>
 </tr>
 </thead>
 <tbody>
@@ -518,7 +518,7 @@
 <tr>
 <td><a href="/kuberay-volcano-07-volcano-gang/">七：调度流程与 Gang</a></td>
 <td>一组 Pod 只放得下一部分时，会提交哪些操作？</td>
-<td>跟踪试分配、撤销、绑定和失败后的观察</td>
+<td>理解最低成员约束，以及它与容器同时启动的区别</td>
 </tr>
 <tr>
 <td><a href="/kuberay-volcano-08-volcano-queues/">八：队列与资源竞争</a></td>
@@ -528,12 +528,12 @@
 <tr>
 <td><a href="/kuberay-volcano-09-kuberay-volcano/">九：KubeRay 与 Volcano 接入</a></td>
 <td>RayJob 怎样表达组需求，完成后怎样调整？</td>
-<td>核对字段传播、submitter 依赖和清理分支</td>
+<td>理解调度需求、程序提交与资源回收的衔接</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>第一次打开 KubeRay 仓库，可以先看下面三个位置。文末参考资料给出了对应固定提交的链接，避免主分支变化导致代码对不上。</p>
+<p>各篇会先解释机制，再给出支撑分析的源码。如果希望进一步核对实现，可以从下面三个位置开始。文末参考资料给出了对应固定提交的链接。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
