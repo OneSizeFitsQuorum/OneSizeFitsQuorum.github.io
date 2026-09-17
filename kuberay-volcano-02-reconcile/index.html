@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          35 分钟
+          36 分钟
         
       </span>
     
@@ -344,8 +344,7 @@
 <p>管理这些对象同步和通知的客户端组件叫 informer。它在 Operator 进程内维护资源的本地缓存：例如某个 Pod 的名称、所属集群和已观察到的状态，都可以从这份对象记录中读取。收到对象更新后，informer 更新本地记录，并通知注册的事件处理器，源码中通常称为 handler。</p>
 <p>handler 负责确定这次变化应该让谁重新检查。在本例中，发生变化的是 worker Pod，需要重新检查的是它所属的 RayCluster。因此，处理器要从 Pod 找到所属集群，再把这个集群的标识放进待协调队列。这个处理器负责安排检查，集群是否需要补 Pod、能否标记就绪，留到 Reconcile 中判断。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-02-reconcile/01-events.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 1：Pod 状态变化进入 Controller 的路径"><img src="/kuberay-volcano-02-reconcile/01-events.svg" alt="图 1：Pod 状态变化进入 Controller 的路径" width="960" height="360" style="--diagram-width:960px"></a></div><figcaption>图 1：Pod 状态变化进入 Controller 的路径 <a href="/kuberay-volcano-02-reconcile/01-events.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>这里要分清缓存和队列里各存了什么。本地缓存保留资源对象，供 Controller 读取；队列保存待处理对象的标识。在处理 Pod 事件时，Controller 通常不需要把整个 Pod 快照塞进队列，稍后进入 <code>Reconcile</code>，会重新读取所需资源。</p>
-<p>以 <code>default/demo-job-abcde</code> 为例，缓存里的对象记录可以回答“这套集群要求几个 worker、相关 Pod 最近是什么状态”；队列中的同名工作项只表示“这套集群还需要检查一次”。它不携带“创建一个 worker”这样的操作指令。Controller 的运行框架在后台从队列取出标识，调用 Reconcile。负责取队列、调用函数的 goroutine 在本文中称为协调协程；goroutine 是 Go 运行时调度的执行单元，可以在同一进程内共享内存，与执行用户计算的 Ray worker 各有职责。</p>
+<p>Controller 的运行框架在后台从队列取出标识，调用 Reconcile；需要的资源对象则从客户端读取。负责取队列、调用函数的 goroutine 在本文中称为协调协程。goroutine 是 Go 运行时调度的执行单元，可以在同一进程内共享内存，与执行用户计算的 Ray worker 各有职责。</p>
 <p>KubeRay 在 <code>main.go</code> 中创建 Manager，配置缓存、监听的 namespace 和客户端。Manager 是 Operator 进程里的框架对象，各个 Controller 通过它注册监听，共享缓存和客户端等基础设施。这些组件在同一管理程序中协作，不需要分别部署成独立服务。</p>
 <p>这里的“监听”有范围。<code>WatchNamespace</code> 决定关注哪些 namespace；KubeRay 还在 <code>internal/managercache/cache.go</code> 中为 Pod、Kubernetes Job 等对象设置标签筛选。普通业务 Pod 的每次更新没有必要都送到 KubeRay。监听范围之外还要看权限：RBAC 是 Kubernetes 的基于角色的访问控制，用来决定这个 Operator 身份能对哪些资源执行哪些操作。配置了监听范围，不等于已经获得读取权限。</p>
 <p>Controller 开始处理对象之前，需要先完成缓存的初始同步。controller-runtime 的 <code>Kind.Start</code> 注册事件处理器后，会等待缓存同步，并等待这个处理器收到初始事件。Controller 启动协调协程之前，还要等待这些事件源同步完成。因此，启动时 watch 权限不足、资源类型不可用或缓存同步失败，都可能让 Controller 无法进入正常处理阶段。</p>
@@ -363,8 +362,11 @@
 <p>后续代码根据资源作用域补上 namespace。对 RayCluster 来说，请求标识形如 <code>default/demo-job-abcde</code>，只告诉协调函数该检查哪套集群。至于要不要创建 worker，要等读到对象后再判断。</p>
 <p>前面的 <code>For</code> 和 <code>Owns</code> 接收不同来源的事件，最后都可以得到同一个 RayCluster 标识，两条入口由此汇合到同一套协调逻辑。RayJob 对下级 RayCluster 也有自己的监听，形成图中的两层关系。图里的每一层都先把所属对象入队，再由对应 Controller 处理；实际的状态交接要等协调函数执行以后才会发生。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-02-reconcile/02-owner.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 2：Pod、RayCluster 和 RayJob 之间的事件接力"><img src="/kuberay-volcano-02-reconcile/02-owner.svg" alt="图 2：Pod、RayCluster 和 RayJob 之间的事件接力" width="1000" height="411" style="--diagram-width:1000px"></a></div><figcaption>图 2：Pod、RayCluster 和 RayJob 之间的事件接力 <a href="/kuberay-volcano-02-reconcile/02-owner.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<h2 id="一轮协调中的资源与状态"><span id="一轮协调的执行与重查" class="series-legacy-anchor" aria-hidden="true"></span><span id="3-进入-Reconcile-后，重新读取对象" class="series-legacy-anchor" aria-hidden="true"></span><a href="#一轮协调中的资源与状态" class="headerlink" title="一轮协调中的资源与状态"></a>一轮协调中的资源与状态</h2><h3 id="读取当前对象并维护资源"><a href="#读取当前对象并维护资源" class="headerlink" title="读取当前对象并维护资源"></a>读取当前对象并维护资源</h3><p>从队列取出请求时，触发它的 Pod 可能已经又更新过几次，甚至已经删除。协调逻辑必须依据当前能读到的对象作判断。</p>
-<p>例如，worker 先进入 Running，稍后 Ready 条件又变成 True。如果 Controller 到这之后才取得处理机会，它可以直接检查当前能读到的集群与 Pod 状态，无须逐条重放这两次通知。</p>
+<h3 id="待处理请求的合并"><a href="#待处理请求的合并" class="headerlink" title="待处理请求的合并"></a>待处理请求的合并</h3><p>假设 <code>compute</code> 组的两个 worker 接连更新，处理器从它们的拥有关系都找到了 <code>default/demo-job-abcde</code>。如果每条通知都对应一次独立协调，Controller 就可能连续检查同一套集群，重复读取相同的资源。队列因此按对象标识合并尚待处理的请求：在取得处理机会之前，同一个 RayCluster 的多次入队可以汇成一个待处理项。</p>
+<p>这里可以对照缓存和队列各自保留的内容。缓存保存资源对象，例如各个 worker 已观察到的状态；队列中的 <code>default/demo-job-abcde</code> 只表示“这套集群还需要检查一次”。它不记录每条 Pod 通知，也不携带“创建一个 worker”这样的操作指令。只要下一轮重新读取集群和所属 Pod，就可以一起判断这些变化带来的结果。</p>
+<p>取得处理机会以后，情况又有区别。假设这一轮已经读过 Pod，另一个 worker 才更新，新的请求就有必要留下。队列允许为正在处理的对象登记下一轮检查；在本轮结束前，同一队列不会把这个对象再次交给另一个协调协程。期间又到来的相同请求仍可合并。等本轮完成、下一轮开始后，再有变化，还可以继续安排检查。</p>
+<p>因此，去重针对的是尚待处理的请求，没有把这个对象永久标记成“已经处理过”。队列也无法判断本轮是否恰好已经读到了新变化：有时下一轮会发现资源已经符合期望，无须再写入。这要求协调逻辑能够反复比较期望和当前状态，写入操作也要考虑重复调用。幂等要求重复执行同一操作不会额外产生一次效果；控制循环本身不会替被调用的外部接口实现这个要求。</p>
+<h2 id="一轮协调中的资源与状态"><span id="一轮协调的执行与重查" class="series-legacy-anchor" aria-hidden="true"></span><span id="3-进入-Reconcile-后，重新读取对象" class="series-legacy-anchor" aria-hidden="true"></span><a href="#一轮协调中的资源与状态" class="headerlink" title="一轮协调中的资源与状态"></a>一轮协调中的资源与状态</h2><h3 id="读取当前对象并维护资源"><a href="#读取当前对象并维护资源" class="headerlink" title="读取当前对象并维护资源"></a>读取当前对象并维护资源</h3><p>协调协程取得这份请求后，先用其中的标识读取 RayCluster，再检查相关资源。触发请求的 worker 可能在进入 Running 后又将 Ready 条件更新为 True，也可能已经删除；本轮依据当前能读到的对象作判断，无须重放中间每一条通知。</p>
 <p>“写 API 成功”和“缓存里已看到新对象”之间存在时间差。Manager 提供的常规类型客户端通常从缓存读，写操作直接发给 API Server；绕过缓存的读取另有路径。这个差异在第三篇分析并发创建时还会用到。</p>
 <p>RayCluster 的 <code>Reconcile</code> 开头就进行了读取。下面是连续节选：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go">instance := &amp;rayv1.RayCluster&#123;&#125;<br><span class="hljs-keyword">if</span> err = r.Get(ctx, request.NamespacedName, instance); err == <span class="hljs-literal">nil</span> &#123;<br>    <span class="hljs-keyword">return</span> r.rayClusterReconcile(ctx, instance)<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -387,7 +389,6 @@
 </blockquote>
 <p>计算成功并写回 API 后，本例才完成从 Pod 状态到 RayCluster 状态的交接。RayJob Controller 通过自己注册的 <code>Owns(RayCluster)</code> 观察到变化，再检查 <code>demo-job</code> 是否可以进入提交阶段。这是两次不同 Controller 的处理，中间由资源状态衔接。</p>
 <p>这次交接也经过队列：RayCluster Controller 写回状态后，RayJob Controller 的事件处理器再把所属 RayJob 的标识放入自己的队列。后者轮到处理时才继续判断提交条件。RayCluster Controller 不需要在当前函数里直接调用 RayJob Controller，也不需要一直等到作业提交完成。</p>
-<p>由于每轮都会重新比较期望和当前状态，多次相似事件可以合并，不必逐条重放历史通知。不过，同一个对象仍会反复检查，写入动作也得考虑重复调用。幂等要求重复执行同一操作不会额外产生一次效果；控制循环本身不会替被调用的外部接口实现这个要求。</p>
 <h2 id="一轮结束后的再次触发"><span id="返回结果与后续调度" class="series-legacy-anchor" aria-hidden="true"></span><span id="4-返回以后，谁安排下一轮" class="series-legacy-anchor" aria-hidden="true"></span><a href="#一轮结束后的再次触发" class="headerlink" title="一轮结束后的再次触发"></a>一轮结束后的再次触发</h2><p>前面说明了两层 Controller 怎样通过资源状态交接。每个 Controller 完成本轮能做的事情后，都需要把执行机会交回框架：集群可能仍在准备，Ray 作业也可能还在运行。接下来要解决的是，怎样在条件变化后继续处理这些对象。</p>
 <h3 id="事件通知与主动重查"><a href="#事件通知与主动重查" class="headerlink" title="事件通知与主动重查"></a>事件通知与主动重查</h3><p>一轮 Reconcile 返回以后，watch 仍然持续工作。例如，worker 的 Ready 条件更新，可以沿前面的事件路径触发新的 RayCluster 协调；集群状态写回后，又可以触发 RayJob 协调。每轮处理都会重新读取当前状态、判断下一步条件。这种由事件触发的检查，本身不需要定时轮询。</p>
 <p>随着案例进入作业执行阶段，RayJob Controller 还要跟踪另一类进展：Ray 内部的作业状态。程序执行完成时，承载它的 Pod 可能仍然正常运行，未必产生相应的 Kubernetes 资源更新。只等待 Pod 事件，就可能无法及时发现作业已经结束。因此，RayJob Controller 会查询 Ray Jobs API；如果作业还在运行，就安排稍后再查。</p>
@@ -434,11 +435,11 @@
 </tbody>
 </table>
 </div>
-<p>延时时间到了，请求还要等可用的协调协程；期间如果来了新事件，同一个对象又可能更早被处理。因此，<code>RequeueAfter</code> 不能理解为精准的固定周期。无论由事件、延时还是错误重试触发，请求最终都回到队列，下一轮再从读取对象开始。</p>
+<p>无论由事件、延时还是错误重试触发，请求都用同一个对象标识回到队列，继续按前面说明的规则合并和处理。例如，RayJob 已经安排延时重查，期间又收到下级 RayCluster 的更新，事件请求就可能让它更早得到检查。延时时间到了，也仍要等可用的协调协程。因此，<code>RequeueAfter</code> 不能理解为精准的固定周期；下一轮总会从读取对象开始。</p>
 <h2 id="小结：事件、队列与协调的分工"><span id="5-事件、队列与协调各自解决什么问题" class="series-legacy-anchor" aria-hidden="true"></span><a href="#小结：事件、队列与协调的分工" class="headerlink" title="小结：事件、队列与协调的分工"></a>小结：事件、队列与协调的分工</h2><p>本例中，worker Pod 的变化通过监听进入 Operator，事件处理器按拥有关系把 RayCluster 标识放进队列。RayCluster Controller 读取当前对象和相关资源，维护 Pod、计算状态并写回 API；RayJob Controller 再通过自己的监听和队列读取这个结果，继续获取 Dashboard 地址、创建 submitter Job。两层 Controller 通过保存下来的资源状态协作。</p>
 <p>每一轮只完成当前能做的管理动作。返回以后，监听仍然接收资源变化；需要跟踪 Ray 作业等外部进展时，还可以安排延时查询，失败则按错误路径处理。资源状态交给下一层 Controller，返回值交给运行框架，分别承担业务进度传递和后续处理安排。</p>
-<p>队列保存的是待检查对象的标识，多次变化可以合并；每轮重新读取状态，因此重复调用仍要遵守幂等要求。对使用者来说，声明已保存、Pod 已就绪、RayJob 已推进到下一阶段，可以出现在不同时间，它们通过上述过程逐步完成。</p>
-<p>下一篇把这条路径放到 100 个 RayCluster 同时变化的场景里，分析哪些协调可以并行，以及同一个对象为什么不会被本地队列同时交给两个协调协程。</p>
+<p>队列把同一对象尚待处理的请求合并，协调逻辑依据当前能读到的状态判断；本轮进行期间的新变化，还可以留下下一轮检查。对使用者来说，声明已保存、Pod 已就绪、RayJob 已推进到下一阶段，可以出现在不同时间，它们通过上述过程逐步完成。</p>
+<p>下一篇把这条路径放到 100 个 RayCluster 同时变化的场景里，沿入队、请求合并和任务分配的实现，分析不同对象怎样并行，以及同一个对象的多轮检查怎样串行衔接。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/tree/6bf05eb17a3e2e06fb454471265b2afa34d66e90">KubeRay 源码基线（6bf05eb17a3e）</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/kubernetes-sigs/controller-runtime/tree/v0.24.1">controller-runtime 源码基线（v0.24.1）</a></li>
