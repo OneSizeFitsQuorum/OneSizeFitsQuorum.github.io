@@ -400,7 +400,7 @@
 <p>这两处都返回了相同的延时，实际是否采用，还要看 error。框架先处理错误：普通 error 非空时走限速重试，并忽略 <code>RequeueAfter</code>。rate limiter 即限速器，在这里决定重试的等待时间，避免失败请求立即反复执行。<code>TerminalError</code> 则是明确标记为“不由本次错误自动重试”的错误类型，后续资源变化仍可触发新的协调。</p>
 <p>在 controller-runtime <code>reconcileHandler</code> 中，成功且设置延时的分支使用下面两行连续代码：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">c.Queue.Forget(req)<br>c.Queue.AddWithOpts(priorityqueue.AddOpts&#123;After: result.RequeueAfter, Priority: <span class="hljs-built_in">new</span>(priority)&#125;, req)<br></code></pre></td></tr></table></figure>
-<p><code>Forget</code> 先清除这个对象的限速重试记录，下一行再安排延时入队。它不会删除 RayJob，也不会停止监听。这里使用的是本版本优先级队列的 <code>AddWithOpts</code>；旧版本里常见的 <code>AddAfter</code> 并不是这份源码的调用。</p>
+<p><code>Forget(req)</code> 清除这个对象的限速重试记录，<code>AddWithOpts</code> 根据 <code>RequeueAfter</code> 指定的时长安排延时入队，之后由框架再次调用协调函数。清除重试记录不会删除 RayJob，也不会停止监听。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-02-reconcile/04-return.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 4：Reconcile 返回值如何影响后续调度"><img src="/kuberay-volcano-02-reconcile/04-return.svg" alt="图 4：Reconcile 返回值如何影响后续调度" width="960" height="370" style="--diagram-width:960px"></a></div><figcaption>图 4：Reconcile 返回值如何影响后续调度 <a href="/kuberay-volcano-02-reconcile/04-return.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
