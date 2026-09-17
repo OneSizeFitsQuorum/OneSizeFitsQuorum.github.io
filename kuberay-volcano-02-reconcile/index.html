@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          35 分钟
+          36 分钟
         
       </span>
     
@@ -391,10 +391,12 @@
 <p>实现细节：这里遍历的是已有的 Ready 条件。若某个 Running Pod 没有这项条件，函数不会因此返回 false；源码没有额外要求“必须找到 Ready=True”。</p>
 </blockquote>
 <p>由于每轮都会重新比较期望和当前状态，多次相似事件可以合并，不必逐条重放历史通知。不过，同一个对象仍会反复检查，写入动作也得考虑重复调用。幂等要求重复执行同一操作不会额外产生一次效果；控制循环本身不会替被调用的外部接口实现这个要求。</p>
-<h3 id="返回结果与后续调度"><span id="4-返回以后，谁安排下一轮" class="series-legacy-anchor" aria-hidden="true"></span><a href="#返回结果与后续调度" class="headerlink" title="返回结果与后续调度"></a>返回结果与后续调度</h3><p>除了等待资源事件，Controller 还可以主动要求稍后重查。协调函数返回两类信息：<code>Result</code> 表达是否以及何时再查，<code>error</code> 表达本轮是否失败。框架把二者一起解释，决定怎样安排下一轮。</p>
+<h3 id="返回结果与后续调度"><span id="4-返回以后，谁安排下一轮" class="series-legacy-anchor" aria-hidden="true"></span><a href="#返回结果与后续调度" class="headerlink" title="返回结果与后续调度"></a>返回结果与后续调度</h3><p>一轮 Reconcile 返回以后，Controller 仍然持续监听资源变化。比如 worker 的 Ready 条件更新，可以沿前面的事件路径触发新一轮协调。收到通知后重新读取集群和 Pod，是为了判断当前是否满足下一步条件：一个 Pod 发生变化，并不直接表示整个集群已经就绪。这种由事件触发的检查，本身不需要定时轮询。</p>
+<p>主动重查主要用于跟踪没有对应通知的进展。以 Ray 作业为例，程序执行完成时，承载它的 Pod 可能仍然正常运行，未必产生相应的 Kubernetes 资源更新。只等待 Pod 事件，就可能无法及时发现作业已经结束。因此，RayJob Controller 会查询 Ray Jobs API；如果作业还在运行，就安排稍后再查。这里的 watch 负责接收 Kubernetes 资源变化，定时查询则用来跟踪 Ray 内部的执行进展。</p>
+<p>如果某条流程所依赖的变化都能通过监听触发协调，就可以依靠事件推进，定时重查并非每条路径的必需步骤。本版本 KubeRay 在等待集群和跟踪作业等路径上也会安排延时重查，但这不表示期间停止监听，或收到新事件后仍必须等到原定时间。下一轮处理机会可以来自资源事件，也可以来自延时请求。</p>
+<p>协调函数通过两类返回信息表达后续安排：<code>Result</code> 表达是否以及何时再查，<code>error</code> 表达本轮是否失败。框架把二者一起解释，决定怎样安排下一轮。</p>
 <p>两者分别回答“后面怎样安排”和“这次有没有做成”。例如，成功读取集群、发现它还没就绪，是正常等待，可以要求稍后再看；连集群状态都没能读取，则是本轮失败，需要按错误规则安排重试。等待条件和请求失败都会产生后续工作，但原因不同。</p>
-<p>RayJob 等待集群就绪时，或者轮询 Ray Jobs API 时，相关变化不一定立刻表现成一个它所监听的 Kubernetes 事件。因此，代码会返回 <code>RequeueAfter</code>，请求稍后再处理同一个对象。</p>
-<p>这个返回值把后续安排交给框架，当前函数随后就结束了。框架登记同一个对象的延时入队要求，到时再给它处理机会；下一轮会从协调入口重新读取资源，而不是从上次函数退出的位置继续执行。</p>
+<p>需要延时重查时，代码返回 <code>RequeueAfter</code>，把后续安排交给框架，当前函数随后就结束了。等待期间，协调协程可以处理其他对象，不必留在函数里等待 Pod 就绪或 Ray 作业完成。框架登记同一个对象的延时入队要求，到时再给它处理机会；下一轮会从协调入口重新读取资源，而不是从上次函数退出的位置继续执行。</p>
 <p><code>RayJob.Reconcile</code> 的收尾部分包含下面的代码。两段之间省略了一次指标更新：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> err = r.updateRayJobStatus(ctx, originalRayJobInstance, rayJobInstance); err != <span class="hljs-literal">nil</span> &#123;<br>    logger.Info(<span class="hljs-string">&quot;Failed to update RayJob status&quot;</span>, <span class="hljs-string">&quot;error&quot;</span>, err)<br>    <span class="hljs-keyword">return</span> ctrl.Result&#123;RequeueAfter: RayJobDefaultRequeueDuration&#125;, err<br>&#125;<br><span class="hljs-comment">// ... 指标更新省略。</span><br><span class="hljs-keyword">return</span> ctrl.Result&#123;RequeueAfter: RayJobDefaultRequeueDuration&#125;, <span class="hljs-literal">nil</span><br></code></pre></td></tr></table></figure>
 <p>这两处都返回了相同的延时，实际是否采用，还要看 error。框架先处理错误：普通 error 非空时走限速重试，并忽略 <code>RequeueAfter</code>。rate limiter 即限速器，在这里决定重试的等待时间，避免失败请求立即反复执行。<code>TerminalError</code> 则是明确标记为“不由本次错误自动重试”的错误类型，后续资源变化仍可触发新的协调。</p>
