@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          12k 字
+          15k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          37 分钟
+          47 分钟
         
       </span>
     
@@ -405,14 +405,50 @@
 <p>等待 A 的时候，空闲协程仍可以接手 B、C 等其他对象。同一个待处理请求反复到来时会合并；每一轮实际开始后，再读取当时能看到的资源状态。队列不需要为每条 Pod 通知安排一轮独立调用。</p>
 <p>如果 A 处理期间没有留下新的请求，本轮结束后也就没有下一份 A 可以分配。后来再次发生变化，仍可以重新登记。去重只作用于待处理记录，不会把集群永久标记为“已经处理过”。</p>
 <p>这也说明了提高并发数的作用范围：如果积压来自许多不同集群，更多协程可以让它们同时得到处理；如果反复变化的主要是 A，A 仍要一轮接一轮执行，其他协程不能把它的两轮协调拆开并行。</p>
-<h2 id="队列怎样实现这些安排"><span id="请求从缓冲到待处理队列" class="series-legacy-anchor" aria-hidden="true"></span><a href="#队列怎样实现这些安排" class="headerlink" title="队列怎样实现这些安排"></a>队列怎样实现这些安排</h2><p>沿着一份请求进入系统的方向，可以把实现分为：提交请求、整理待处理项、选择对象交给协调协程，以及本轮结束后的解锁。前面的表从整理完成后开始记录，这一节补上每一步对应的数据和代码。</p>
+<h2 id="队列怎样实现这些安排"><span id="请求从缓冲到待处理队列" class="series-legacy-anchor" aria-hidden="true"></span><a href="#队列怎样实现这些安排" class="headerlink" title="队列怎样实现这些安排"></a>队列怎样实现这些安排</h2><p>前面的表说明了请求在等待和执行之间怎样变化。下面把负责这些动作的协程分开，再看它们如何共享队列记录、交接任务。</p>
 <p>本版本使用 controller-runtime 的优先级队列 <code>priorityqueue</code>。创建 Controller 的入口 <code>NewTypedUnmanaged</code> 默认使用它；这份 KubeRay 配置没有通过 <code>NewQueue</code> 替换队列，也没有关闭 <code>UsePriorityQueue</code>。以下按这份实现展开。</p>
+<h3 id="谁安排任务，谁执行协调"><a href="#谁安排任务，谁执行协调" class="headerlink" title="谁安排任务，谁执行协调"></a>谁安排任务，谁执行协调</h3><p>继续采用协调并发数为 2 的例子。一个 RayCluster Controller 的请求处理路径涉及以下协程：</p>
+<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
+<table>
+<thead>
+<tr>
+<th>所在位置</th>
+<th>分工与数量</th>
+<th>具体工作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>队列内部</td>
+<td>1 个整理请求的协程</td>
+<td>处理输入缓冲，合并重复请求，登记延时和优先级</td>
+</tr>
+<tr>
+<td>队列内部</td>
+<td>1 个管理延时的协程</td>
+<td>等待延时到期，把对应项转入可处理集合</td>
+</tr>
+<tr>
+<td>队列内部</td>
+<td>1 个分配任务的协程</td>
+<td>选择可执行对象，交给正在取任务的协调协程</td>
+</tr>
+<tr>
+<td>Controller</td>
+<td>2 个协调协程</td>
+<td>向队列取任务，取得对象后调用 <code>Reconcile</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>队列创建时分别启动 <code>handleAddBuffer</code>、<code>handleWaitingItems</code> 和 <code>handleReadyItems</code>，对应前三行。最后一行由 Controller 按 <code>MaxConcurrentReconciles</code> 启动。这个例子是三个队列后台协程加两个协调协程，配置中的并发数只控制后者；日志、指标等还有其他辅助协程，所以表格不是进程的协程总数。</p>
+<p>前三类协程只维护请求和分配条件，不执行 RayCluster 的资源协调。真正读取集群资源、创建 Pod、写回状态的是取得任务后的协调协程。它们都在同一进程中工作，队列内部通过锁保护共享记录，通过通知唤醒需要继续工作的协程。</p>
 <h3 id="先接收请求，再整理待处理项"><a href="#先接收请求，再整理待处理项" class="headerlink" title="先接收请求，再整理待处理项"></a>先接收请求，再整理待处理项</h3><p>提交请求时，调用方通过 <code>AddWithOpts</code> 交出对象标识和处理选项；选项可以表达延时、优先级或限速重试。入口先把它们存入输入缓冲，再通知后台整理。下面是接收请求的连续节选：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go">w.addBufferLock.Lock()<br>w.addBuffer = <span class="hljs-built_in">append</span>(w.addBuffer, bufferItem[T]&#123;<br>	opts:  o,<br>	items: items,<br>&#125;)<br>w.addBufferLock.Unlock()<br><br>w.notifyItemAddedToAddBuffer()<br></code></pre></td></tr></table></figure>
 <p><code>addBuffer</code> 是刚收到的请求暂存区，<code>opts</code> 保存选项，<code>items</code> 保存这次提交的对象标识。追加前后加锁和解锁，是为了让多个提交方安全地访问这个缓冲。最后的 <code>notifyItemAddedToAddBuffer</code> 发出“有新请求”的通知。</p>
 <p>此处只做追加，没有按对象标识合并。例如 A 连续提交两次，在尚未整理时，缓冲里可以同时留着这两次请求。因此，调用 <code>AddWithOpts</code> 返回，不代表去重已经完成。</p>
 <p>这里的输入缓冲也要与对象缓存分清。输入缓冲暂存“检查 A”的请求；informer 维护的对象缓存保存 RayCluster、Pod 等资源的本地记录，供 <code>Reconcile</code> 读取。请求沿队列流转，资源对象通过监听更新到缓存，各有用途。</p>
-<p>队列创建时还会启动一个专门整理输入缓冲的 Go 协程。它不执行 RayCluster 的协调逻辑，工作内容是下面的 <code>handleAddBuffer</code>：</p>
+<p>表中整理请求的协程执行下面的 <code>handleAddBuffer</code>：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(w *priorityqueue[T])</span></span> handleAddBuffer() &#123;<br>	<span class="hljs-keyword">for</span> &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> &lt;-w.done:<br>			<span class="hljs-keyword">return</span><br>		<span class="hljs-keyword">case</span> &lt;-w.itemAddedToAddBuffer:<br>		&#125;<br><br>		w.lock.Lock()<br>		w.lockedFlushAddBuffer()<br>		w.lock.Unlock()<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>可以按一次通知读这段循环：<code>select</code> 先等待；收到 <code>itemAddedToAddBuffer</code> 通知后，取得队列锁，调用 <code>lockedFlushAddBuffer</code> 整理缓冲，再解锁并回到等待。若收到队列关闭信号 <code>done</code>，这个协程就退出。</p>
 <p>整理时，<code>lockedFlushAddBuffer</code> 取走当时已有的一批缓冲记录，交给 <code>lockedAddWithOpts</code> 加入或更新待处理项。一次通知可以带来一批处理，没有固定刷新周期。输入缓冲将接收请求和维护队列结构分开，提交方不必一直持有队列主锁做后续整理。</p>
@@ -443,12 +479,19 @@
 </table>
 </div>
 <p>这里的 ready 表示队列项的时间条件满足，与 Pod 或 RayCluster 的 Ready 状态没有关系。<code>items</code>、<code>waiting</code> 和 <code>ready</code> 是同一批待处理工作的不同组织方式，不是依次执行的三份独立任务。</p>
-<h3 id="交出任务时锁定，本轮结束后解锁"><a href="#交出任务时锁定，本轮结束后解锁" class="headerlink" title="交出任务时锁定，本轮结束后解锁"></a>交出任务时锁定，本轮结束后解锁</h3><p>接下来由任务分配逻辑 <code>handleReadyItems</code> 从 ready 中选择对象。它会先整理一次输入缓冲，再检查有没有协调协程正在等任务。因此，后台整理和任务分配两条路径都可以整理缓冲，它们共用队列锁；请求不必等取任务时才入队，也不要求必须先由后台整理协程接手。</p>
+<p>管理延时的 <code>handleWaitingItems</code> 关注 waiting 中最早到期的项，等待相应的时间信号；有新的延时项或等待时间改变时，也会收到通知并重新检查。到期后，它将这些项转入 ready，再通知任务分配协程。没有延时的请求可以直接进入 ready，不必经过这一段等待。</p>
+<h3 id="协调协程主动取任务，队列响应这个请求"><a href="#协调协程主动取任务，队列响应这个请求" class="headerlink" title="协调协程主动取任务，队列响应这个请求"></a>协调协程主动取任务，队列响应这个请求</h3><p>整理请求和交出任务由不同的后台协程负责。要理解交接，先看接收任务的一端：协调协程完成上一轮后，会再次调用队列的取任务方法。本版本 Controller 的 <code>processNextWorkItem</code> 调用的是 <code>GetWithPriority</code>，同时取得对象标识和优先级；队列的普通 <code>Get</code> 也会转调这个方法。</p>
+<p>如果暂时没有任务，协调协程就在取任务方法中等待。<code>GetWithPriority</code> 先登记一个等待者，再通知任务分配逻辑；下面是连续节选：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go">w.lock.Lock()<br>w.waiters++<br>w.lock.Unlock()<br><br>w.notifyReadyItemOrWaiterAdded()<br></code></pre></td></tr></table></figure>
+<p><code>waiters</code> 记录有多少协调协程已经来取任务、尚未拿到结果。后面的 <code>select</code> 等待队列关闭，或者从 <code>w.get</code> 通道接收一个任务。这里的等待不会不断轮询，也不会执行 <code>Reconcile</code>。</p>
+<p>例如，协调协程 1 调用取任务方法后停在通道接收处；A 的请求整理好以后，分配协程确认有人等待，便可以选择 A，通过通道发送。协调协程 1 收到 A，取任务方法返回，才开始执行 <code>Reconcile(A)</code>。这是同一次交接的两端：协调协程主动申请任务，队列内部通过发送响应它，不会因此额外启动一个协调协程。</p>
+<h3 id="交出任务时锁定，本轮结束后解锁"><a href="#交出任务时锁定，本轮结束后解锁" class="headerlink" title="交出任务时锁定，本轮结束后解锁"></a>交出任务时锁定，本轮结束后解锁</h3><p>分配任务的 <code>handleReadyItems</code> 收到通知后，先整理一次输入缓冲，再检查 <code>waiters</code>。没有等待者时，本轮分配就结束；有等待者，才从 ready 中寻找能够交出的对象。它还会在延时项到期、对象解除执行锁定等情况下被通知，重新判断是否可以分配。</p>
 <p>选择对象时，需要检查“正在处理”的记录。源码用 <code>locked</code> 保存这些对象的键。下面是跳过已锁定对象、锁定本次选中对象的连续节选：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> w.locked.Has(item.Key) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>&#125;<br><br>w.metrics.get(item.Key, item.Priority)<br>w.locked.Insert(item.Key)<br></code></pre></td></tr></table></figure>
 <p>假设当前候选项是 A。若 A 已在 <code>locked</code> 中，<code>return true</code> 表示继续遍历下一项，不会交出 A，也不会把它的待处理请求丢掉。若 A 没有锁定，则记录这次出队的指标，并将 A 加入 <code>locked</code>。</p>
-<p>接下来的代码从 <code>items</code> 中移除本次待处理项，把 A 交给协调协程；这一批遍历结束后，再从 ready 清除已交出的项。此时，待处理的 A 已取走，正在执行的 A 仍记录在 <code>locked</code> 中。若新的 A 到来，便可以重新建立待处理项，同时继续受这把键锁约束。</p>
+<p>接下来的代码减少等待者计数，从 <code>items</code> 中移除本次待处理项，再通过 <code>w.get &lt;- *item</code> 将 A 发送给等待接收的协调协程。这一批遍历结束后，再从 ready 清除已交出的项。此时，待处理的 A 已取走，正在执行的 A 仍记录在 <code>locked</code> 中。若新的 A 到来，便可以重新建立待处理项，同时继续受这把键锁约束。</p>
 <p>协调协程通过 <code>defer c.Queue.Done(obj)</code> 保证本轮退出时通知队列。<code>Done(A)</code> 清除 A 的执行锁定并通知任务分配逻辑。之前留下的 A 只有在时间条件满足、协程可用时，才会再次被交出。这样，待处理索引负责合并请求，执行锁定负责避免同一个对象的两轮协调重叠。</p>
+<p>从实现上看，整理与分配使用同一份队列记录，分配路径也能整理输入缓冲，所以它们并不是每个请求必须依次经过的固定流水线。去重并不要求一定采用后台整理的方式，也可以设计成取任务时统一整理、选择和锁定；本文跟踪的是当前版本的协程分工，不据此判断哪种实现性能更好。</p>
 <h3 id="延时和优先级怎样影响顺序"><a href="#延时和优先级怎样影响顺序" class="headerlink" title="延时和优先级怎样影响顺序"></a>延时和优先级怎样影响顺序</h3><p>前面的例子只考虑立即请求。若 A 已经安排延时重查，期间又收到一次立即检查的请求，队列合并时会采用较早的处理时间；优先级有差异时采用较高值。因此，新事件可以让延时项提前进入 ready，但无法绕过 A 当前轮的执行锁定。</p>
 <p>在可以分配的 ready 项之间，队列先看优先级，同优先级再看次序。延时项到期进入 ready 时重新取得次序；一项被提升优先级后，排在新优先级已有项之后。整个队列不能视为严格的先进先出（FIFO）。</p>
 <p><code>RequeueAfter</code> 表达的是本轮对后续检查的安排。新事件可能使下一轮提前发生，到期后也可能继续等待空闲协程，因此它不保证精准的固定周期。</p>
@@ -484,12 +527,22 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> err := r.Create(ctx, &amp;replica); err != <span class="hljs-literal">nil</span> &#123;<br>    <span class="hljs-comment">// ... 省略 Warning 事件记录。</span><br>    <span class="hljs-keyword">return</span> err<br>&#125;<br>r.rayClusterScaleExpectation.ExpectScalePod(replica.Namespace, instance.Name, worker.GroupName, replica.Name, expectations.Create)<br></code></pre></td></tr></table></figure>
 <p>代入本例，这份记录表达的是“已经为 A 的 compute 组成功创建了这个名字的 Pod，等待后续读取确认”。下一轮即使暂时仍只读到一个 Pod，也能先检查是否还有未观察到的创建结果。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-03-concurrency/03-expectations.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 3：Pod 写入成功与缓存观察之间的时间差"><img src="/kuberay-volcano-03-concurrency/03-expectations.svg" alt="图 3：Pod 写入成功与缓存观察之间的时间差" width="1000" height="466" style="--diagram-width:1000px"></a></div><figcaption>图 3：Pod 写入成功与缓存观察之间的时间差 <a href="/kuberay-volcano-03-concurrency/03-expectations.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>处理每个 worker 组之前，Controller 调用 <code>IsSatisfied</code> 检查该组的预期是否满足。如果仍有未满足的预期，本轮跳过这个组，后面的其他组可以继续检查。它不会让协调协程一直停在这里等缓存。预期按 namespace、RayCluster 和 group 查询，A 的创建结果暂时不可见，也不会阻止 B 的协调。head 有对应检查，用空字符串作为组标识。</p>
-<h3 id="什么时候认为结果已经观察到"><a href="#什么时候认为结果已经观察到" class="headerlink" title="什么时候认为结果已经观察到"></a>什么时候认为结果已经观察到</h3><p>实际判断由 <code>isPodScaled</code> 完成：它按记录中的 Pod 名称调用客户端 <code>Get</code>，检查这个对象是否能读到。这里沿用 Manager 客户端，普通 Pod 读取仍可能经过缓存，没有强制直读 API Server。下面保留完整的两个分支，只省略创建分支中说明极端情况的注释：</p>
+<p>处理每个 worker 组之前，Controller 调用 <code>IsSatisfied</code> 检查该组的预期。下面是 <code>reconcilePods</code> 中 worker 组循环开头的判断：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> !r.rayClusterScaleExpectation.IsSatisfied(ctx, instance.Namespace, instance.Name, worker.GroupName) &#123;<br>	logger.Info(<span class="hljs-string">&quot;reconcilePods&quot;</span>, <span class="hljs-string">&quot;worker group&quot;</span>, worker.GroupName, <span class="hljs-string">&quot;Expectation&quot;</span>, <span class="hljs-string">&quot;NotSatisfiedGroupExpectations, reconcile the group later&quot;</span>)<br>	<span class="hljs-keyword">continue</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p><code>continue</code> 跳过本轮对这个组的 Pod 维护，循环继续检查其他组。协调协程不会停在这里等缓存，下一轮走到这个组时还会重新判断。预期按 namespace、RayCluster 和 group 查询，A 的创建结果暂时不可见，也不会阻止 B 的协调。head 有对应检查，用空字符串作为组标识。</p>
+<h3 id="每次检查预期，并清理已经通过的记录"><span id="什么时候认为结果已经观察到" class="series-legacy-anchor" aria-hidden="true"></span><a href="#每次检查预期，并清理已经通过的记录" class="headerlink" title="每次检查预期，并清理已经通过的记录"></a>每次检查预期，并清理已经通过的记录</h3><p><code>IsSatisfied</code> 先从预期存储中查出本组记录，再逐条调用 <code>isPodScaled</code> 判断。下面保留它的检查循环；<code>items</code> 是查出的记录列表，<code>rp</code> 是当前这条 Pod 创建或删除预期：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">for</span> i := <span class="hljs-keyword">range</span> items &#123;<br>	rp := items[i].(*rayPod)<br>	isPodSatisfied := r.isPodScaled(ctx, rp)<br><br>	<span class="hljs-keyword">if</span> !isPodSatisfied &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>	&#125;<br><br>	<span class="hljs-comment">// delete satisfied item in cache</span><br>	<span class="hljs-keyword">if</span> err := r.itemsCache.Delete(items[i]); err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-comment">// Fatal error in KeyFunc.</span><br>		<span class="hljs-built_in">panic</span>(err)<br>	&#125;<br>&#125;<br><span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
+<p>遇到未满足的记录就返回 false，已经满足的记录则从预期存储中删除。全部通过，或者已经没有记录时，返回 true，本组才继续维护 Pod。这里删除的是预期记录，不是在删除 Kubernetes Pod。</p>
+<p>每一轮都会重新读取、判断，预期并不是一个设置后就不再变化的布尔标记。具体条件在 <code>isPodScaled</code> 中：它按记录中的 Pod 名称调用客户端 <code>Get</code>。这里沿用 Manager 客户端，普通 Pod 读取仍可能经过对象缓存，没有强制直读 API Server。下面保留完整的两个分支，只省略创建分支中的注释：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">switch</span> rp.action &#123;<br><span class="hljs-keyword">case</span> Create:<br>    <span class="hljs-keyword">if</span> err := r.Get(ctx, types.NamespacedName&#123;Name: rp.name, Namespace: rp.namespace&#125;, pod); err == <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>    &#125;<br>    <span class="hljs-comment">// ... 省略创建后迅速被删除的情况说明。</span><br>    <span class="hljs-keyword">return</span> rp.recordTimestamp.Add(ExpectationsTimeout).Before(time.Now())<br><span class="hljs-keyword">case</span> Delete:<br>    <span class="hljs-keyword">if</span> err := r.Get(ctx, types.NamespacedName&#123;Name: rp.name, Namespace: rp.namespace&#125;, pod); err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> errors.IsNotFound(err)<br>    &#125;<br>&#125;<br><span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br></code></pre></td></tr></table></figure>
-<p>创建记录关心的是新 Pod 是否已经能被读到，尚不要求它 Ready；如果一直读不到，超过源码设置的 30 秒也会放行。删除记录则等待读取返回 NotFound，没有相同的超时。Pod 虽然已经标记删除，但只要仍能查询到，删除预期就还没有满足。命令行中的 Terminating 表示删除中的显示状态，不是 Pod 的一种 phase。</p>
+<p>创建分支在能读到 Pod 时返回 true，尚不要求它 Ready；读取不成功时，则比较登记时间加上 <code>ExpectationsTimeout</code> 是否早于当前时间。这个值在源码中设为 30 秒，超时也会返回 true，让 <code>IsSatisfied</code> 清掉该记录。</p>
+<p>删除分支只有读取返回 NotFound 才返回 true。仍能读到 Pod，或者读取发生其他错误，都会返回 false。Pod 虽然已经标记删除，但只要仍可查询到，删除预期就没有满足。命令行中的 Terminating 表示删除中的显示状态，不是 Pod 的一种 phase。</p>
+<h3 id="一直没有观察到结果时怎样继续"><a href="#一直没有观察到结果时怎样继续" class="headerlink" title="一直没有观察到结果时怎样继续"></a>一直没有观察到结果时怎样继续</h3><p>创建超时对应源码注释中的一种场景：Pod 创建成功后，在下一轮检查前就被其他组件删除，Controller 可能一直无法观察到它存在。超过 30 秒后放行，可以避免这条旧记录无限挡住后续判断。放行后，本组仍要读取当前 Pod 列表、计算数量差异，决定是否补建；超时本身不代表 Pod 已经就绪。</p>
+<p>这个 30 秒条件没有独立的定时器。它只在后续调用 <code>IsSatisfied</code>、检查到这条记录时生效。新的 Pod 事件可以带来下一轮协调，RayCluster 主流程的正常收尾也会返回延时重查要求：<code>ctrl.Result&#123;RequeueAfter: time.Duration(requeueAfterSeconds) * time.Second&#125;</code>。这个正常收尾分支默认使用 300 秒，可通过环境变量调整；错误或状态变化等路径可能安排更早的处理。因此，记录超过 30 秒，不等于恰好在第 30 秒就会重新检查。</p>
+<p>删除预期没有对应的超时判断。在预期记录仍保留、常规 worker 组维护继续经过这道检查的情况下，只要始终没有读到 NotFound，后续每轮仍会跳过这个组的 Pod 维护。Controller 可以继续处理其他组和其他集群，但这个组的扩缩容可能长期无法推进；重新检查本身并不能保证条件最终满足。</p>
+<p>外围有按生命周期清空预期的路径，例如 RayCluster 读取返回 NotFound，以及满足条件的 Recreate 升级流程在删除 Pod 后清空记录。这些路径各有触发条件，不是删除预期的通用超时兜底。此版本在常规路径中没有因为等待过久就强制放行或强制清理 Pod 的逻辑。</p>
 <p>这些预期保存在 Operator 进程内，底层使用 client-go 提供的线程安全 Indexer，即支持索引查询的内存存储。它保护记录的并发访问，预期本身则帮助下一轮识别缓存尚未反映的操作结果。</p>
-<p>这份记录也有边界：进程退出后记录会丢失，创建预期会超时放行；如果 API 实际创建成功、响应却丢失，成功后的登记甚至可能没有执行。因此，不能仅凭 expectations 保证跨重启只创建一次。恢复时怎样识别已有资源，还需要后续的资源身份和状态管理机制。</p>
+<p>这份记录也有边界：进程退出后记录会丢失；如果 API 实际创建成功、响应却丢失，成功后的登记甚至可能没有执行。创建预期超时还意味着本地观察仍可能落后，Controller 就已恢复按当前读到的数量作判断。因此，expectations 可以减少缓存滞后带来的重复操作，但不能单独保证只创建一次，也不能保证等待一定结束。这是当前实现的能力边界；上述风险来自代码路径推演，没有对应的故障注入结果。恢复时怎样识别已有资源，还需要后续的资源身份和状态管理机制。</p>
 <h2 id="并发限制在哪些范围内生效"><span id="协调范围与并发写入" class="series-legacy-anchor" aria-hidden="true"></span><span id="4-多个-Controller、namespace-和-Kubernetes-集群各是什么边界" class="series-legacy-anchor" aria-hidden="true"></span><a href="#并发限制在哪些范围内生效" class="headerlink" title="并发限制在哪些范围内生效"></a>并发限制在哪些范围内生效</h2><p>到这里，队列控制处理顺序，扩缩容预期补充缓存尚未反映的操作结果。它们都属于 Controller 本地的管理机制。扩大到不同 Controller、不同进程和使用者同时操作时，还要区分限制的范围。</p>
 <h3 id="各个-Controller-的名额和管理范围"><span id="Controller、命名空间与集群边界" class="series-legacy-anchor" aria-hidden="true"></span><a href="#各个-Controller-的名额和管理范围" class="headerlink" title="各个 Controller 的名额和管理范围"></a>各个 Controller 的名额和管理范围</h3><p>RayJob Controller 可以查询作业状态，同时由 RayCluster Controller 检查 worker Pod。二者在 <code>main.go</code> 中分别注册，各有队列和协调协程，共享 Manager 提供的客户端等基础设施。</p>
 <p>同一个 <code>config.ReconcileConcurrency</code> 分别传给 RayCluster、RayJob、RayService。设为 2 时，这三个 Controller 各自最多有两轮已经开始、尚未返回的协调，合计理论上可以达到六轮。这里的“最多”还受有没有可处理请求等条件限制；配置不会把整个 Operator 限制为共用两个名额。</p>
@@ -539,8 +592,8 @@
 <p>这些指标有统计范围。此版 priorityqueue 从项进入 ready 集合开始计量：尚未到期的延时项不计入 depth，排队耗时也不包含前面的延时等待。depth 带有 <code>priority</code> 标签，查看一个 Controller 的总积压时需要汇总各优先级。它表示队列积压，不能作为 RayCluster 总数或尚未 Ready 的集群数。</p>
 <p>如果协调协程长期占满、许多不同对象持续排队，而单轮耗时和 API 请求表现稳定，提高并发值得验证。若积压主要来自一个正在处理的对象，仍受同键串行限制；若 Kubernetes API 已经变慢或限流等待增加，继续加协程还可能增加争用。</p>
 <p>KubeRay 注册的 <code>rest_client_request_duration_seconds</code> 和 <code>rest_client_rate_limiter_duration_seconds</code> 分别帮助观察 API 请求耗时和客户端限流等待。客户端的 QPS、Burst 在 Manager 创建前配置，分别约束持续请求速率与突发额度，判断并发效果时也要结合这些限制。</p>
-<h2 id="小结：管理并发的作用与边界"><a href="#小结：管理并发的作用与边界" class="headerlink" title="小结：管理并发的作用与边界"></a>小结：管理并发的作用与边界</h2><p>协调协程在不同集群之间复用；同一个集群的待处理请求可以合并，本轮执行期间也可以留下下一轮请求。队列通过待处理索引和执行锁定，让后续检查保留下来，同时避免同一对象的两轮协调重叠。</p>
-<p>执行顺序确定后，资源观察和写入仍各有条件。扩缩容预期记录尚未被本地缓存观察到的操作结果；对象版本检查处理其他写入者造成的更新冲突。理解这些条件，才能判断增加并发是在减少排队，还是让更多请求一起等待外部依赖。</p>
+<h2 id="小结：管理并发的作用与边界"><a href="#小结：管理并发的作用与边界" class="headerlink" title="小结：管理并发的作用与边界"></a>小结：管理并发的作用与边界</h2><p>协调协程主动取任务，队列后台分别整理请求、处理延时和分配任务；取得对象后，协调协程才执行 <code>Reconcile</code>。同一个集群的待处理请求可以合并，本轮执行期间也可以留下下一轮请求。待处理索引和执行锁定共同保证这些后续检查能够保留，同时避免同一对象的两轮协调重叠。</p>
+<p>执行顺序确定后，资源观察和写入仍各有条件。扩缩容预期记录尚未被本地缓存观察到的操作结果，创建预期可以超时放行，删除预期在常规路径中仍需等待对象消失；对象版本检查处理其他写入者造成的更新冲突。理解这些条件，才能判断增加并发是在减少排队，还是让更多请求一起等待外部依赖。</p>
 <p>验证容量时，应固定每个 RayCluster 的 Pod 规模和变更负载，比较调整前后的排队耗时、错误速率及集群就绪耗时。只有“管理了 100 个 CR”这个数量，还不能说明它们是否得到及时处理。下一篇继续分析另一种中断：资源已经创建，状态尚未写回，Operator 重启后怎样接着做。</p>
 <p>若等待发生在 Pod 已经创建、但节点资源不足而无法启动的阶段，则涉及 Pod 调度和作业之间的资源竞争。第六至第九篇引入 Volcano 时再展开这条路径。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
