@@ -18,12 +18,12 @@
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
   
-    <meta name="description" content="跟踪一个 PodGroup 在 Session 中的准入、试分配、Gang 检查、提交与绑定，解释分配撤销和部分绑定失败的处理边界。">
+    <meta name="description" content="先解释 SchedulerCache、Session、JobInfo、TaskInfo、Action、Plugin 与 Statement，再跟踪 PodGroup 的准入、试分配、Gang 判断和绑定。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="第 7 篇｜Volcano Gang 调度：成组分配与绑定">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-07-volcano-gang/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
-<meta property="og:description" content="跟踪一个 PodGroup 在 Session 中的准入、试分配、Gang 检查、提交与绑定，解释分配撤销和部分绑定失败的处理边界。">
+<meta property="og:description" content="先解释 SchedulerCache、Session、JobInfo、TaskInfo、Action、Plugin 与 Statement，再跟踪 PodGroup 的准入、试分配、Gang 判断和绑定。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-07.svg?v=ray-20260916">
 <meta property="article:published_time" content="2026-09-15T15:10:00.000Z">
@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          3k 字
+          3.2k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          10 分钟
+          11 分钟
         
       </span>
     
@@ -335,125 +335,198 @@
                 
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 7 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li class="is-current"><a href="/kuberay-volcano-07-volcano-gang/" aria-current="page">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-06-volcano-architecture/">上一篇：第 6 篇｜Volcano 架构：从 Pod 到作业</a><a href="/kuberay-volcano-08-volcano-queues/">下一篇：第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>demo-job-pg</code> 已经存在，三个成员 Pod 都在等待节点。假设前两个成员能找到位置，第三个成员放不下，Volcano 会把前两个 Pod 先启动吗？</p>
 <p>这篇从 Scheduler 的一次调度循环回答这个问题。沿用 Volcano <code>d8984501e4ad</code>，固定一个调度主实例、一个 Queue <code>ray-batch</code>，不启用拓扑、分片或子组策略。三个成员 Pod 都显式声明非零资源请求，最低成员数为三。以下过程按源码推演。</p>
-<h2 id="先走完一次成组调度"><a href="#先走完一次成组调度" class="headerlink" title="先走完一次成组调度"></a>先走完一次成组调度</h2><p>先不看内部函数名，<code>ray-demo-job-pg</code> 在一轮调度中会经历下面几步：</p>
+<h2 id="调度器手里的对象与执行结构"><a href="#调度器手里的对象与执行结构" class="headerlink" title="调度器手里的对象与执行结构"></a>调度器手里的对象与执行结构</h2><p>第六篇看到的是 Kubernetes API 中的 Volcano Job、PodGroup、Queue 和 Pod。Scheduler 收到这些对象后，会在内存中建立便于反复比较的调度模型。后面的源码主要操作这些内存对象。</p>
+<p>以 <code>demo-job-pg</code> 为例，PodGroup 和三个成员 Pod 被组织成一个 <code>JobInfo</code>，每个 Pod 对应一个 <code>TaskInfo</code>。Queue 和 Node 也有相应的内存信息。调度器在这些对象上比较先后、计算资源和尝试放置，最终才把选中的 Node 写回 Kubernetes。</p>
+<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
+<table>
+<thead>
+<tr>
+<th>先记住的角色</th>
+<th>源码名称与作用</th>
+<th>在本例中对应什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>长期缓存</td>
+<td><code>SchedulerCache</code> 持续接收 informer 更新，保存调度器长期观察到的 Node、Queue、PodGroup 和 Pod 状态</td>
+<td>调度循环开始前的最新集群视图</td>
+</tr>
+<tr>
+<td>本轮视图</td>
+<td><code>Session</code> 从缓存取得一轮快照，并保存本轮排序、资源账目和插件状态</td>
+<td>一次 <code>runOnce</code> 使用的工作空间</td>
+</tr>
+<tr>
+<td>作业</td>
+<td><code>JobInfo</code> 表示一个 PodGroup 及其成员，包括最低成员数和成员状态</td>
+<td><code>demo-job-pg</code> 与三个成员的集合</td>
+</tr>
+<tr>
+<td>成员</td>
+<td><code>TaskInfo</code> 表示一个成员 Pod，包括资源请求、当前状态和目标节点</td>
+<td>三个成员中的任意一个</td>
+</tr>
+<tr>
+<td>队列</td>
+<td><code>QueueInfo</code> 保存一个 Queue 的需求、已分配量和本轮份额</td>
+<td><code>ray-batch</code> 的资源账目</td>
+</tr>
+<tr>
+<td>节点</td>
+<td><code>NodeInfo</code> 保存一个 Node 的空闲、已用、正在释放的资源和成员列表</td>
+<td>每个候选节点能否再容纳一个成员</td>
+</tr>
+<tr>
+<td>执行阶段</td>
+<td><code>Action</code> 推进一轮调度中的一个阶段</td>
+<td>enqueue、allocate、backfill</td>
+</tr>
+<tr>
+<td>判断规则</td>
+<td><code>Plugin</code> 在判断点注册排序、过滤和就绪函数</td>
+<td>gang、predicates、proportion 等</td>
+</tr>
+<tr>
+<td>尝试记录</td>
+<td><code>Statement</code> 记录本次尝试产生的分配或驱逐操作，以便整批提交或撤销</td>
+<td>三个成员的试分配记录</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这里有两组容易混在一起的关系。<code>JobInfo</code> 包含多个 <code>TaskInfo</code>，描述“调度什么”；Action 调用 Plugin 注册的函数，描述“怎样做决定”。Session 把本轮使用的数据和这些执行结构放在一起，Statement 则记录本轮尚未正式绑定的尝试。</p>
+<figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/01-session.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。"><img src="/kuberay-volcano-07-volcano-gang/01-session.svg" alt="长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。" width="960" height="440" style="--diagram-width:960px"></a></div><figcaption>长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。 <a href="/kuberay-volcano-07-volcano-gang/01-session.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
+<h2 id="先走完一次成组调度"><a href="#先走完一次成组调度" class="headerlink" title="先走完一次成组调度"></a>先走完一次成组调度</h2><p>把这些术语放进同一轮执行，<code>demo-job-pg</code> 会经历下面几步：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
 <tr>
 <th>阶段</th>
+<th>主要对象</th>
 <th>调度器做什么</th>
-<th>此时是否已经启动 Pod</th>
+<th>结果保存在哪里</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>建立本轮视图</td>
-<td>从长期缓存复制节点、队列、作业和成员状态</td>
-<td>否</td>
+<td>SchedulerCache、Session</td>
+<td>复制节点、队列、作业和成员状态</td>
+<td>Session</td>
 </tr>
 <tr>
 <td>enqueue 准入</td>
-<td>判断这组需求是否可以进入后续分配</td>
-<td>否</td>
+<td>JobInfo、Queue</td>
+<td>判断这组需求能否进入后续分配</td>
+<td>JobInfo 的本轮状态与 PodGroup phase</td>
 </tr>
 <tr>
 <td>选择候选</td>
-<td>依次选择 Queue、作业、成员 Pod 和候选节点</td>
-<td>否</td>
+<td>Queue、JobInfo、TaskInfo、NodeInfo</td>
+<td>依次选择队列、作业、成员和候选节点</td>
+<td>Session</td>
 </tr>
 <tr>
 <td>试分配</td>
-<td>暂时扣减本轮视图中的节点资源，记录每个成员的位置</td>
-<td>否</td>
+<td>TaskInfo、Statement</td>
+<td>暂时扣减节点资源，记录成员准备放到哪里</td>
+<td>Session 与 Statement</td>
 </tr>
 <tr>
 <td>Gang 判断</td>
-<td>检查试分配结果是否达到 <code>minMember</code> 等最低要求</td>
-<td>否</td>
+<td>JobInfo</td>
+<td>统计已有和本轮试分配的成员，检查最低要求</td>
+<td>JobReady 判断结果</td>
 </tr>
 <tr>
 <td>提交或撤销</td>
-<td>达到门槛就提交这批内存操作；未达到则恢复本轮账目</td>
-<td>否</td>
+<td>Statement</td>
+<td>达到门槛就保留这批操作；未达到就恢复本轮账目</td>
+<td>SchedulerCache，或恢复后的 Session</td>
 </tr>
 <tr>
 <td>异步绑定</td>
-<td>把已提交成员送到后台绑定流程，逐个写入实际 Node 选择</td>
-<td>绑定后仍要等待 kubelet 启动容器</td>
+<td>TaskInfo、SchedulerCache</td>
+<td>逐个向 Kubernetes 提交 Pod 与 Node 的绑定</td>
+<td>Kubernetes API</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>这里的“试分配、提交、绑定、运行”对应四个连续阶段。试分配和提交发生在调度器内部，绑定把结果写回 Kubernetes，Pod 随后才由节点启动。下面出现的 Session、Action、Plugin 和 Statement，分别服务于这条流程的不同阶段。</p>
-<h2 id="调度循环与策略配置"><span id="1-一轮调度从缓存快照开始" class="series-legacy-anchor" aria-hidden="true"></span><a href="#调度循环与策略配置" class="headerlink" title="调度循环与策略配置"></a>调度循环与策略配置</h2><h3 id="缓存快照与-Session"><a href="#缓存快照与-Session" class="headerlink" title="缓存快照与 Session"></a>缓存快照与 Session</h3><p>Scheduler 通过 informer 观察资源变化，维护长期存在的 SchedulerCache，包括节点、作业、成员和队列等信息。周期性调用的 <code>runOnce</code> 会从这份缓存打开一轮 Session，作为上表中“建立本轮视图”的实现。</p>
-<p>Session 是本轮调度的工作视图。<code>framework/session.go</code> 从 <code>cache.Snapshot()</code> 取得数据，在这份视图中组织后续计算。缓存快照在锁保护下构造，节点等对象被复制，避免一边试分配、一边直接改动 informer 更新中的长期状态。</p>
+<p>“试分配、提交、绑定、运行”是四个连续阶段。试分配只修改 Session；Statement 提交后，调度结果进入长期缓存和绑定通道；绑定成功后，节点上的 kubelet 才开始准备并运行 Pod。</p>
+<h2 id="从缓存快照到执行策略"><span id="调度循环与策略配置" class="series-legacy-anchor" aria-hidden="true"></span><span id="1-一轮调度从缓存快照开始" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从缓存快照到执行策略" class="headerlink" title="从缓存快照到执行策略"></a>从缓存快照到执行策略</h2><h3 id="SchedulerCache-与-Session"><span id="缓存快照与-Session" class="series-legacy-anchor" aria-hidden="true"></span><a href="#SchedulerCache-与-Session" class="headerlink" title="SchedulerCache 与 Session"></a>SchedulerCache 与 Session</h3><p>Scheduler 通过 informer 观察资源变化，并把结果写入长期存在的 SchedulerCache。informer 是 Kubernetes 客户端中的观察机制：它持续接收 API 对象变化，同时维护一份本地缓存。周期性调用的 <code>runOnce</code> 再从 SchedulerCache 打开一轮 Session。</p>
+<p>Session 是这一轮调度的工作视图。<code>framework/session.go</code> 从 <code>cache.Snapshot()</code> 取得数据，后续 Action 都在这份视图中工作。缓存快照在锁保护下构造，节点等对象被复制，因此试分配可以先修改本轮账目，不会直接改动 informer 正在维护的长期状态。</p>
 <p><code>scheduler.go</code> 中打开 Session 的连续节选如下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go">ssn := framework.OpenSession(pc.cache, plugins, configurations)<br>ssn.SetSchGateManager(pc.schGateManager)<br><span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>	framework.CloseSession(ssn)<br>	metrics.UpdateE2eDuration(metrics.Duration(scheduleStartTime))<br>&#125;()<br></code></pre></td></tr></table></figure>
-<p>随后的循环依次调用配置中的 <code>action.Execute(ssn)</code>。沿用第六篇的分工，Action 组织“准入、分配”等工作阶段，Plugin 提供阶段中要用的排序和约束判断。它们都在同一 Scheduler 进程里执行。每个 Action 看到前面 Action 在同一 Session 内造成的变化，关闭 Session 时再执行插件收尾和相应状态更新。</p>
-<figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/01-session.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。"><img src="/kuberay-volcano-07-volcano-gang/01-session.svg" alt="长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。" width="960" height="440" style="--diagram-width:960px"></a></div><figcaption>长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。 <a href="/kuberay-volcano-07-volcano-gang/01-session.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>这份快照有明确的时间边界。调度器计算期间，节点可能故障，Pod 也可能被删除。Session 让本轮计算基于一致的工作视图；真正绑定时还会重新面对实际集群状态，所以快照里的“可以放下”只是本轮计算结果。</p>
-<h3 id="Action、Plugin-与执行阶段"><span id="2-配置决定执行哪些阶段" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Action、Plugin-与执行阶段" class="headerlink" title="Action、Plugin 与执行阶段"></a>Action、Plugin 与执行阶段</h3><p>当前基线在 <code>pkg/scheduler/util.go</code> 中定义的 <code>DefaultSchedulerConf</code> 是：</p>
+<p>随后，Scheduler 按配置顺序调用 <code>action.Execute(ssn)</code>。同一轮里的后一个 Action 可以看到前一个 Action 已经写入 Session 的变化。关闭 Session 时，框架执行插件的收尾函数，并把需要持久化的状态更新交给后续流程。</p>
+<p>快照只固定本轮计算的起点。计算过程中，真实节点可能故障，Pod 也可能被删除。绑定阶段重新面对实际集群状态，因此试分配成功以后仍然要处理单个成员的绑定失败。</p>
+<h3 id="Action、Plugin-与回调"><span id="Action、Plugin-与执行阶段" class="series-legacy-anchor" aria-hidden="true"></span><span id="2-配置决定执行哪些阶段" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Action、Plugin-与回调" class="headerlink" title="Action、Plugin 与回调"></a>Action、Plugin 与回调</h3><p>当前基线在 <code>pkg/scheduler/util.go</code> 中定义的 <code>DefaultSchedulerConf</code> 是：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">actions:</span> <span class="hljs-string">&quot;enqueue, allocate, backfill&quot;</span><br><span class="hljs-attr">tiers:</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">plugins:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">priority</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">gang</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">conformance</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">plugins:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">overcommit</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">drf</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">predicates</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">proportion</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nodeorder</span><br></code></pre></td></tr></table></figure>
-<p>本篇以这份配置作为阅读条件。部署时可以加载另一份配置，应以进程实际加载的内容为准。这组 Action 只有 enqueue、allocate 和 backfill；第八篇讨论的 <code>preempt</code> 与 <code>reclaim</code> 需要另外启用。</p>
-<p>Action 决定工作阶段。enqueue 检查作业能否进入调度，allocate 为有资源请求的成员寻找放置位置，backfill 处理启动资源请求为空的 BestEffort 成员。主案例的 Pod 都显式请求资源，主要跟踪前两个阶段。</p>
-<p>Plugin 注册决策函数。先把配置中这些名字与用途对上：</p>
+<p>Action 是主流程阶段：</p>
+<ul>
+<li>enqueue 处理作业准入，使符合条件的 <code>JobInfo</code> 进入可调度状态。</li>
+<li>allocate 为声明了资源请求的 <code>TaskInfo</code> 选择 Node。</li>
+<li>backfill 处理启动资源请求为空的 BestEffort 成员；这里的 BestEffort 指 <code>TaskInfo.InitResreq</code> 为空。</li>
+</ul>
+<p>主案例的三个成员都有资源请求，因此下面主要跟踪 enqueue 和 allocate。第八篇使用的 preempt、reclaim 是另外两个 Action，需要显式加入配置。</p>
+<p>Plugin 不负责推进整段流程。Session 打开时，Plugin 把函数注册到不同判断点；Action 运行到相应位置时再调用它们。<code>tiers</code> 规定插件层级和调用顺序，同一个插件可以参与多个判断点，同一个判断点也可以组合多个插件的结果。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
 <tr>
 <th>插件</th>
-<th>在相关判断点做什么</th>
+<th>在本篇调用链中的作用</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>priority</code></td>
-<td>按优先级比较作业或成员</td>
+<td>比较 JobInfo 或 TaskInfo 的优先级</td>
 </tr>
 <tr>
 <td><code>gang</code></td>
-<td>判断一组成员是否满足最低运行要求</td>
+<td>根据最低成员要求判断作业能否提交本轮分配</td>
 </tr>
 <tr>
 <td><code>conformance</code></td>
-<td>需要结束已有 Pod 以腾出资源时，排除系统关键 Pod 等受保护对象；配置了插件也不表示本轮会发生驱逐</td>
+<td>在驱逐路径中保护系统关键 Pod；本篇配置未启用驱逐 Action</td>
 </tr>
 <tr>
 <td><code>overcommit</code></td>
-<td>结合集群资源总量、系数和已准入需求，判断能否再接纳作业</td>
+<td>根据集群总量、系数和已准入需求计算还能否接纳作业</td>
 </tr>
 <tr>
 <td><code>drf</code></td>
-<td>比较作业占用各类资源的最大比例，即主导资源份额；第八篇用数字展开</td>
+<td>比较作业的主导资源份额，第八篇用数字展开</td>
 </tr>
 <tr>
 <td><code>predicates</code></td>
-<td>排除资源不足或不满足放置规则的节点</td>
+<td>检查某个 TaskInfo 能否放到候选 Node</td>
 </tr>
 <tr>
 <td><code>proportion</code></td>
-<td>计算和约束 Queue 的资源份额</td>
+<td>计算 Queue 的资源份额，并检查队列还能否继续分配</td>
 </tr>
 <tr>
 <td><code>nodeorder</code></td>
-<td>给通过检查的候选节点打分</td>
+<td>为通过过滤的候选 Node 排序</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>一次 allocate 会在多个判断点调用插件注册的函数。表中列出的是本篇主流程使用的部分。</p>
-<p><code>tiers</code> 把插件组织成有先后次序的层级。框架执行到一个判断点时，调用插件为该位置注册的回调：<code>Session.JobOrderFn</code> 比较作业先后，<code>JobEnqueueable</code> 判断能否进入调度，<code>JobReady</code> 判断组是否达到就绪门槛。第八篇继续展开排序回调的组合顺序。</p>
-<h2 id="从资源准入到成组分配"><span id="3-进入调度与满足-Gang-是两个判断" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从资源准入到成组分配" class="headerlink" title="从资源准入到成组分配"></a>从资源准入到成组分配</h2><h3 id="资源准入与-Gang-门槛"><a href="#资源准入与-Gang-门槛" class="headerlink" title="资源准入与 Gang 门槛"></a>资源准入与 Gang 门槛</h3><p>先看 <code>actions/enqueue/enqueue.go</code> 的核心分支：</p>
+<p>例如，<code>Session.JobOrderFn</code> 是比较 JobInfo 先后的判断点，<code>JobEnqueueable</code> 是资源准入判断点，<code>JobReady</code> 是 Gang 门槛判断点。这些名字表示 Action 向 Session 发起的问题，具体答案由已经注册的 Plugin 函数组合得出。</p>
+<h2 id="从资源准入到成员试分配"><span id="资源准入与-Gang-门槛" class="series-legacy-anchor" aria-hidden="true"></span><span id="从资源准入到成组分配" class="series-legacy-anchor" aria-hidden="true"></span><span id="3-进入调度与满足-Gang-是两个判断" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从资源准入到成员试分配" class="headerlink" title="从资源准入到成员试分配"></a>从资源准入到成员试分配</h2><h3 id="enqueue：让作业进入可调度状态"><a href="#enqueue：让作业进入可调度状态" class="headerlink" title="enqueue：让作业进入可调度状态"></a>enqueue：让作业进入可调度状态</h3><p>先看 <code>actions/enqueue/enqueue.go</code> 的核心分支：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> job.PodGroup.Spec.MinResources == <span class="hljs-literal">nil</span> || ssn.JobEnqueueable(job) &#123;<br>	ssn.JobEnqueued(job)<br>	job.PodGroup.Status.Phase = scheduling.PodGroupInqueue<br>	ssn.Jobs[job.UID] = job<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>有 <code>minResources</code> 时，enqueue 调用资源准入回调。选定配置中的 overcommit 从集群资源和已准入需求计算可接受量，proportion 还会检查 Queue 状态及相应资源上限。它们处理的是资源账目；并没有在这个分支里给三个 Pod 分别找到节点。</p>
-<p>未设置 <code>minResources</code> 时，这个条件直接通过，不调用此处的 <code>JobEnqueueable</code>。这表示 enqueue 阶段省略了这组资源账目检查；后续成员分配仍会检查队列额度、节点条件和 Gang 门槛。</p>
-<p>通过后，当前 Session 中的 PodGroup phase（阶段字段）变成 <code>Inqueue</code>，表示这组 Pod 已进入调度流程。状态随后写回 Kubernetes API，其他组件通过后续观察得到变化。</p>
-<p>allocate 随后选择 Queue、JobInfo、成员 Pod 和节点。这里至少有两类不同的问题：队列还能不能拿这份资源；某一台节点能不能满足这个 Pod 的资源和放置条件。集群总共有四张空闲 GPU，如果分散在四台机器上，一个需要同机两张 GPU 的 Pod 仍然可能放不下。</p>
+<p>enqueue 处理整个 JobInfo，不为单个 TaskInfo 选择节点。有 <code>minResources</code> 时，<code>JobEnqueueable</code> 调用资源准入回调：overcommit 计算集群还能接纳多少需求，proportion 检查 Queue 状态、份额和上限。通过后，当前 Session 中的 JobInfo 进入后续分配，PodGroup phase 更新为 <code>Inqueue</code>。</p>
+<p>未设置 <code>minResources</code> 时，这个条件直接通过，enqueue 阶段不做这组资源总量检查。allocate 仍然会检查 Queue 额度、节点条件和 Gang 门槛。</p>
+<h3 id="allocate：逐个选择成员和节点"><a href="#allocate：逐个选择成员和节点" class="headerlink" title="allocate：逐个选择成员和节点"></a>allocate：逐个选择成员和节点</h3><p>allocate 依次选择 Queue、JobInfo、TaskInfo 和 NodeInfo。前两层决定当前轮到哪个队列和作业，TaskInfo 是这次准备放置的具体成员，NodeInfo 则是它的候选位置。</p>
+<p>选择 Node 时会发生两类检查。proportion 等插件先判断 Queue 是否还能分配这份资源；predicates 再判断节点的剩余资源、亲和性、污点等条件是否允许这个 Pod 放入。集群总共有四张空闲 GPU，如果分散在四台机器上，一个需要同机两张 GPU 的 Pod 仍然找不到合法节点。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/02-cycle.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：资源准入、节点试分配和组就绪是不同检查。图中只展开本例的 enqueue 与 allocate，省略 BestEffort、拓扑和其他扩展分支。"><img src="/kuberay-volcano-07-volcano-gang/02-cycle.svg" alt="资源准入、节点试分配和组就绪是不同检查。图中只展开本例的 enqueue 与 allocate，省略 BestEffort、拓扑和其他扩展分支。" width="960" height="454" style="--diagram-width:960px"></a></div><figcaption>资源准入、节点试分配和组就绪是不同检查。图中只展开本例的 enqueue 与 allocate，省略 BestEffort、拓扑和其他扩展分支。 <a href="/kuberay-volcano-07-volcano-gang/02-cycle.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>Gang 插件在 <code>OnSessionOpen</code> 注册就绪函数，以下为连续源码节选：</p>
+<h2 id="Gang-判断与-Statement"><a href="#Gang-判断与-Statement" class="headerlink" title="Gang 判断与 Statement"></a>Gang 判断与 Statement</h2><h3 id="JobReady-统计什么"><a href="#JobReady-统计什么" class="headerlink" title="JobReady 统计什么"></a>JobReady 统计什么</h3><p>Gang 插件在 <code>OnSessionOpen</code> 注册 <code>JobReady</code> 回调，以下为连续源码节选：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go">ssn.AddJobReadyFn(gp.Name(), <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(obj <span class="hljs-keyword">interface</span>&#123;&#125;)</span></span> <span class="hljs-type">bool</span> &#123;<br>	ji := obj.(*api.JobInfo)<br>	<span class="hljs-keyword">if</span> ji.CheckTaskReady() &amp;&amp; ji.CheckSubJobReady() &amp;&amp; ji.IsReady() &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>&#125;)<br></code></pre></td></tr></table></figure>
-<p><code>minMember</code> 进入内存模型后对应 <code>JobInfo.MinAvailable</code>。除作业总成员数外，代码还保留了 task、子组层面的检查；主案例没有额外设置这些策略。</p>
-<p>需要留意源码里的 Ready 含义。<code>ReadyTaskNum()</code> 会统计下面几种调度器内部状态：</p>
+<p>PodGroup 的 <code>minMember</code> 进入内存模型后对应 <code>JobInfo.MinAvailable</code>。<code>JobReady</code> 接收的是整个 JobInfo；它检查作业级最低成员数，也预留了 task 和子组层面的门槛。本例没有额外配置 task 或子组策略。</p>
+<p>这里的 Ready 是 Volcano 调度器内部的“成员数量已经满足提交条件”。<code>ReadyTaskNum()</code> 统计的状态包括：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
@@ -465,40 +538,39 @@
 <tbody>
 <tr>
 <td><code>Allocated</code></td>
-<td>已在调度视图中试分配资源，还没有完成 API 绑定</td>
+<td>已在 Session 中试分配资源，尚未提交 API 绑定</td>
 </tr>
 <tr>
 <td><code>Binding</code></td>
-<td>已进入绑定流程</td>
+<td>已进入后台绑定流程</td>
 </tr>
 <tr>
 <td><code>Bound</code></td>
-<td>已分配 Node，Pod 尚未进入运行阶段</td>
+<td>已分配 Node，等待节点侧继续处理</td>
 </tr>
 <tr>
 <td><code>Running</code>、<code>Succeeded</code></td>
-<td>已观察到 Pod 运行或成功结束</td>
+<td>Scheduler 已观察到 Pod 运行或成功结束</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><code>IsReady()</code> 还考虑 Pending 的 BestEffort 成员。这里的 JobReady 是调度器的组门槛判断：本例三个成员都有资源请求，试分配成功并进入 <code>Allocated</code> 后，就可以满足这项判断。Kubernetes Pod 的 Ready 条件要等容器启动后再由节点侧更新。</p>
-<h3 id="试分配、提交与撤销"><span id="4-先试分配，再决定是否提交" class="series-legacy-anchor" aria-hidden="true"></span><a href="#试分配、提交与撤销" class="headerlink" title="试分配、提交与撤销"></a>试分配、提交与撤销</h3><p>allocate 使用 <code>Statement</code> 记录一次尝试中的分配、驱逐等操作，供后续提交或撤销。一次 <code>Statement.Allocate</code> 会调整 Session 中的成员状态、节点资源账目，并通知相关插件更新本轮分配数据。这时尚未完成对 Kubernetes 的 Pod 绑定。</p>
-<p>假定作业已经通过 enqueue，三份资源总量也足够，但第三个 Pod 要求的节点都没有余量。这样的放置规则可以用节点亲和性表达，例如要求节点带有某个 GPU 型号标签。试分配时，第一个成员找到节点，Session 扣除对应资源；第二个成员再扣一份；第三个成员找不到合法位置，组仍不满足门槛。</p>
-<p>这里还会遇到 Pipelined：如果某些资源将被释放，调度器可以先记录成员未来可能放置的位置，将这类成员计入组的等待判断。本篇没有这类未来资源可用，分配函数既无法得到 Ready，也无法得到 Pipelined 的组，便执行 <code>stmt.Discard()</code> 并返回。Discard 按与记录相反的顺序撤销操作，恢复这次尝试改动的内存状态和资源账目，其他作业随后可以使用这些资源。</p>
-<p>如果三个成员都试分配成功，普通分配路径中的下面这两行会进入提交分支。这是 <code>allocate.go</code> 内连续代码的开头节选，后面还会更新记录并处理剩余成员：</p>
+<p>本例三个成员都声明了资源请求。只要三者在本轮试分配后进入 <code>Allocated</code>，<code>JobReady</code> 就可以达到 <code>MinAvailable=3</code>。Kubernetes Pod 的 Ready 条件由 kubelet 在容器运行后更新，发生在更后面的阶段。</p>
+<h3 id="Statement-怎样提交或撤销一次尝试"><span id="试分配、提交与撤销" class="series-legacy-anchor" aria-hidden="true"></span><span id="4-先试分配，再决定是否提交" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Statement-怎样提交或撤销一次尝试" class="headerlink" title="Statement 怎样提交或撤销一次尝试"></a>Statement 怎样提交或撤销一次尝试</h3><p>allocate 使用 Statement 记录本次尝试。<code>Statement.Allocate</code> 会把 TaskInfo 改为 <code>Allocated</code>，扣减 Session 中对应 NodeInfo 的空闲资源，并通知 Plugin 更新本轮账目。这些变化暂时只存在于调度器内存中。</p>
+<p>假定三份资源总量足够，但第三个成员要求的节点没有余量。第一个成员找到节点，Session 扣除一份资源；第二个成员再扣一份；第三个成员找不到合法位置。此时 JobInfo 只有两个可计入的成员，没有达到 <code>MinAvailable=3</code>。<code>stmt.Discard()</code> 按相反顺序撤销前两次操作，恢复 TaskInfo 状态、节点空闲量和插件账目。</p>
+<p>如果三个成员都试分配成功，普通 allocate 路径进入下面的提交分支：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> stmt != <span class="hljs-literal">nil</span> &amp;&amp; ssn.JobReady(job) &#123; <span class="hljs-comment">// do not commit stmt when job is pipelined</span><br>	stmt.Commit()<br></code></pre></td></tr></table></figure>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/03-statement.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：相同的最低成员数下，成功与失败的两次独立推演。左侧提交三份分配；右侧第三个 Pod 放置失败，撤销此前两份内存分配。"><img src="/kuberay-volcano-07-volcano-gang/03-statement.svg" alt="相同的最低成员数下，成功与失败的两次独立推演。左侧提交三份分配；右侧第三个 Pod 放置失败，撤销此前两份内存分配。" width="960" height="444" style="--diagram-width:960px"></a></div><figcaption>相同的最低成员数下，成功与失败的两次独立推演。左侧提交三份分配；右侧第三个 Pod 放置失败，撤销此前两份内存分配。 <a href="/kuberay-volcano-07-volcano-gang/03-statement.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p><code>IsPipelined()</code> 表示成员正在等待未来释放的资源。普通分配路径仍以 <code>JobReady</code> 作为提交条件；第八篇讨论驱逐时会再用到 Pipelined 状态。</p>
-<p>如果最低成员数小于总副本数，达到门槛后可以先提交满足要求的部分，剩余成员继续参与后续分配。</p>
-<h2 id="提交与异步绑定"><span id="5-Commit-后为什么仍可能只绑定成功一部分" class="series-legacy-anchor" aria-hidden="true"></span><a href="#提交与异步绑定" class="headerlink" title="提交与异步绑定"></a>提交与异步绑定</h2><p><code>Statement.Commit</code> 遍历已记录的操作。对于 Allocate，它调用内部 <code>allocate</code>，出错时对该操作执行 <code>unallocate</code> 并记录错误。这个循环没有把多个 Pod 的 API 写入包成一个事务。</p>
-<p>提交继续进入 SchedulerCache 的 <code>AddBindTask</code>。缓存会查找成员和节点，把成员更新到内部 <code>Binding</code> 状态、计入节点占用，然后送入 <code>BindFlowChannel</code>。这样后续快照能够看见正在绑定的占用，不会只因 API 里的 Pod 还没更新就再次使用同一份资源。</p>
-<p>channel 是 Go 中用于传递数据的通道，这里把待绑定项交给后台流程。<code>BindTask</code> 在协程里执行 PreBind 和 Binder：PreBind 是正式绑定前的准备步骤，Binder 负责实际绑定，具体工作随实现而异。绑定结果按成员记录，可能有的成功、有的失败。</p>
+<p>源码中还会出现 <code>Pipelined</code>。NodeInfo 除了当前空闲资源 <code>Idle</code>，还记录已经进入释放过程的 <code>Releasing</code>；两者合起来形成 <code>FutureIdle()</code>。当前空闲量放不下 TaskInfo、但未来空闲量可以放下时，allocate 可以先记录目标 Node，把成员标为 <code>Pipelined</code>，等待释放完成。这个状态没有执行 Pod 绑定。第八篇进入 preempt 和 reclaim 后，再解释哪些成员会进入 Releasing。</p>
+<p>若 <code>minMember</code> 小于总副本数，达到最低成员数后就可以提交当前结果，剩余成员继续参与后续调度。</p>
+<h2 id="从-Commit-到-Pod-绑定"><span id="提交与异步绑定" class="series-legacy-anchor" aria-hidden="true"></span><span id="5-Commit-后为什么仍可能只绑定成功一部分" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从-Commit-到-Pod-绑定" class="headerlink" title="从 Commit 到 Pod 绑定"></a>从 Commit 到 Pod 绑定</h2><p>Statement 的 Commit 是调度器内部操作的提交点。它确认本轮记录的 Allocate 操作，并把每个待绑定成员交给 SchedulerCache。多个 Pod 的绑定仍然分别执行，没有合并成一笔 Kubernetes 事务。</p>
+<p>SchedulerCache 的 <code>AddBindTask</code> 把成员改为 <code>Binding</code>，计入节点占用，再送入 <code>BindFlowChannel</code>。这个 channel 是前台调度循环和后台绑定协程之间的传递通道。后续 Session 因而能看到正在绑定的资源已经被占用。</p>
+<p>后台的 <code>BindTask</code> 依次执行两类动作：PreBind 运行绑定前的插件准备，Binder 向 Kubernetes 提交 Pod 与 Node 的绑定。每个 TaskInfo 单独得到成功或失败结果。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/04-bind.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：提交把分配送入长期缓存，再异步执行绑定。失败成员需要重新同步；已经成功绑定的其他成员不会因本次失败自动回到未绑定状态。"><img src="/kuberay-volcano-07-volcano-gang/04-bind.svg" alt="提交把分配送入长期缓存，再异步执行绑定。失败成员需要重新同步；已经成功绑定的其他成员不会因本次失败自动回到未绑定状态。" width="960" height="596" style="--diagram-width:960px"></a></div><figcaption>提交把分配送入长期缓存，再异步执行绑定。失败成员需要重新同步；已经成功绑定的其他成员不会因本次失败自动回到未绑定状态。 <a href="/kuberay-volcano-07-volcano-gang/04-bind.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>在 <code>SchedulerCache.Bind</code> 中，失败成员会记录调度错误，执行相关 PreBind 回滚，并调用 <code>resyncTask</code> 重新同步。假设前两个成员已绑定成功，第三个成员因节点变化失败，前两个成功结果仍然存在；后续调度再结合实际 Pod、Node 状态处理失败成员。</p>
-<h2 id="小结：Gang-约束的作用范围"><a href="#小结：Gang-约束的作用范围" class="headerlink" title="小结：Gang 约束的作用范围"></a>小结：Gang 约束的作用范围</h2><p>Gang 在提交内存分配之前检查最低成员要求。提交后的多个绑定分别完成，镜像拉取、卷挂载和容器启动各有自己的进度。</p>
-<p>从 PodGroup 准入到程序运行，依次经过成员分配、Pod 绑定和容器启动。Gang 约束其中的成组分配条件；程序何时开始执行，要继续观察 Pod 和应用状态。</p>
-<p>本篇暂时只有一个 Queue。加入第二个作业后，即使两组都满足 Gang 条件，也可能只有一组拿得到资源。下一篇沿 Queue 和资源策略插件，分析调度器怎样做这个选择。</p>
+<p>绑定失败时，<code>SchedulerCache.Bind</code> 记录调度错误，执行相应的 PreBind 回滚，再通过 <code>resyncTask</code> 重新读取这个 Pod 的实际状态。假设前两个成员已经绑定成功，第三个成员因节点状态变化而失败，前两个结果继续保留；失败成员回到后续调度循环重新处理。</p>
+<h2 id="小结：Gang-在调度链中的位置"><span id="小结：Gang-约束的作用范围" class="series-legacy-anchor" aria-hidden="true"></span><a href="#小结：Gang-在调度链中的位置" class="headerlink" title="小结：Gang 在调度链中的位置"></a>小结：Gang 在调度链中的位置</h2><p>SchedulerCache 保存长期观察结果，Session 提供一轮工作视图，Action 推进准入和分配，Plugin 在判断点提供规则，Statement 负责提交或撤销本轮尝试。JobInfo 和 TaskInfo 则是这些过程共同操作的作业与成员模型。</p>
+<p>Gang 的判断发生在试分配之后、Commit 之前。它保证提交时已经达到最低成员要求；Commit 之后，每个成员仍要分别完成绑定、容器启动和应用初始化。</p>
+<p>下一篇加入第二个作业，沿 Queue、proportion 和 DRF 分析多个 JobInfo 怎样竞争资源，以及 preempt、reclaim 怎样把未来释放的资源交给等待者。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/scheduler.go">Volcano：调度循环</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/util.go">Volcano：默认配置与配置加载</a></li>
@@ -1004,5 +1076,20 @@
   <noscript>
     <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
   </noscript>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
 </html>
