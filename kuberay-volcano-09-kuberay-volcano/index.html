@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          3.7k 字
+          3.4k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          12 分钟
+          11 分钟
         
       </span>
     
@@ -325,7 +325,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：5 天前
+                    本文最后更新于：6 天前
                   
                 
               </p>
@@ -335,7 +335,7 @@
                 
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 9 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li class="is-current"><a href="/kuberay-volcano-09-kuberay-volcano/" aria-current="page">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-08-volcano-queues/">上一篇：第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a><a href="/kuberay-volcano/">已到系列末篇 · 返回目录</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第六至第八篇已经解释 Volcano 怎样观察一组 Pod、尝试分配和处理资源竞争。这篇回到 KubeRay：用户提交的是 RayJob，调度器需要的却是 PodGroup、Queue 引用和带有分组信息的 Pod。这些对象和字段由谁填写？</p>
 <p>继续使用 <code>default/demo-job</code>：新建专用 RayCluster，一个 head Pod、<code>compute</code> 组两个 worker Pod，K8sJobMode，关闭自动扩缩容，程序和依赖在镜像内。worker 组的 <code>numOfHosts</code> 为一，即本例每个副本对应一个 Pod；“资源计算与实际 Pod 请求”一节再说明多 host 对数量计算的影响。启用 Volcano，使用 Queue <code>ray-batch</code>。专用集群名仍示意为 <code>demo-job-abcde</code>，实际读取 <code>status.rayClusterName</code>；PodGroup 沿用第六篇的 <code>ray-demo-job-pg</code>。</p>
-<p>源码基线为 KubeRay <code>6bf05eb17a3e</code>、Volcano <code>d8984501e4ad</code>。KubeRay 依赖的 <code>volcano.sh/apis v1.13.0</code> 是 API 类型库版本，不能用它推断集群中 Scheduler 的运行版本。下文核对字段与调用链，未执行两端部署兼容性实验。</p>
+<p>源码基线为 KubeRay <code>6bf05eb17a3e</code>、Volcano <code>d8984501e4ad</code>。KubeRay 使用的 <code>volcano.sh/apis v1.13.0</code> 是编译时 API 类型库；集群中实际运行的 Scheduler 版本应单独确认。下文核对字段与调用链，未执行两端部署兼容性实验。</p>
 <h2 id="先走完一次接入后的生命周期"><a href="#先走完一次接入后的生命周期" class="headerlink" title="先走完一次接入后的生命周期"></a>先走完一次接入后的生命周期</h2><p>启用 Volcano 后，RayJob 的主流程仍由 KubeRay 推进，只是在创建资源和收尾时多了一组调度声明：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
@@ -419,7 +419,7 @@
 <p>适配器的入口按资源类型分派，下面是连续源码节选：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">switch</span> obj := object.(<span class="hljs-keyword">type</span>) &#123;<br><span class="hljs-keyword">case</span> *rayv1.RayCluster:<br>	<span class="hljs-keyword">return</span> v.handleRayCluster(ctx, obj)<br><span class="hljs-keyword">case</span> *rayv1.RayJob:<br>	<span class="hljs-keyword">return</span> v.handleRayJob(ctx, obj)<br><span class="hljs-keyword">default</span>:<br>	<span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;unsupported object type %T, only RayCluster and RayJob are supported&quot;</span>, object)<br>&#125;<br></code></pre></td></tr></table></figure>
 <p><code>handleRayJob</code> 用 RayJob 名生成 <code>ray-demo-job-pg</code>，owner reference 指向 RayJob。RayCluster Controller 后续也会调用适配器，但 <code>handleRayCluster</code> 发现集群来自 RayJob 时直接返回，避免再创建一份以随机集群名命名的 PodGroup。</p>
-<p>直接创建 RayCluster 是另一条路径：组名取自 RayCluster 名，owner reference 指向 RayCluster。若 RayJob 使用 <code>clusterSelector</code> 引用已有集群，当前适配器的 <code>handleRayJob</code> 会因没有 <code>RayClusterSpec</code> 而报“不支持引用已有 RayCluster 的 Gang 调度”。专用集群例子不能原样套到已有集群模式。</p>
+<p>直接创建 RayCluster 时，组名取自 RayCluster 名，owner reference 指向 RayCluster。RayJob 使用 <code>clusterSelector</code> 引用已有集群时，这一版适配器不支持为它建立 Gang 调度需求；本篇继续使用专用集群模式。</p>
 <p><code>syncPodGroup</code> 先按 namespace/name 查询，找不到时创建；创建遇到 AlreadyExists 时返回，让后续观察继续收敛。已存在时比较 <code>minMember</code> 和 <code>minResources</code>，变化才更新。</p>
 <p>已存在 PodGroup 时，这条更新分支同步 <code>minMember</code> 和 <code>minResources</code>。Queue、PriorityClass 等字段在创建时填写，因此本篇把队列选择视为创建阶段的声明；若要改变队列，需要按这个版本实际支持的资源更新方式安排迁移。</p>
 <p>下面的关系图还会出现三类元数据。label 是供选择和识别对象的标签，annotation 是组件按约定读取的注解；owner reference 表示资源拥有关系。图中的 <code>group-name</code> 注解关联同一个 PodGroup，<code>task-spec</code> 注解区分组内角色：<code>headgroup</code> 是 head，<code>compute</code> 是沿用的 worker 组名，<code>submittergroup</code> 是提交程序。这些值只是成员分类名称，不是另外三个 Kubernetes 资源。“Pod 关联与作业提交”一节再对照完整字段名。</p>
@@ -462,12 +462,11 @@
 <p>这份差额怎样被 Volcano 看见？第七篇选定配置中的 proportion 和 overcommit 会读取 <code>minResources</code>。在组已运行且满足相应成员条件的分支中，<code>GetInqueueResource</code> 按各资源维度计算最低资源量减去已分配量的正差额，再计入待分配账目。上例的 S 因而可以继续参与后续准入约束。</p>
 <p>这一步为尚未创建的 submitter 预留资源账目，不会提前选择节点或创建占位 Pod。submitter 真正出现后，仍要通过队列可分配性、节点过滤和绑定；<code>minResources</code> 表达的是组的最低资源需求，实际启动还取决于当时的节点条件。</p>
 <h3 id="资源计算与实际-Pod-请求"><span id="4-资源计算的口径要与实际-Pod-对照" class="series-legacy-anchor" aria-hidden="true"></span><a href="#资源计算与实际-Pod-请求" class="headerlink" title="资源计算与实际 Pod 请求"></a>资源计算与实际 Pod 请求</h3><p>当前 <code>CalculatePodResource</code> 遍历 <code>podSpec.Containers</code>：每个容器先读 requests，某个资源键缺失时再从 limits 补入，然后逐容器求和。这里 requests 是用于调度的资源请求，limits 是相应使用上限；函数读取的是模板配置，不是容器实时用量。</p>
-<p>实际 Pod 还可能包含 init container，即承担初始化工作的容器；其中普通 init container 先于应用容器执行。Pod overhead 则描述容器之外、Pod 运行环境自身的资源开销。这个函数没有完整复刻 Kubernetes 对这些项目的资源计算规则。</p>
-<p>因此，本例采用普通容器、显式资源请求，不额外引入这些因素。若模板包含资源较大的 init container，或 Admission 阶段自动加入伴随应用运行的 sidecar 辅助容器，应同时核对最终 Pod 请求与适配器生成的 <code>minResources</code>。模板里算出一个数，不代表最终 Pod 的完整资源请求就是这个数。</p>
+<p>本例使用普通容器并显式填写资源请求。若模板还有 init container、Pod overhead，或 Admission 阶段注入 sidecar，应同时核对最终 Pod 请求与适配器生成的 <code>minResources</code>。</p>
 <p>开启自动扩缩容又是另一项条件变化。<code>calculatePodGroupParams</code> 的函数体节选如下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go">rayCluster := &amp;rayv1.RayCluster&#123;Spec: *rayClusterSpec&#125;<br><br><span class="hljs-keyword">if</span> !utils.IsAutoscalingEnabled(rayClusterSpec) &#123;<br>	<span class="hljs-keyword">return</span> utils.CalculateDesiredReplicas(rayCluster) + <span class="hljs-number">1</span>, utils.CalculateDesiredResources(rayCluster)<br>&#125;<br><span class="hljs-keyword">return</span> utils.CalculateMinReplicas(rayCluster) + <span class="hljs-number">1</span>, utils.CalculateMinResources(rayCluster)<br></code></pre></td></tr></table></figure>
 <p>扩缩容场景使用最低副本数，加上 head；它不会把最大扩容规模都变成启动门槛。后续扩出的 worker 仍要竞争资源。计算还会将 worker 组的副本数乘以 <code>numOfHosts</code>：例如 2 个副本、每个副本 4 个 host，对应 8 个 worker Pod。暂停的组会被跳过。因此，只有先确定这些配置，才能从 replicas 算出 Pod 总数。</p>
-<p>直接 RayCluster 的协调会重新计算其组需求；RayJob 派生集群则跳过这条路径。RayJob 的需求维护集中在初始化与收尾调用中，因此不应把这个适配器描述成“运行时每次 worker 数变化都同步调整整个 RayJob 的 Gang 门槛”。</p>
+<p>直接 RayCluster 会在协调时重新计算组需求；RayJob 的需求维护集中在初始化与收尾阶段。自动扩缩容期间新增的 worker 继续按当时的队列和节点资源参与调度。</p>
 <p>RayJob 另有一种提交方式叫 SidecarMode，提交程序作为 head Pod 内的辅助容器运行，资源计算因此有专门分支。它与前面泛指辅助容器的 sidecar 概念相关，但这里是具体的模式名。本篇的三个 Ray Pod 加一个独立 submitter Pod，只适用于已固定的 K8sJobMode。</p>
 <h2 id="Pod-关联与作业提交"><span id="5-Pod-怎样关联到同一组，再完成提交" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Pod-关联与作业提交" class="headerlink" title="Pod 关联与作业提交"></a>Pod 关联与作业提交</h2><p>RayJob 构造专用 RayCluster 时传播相关元数据；RayCluster 构造 head 和 worker Pod 时再次调用 <code>AddMetadataToChildResource</code>。RayJob 创建 submitter Job 前，也会对其 Pod 模板调用这个方法。</p>
 <p>核心关联由 <code>populateAnnotations</code> 写入。下面两行保持源码形式，常量值在表中展开：</p>
@@ -510,10 +509,10 @@
 </tbody>
 </table>
 </div>
-<p>以上最后两项说的是适配器创建 PodGroup 的配置来源；并不表示这些 label 会自动替代所有 Pod 级优先级配置。分组 annotation 也不会改变 Pod 的 owner。</p>
+<p>最后两项是创建 PodGroup 时读取的配置来源；Pod 自身的优先级和 owner 仍由对应资源模板与 Controller 管理。</p>
 <p>这一条接入路径使用 KubeRay 的 Volcano 适配器，以及 Volcano Scheduler 的调度插件。Volcano 源码中的 Job Controller Ray 插件属于原生 Volcano Job 的框架支持路径，不是本例中创建 head、worker 的必经步骤。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-09-kuberay-volcano/04-lifecycle.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：从 RayJob 声明到用户程序提交，再到收尾。调度与绑定、容器启动、RayCluster 就绪和 Ray Jobs API 提交是不同阶段；时间间隔只表示先后关系。"><img src="/kuberay-volcano-09-kuberay-volcano/04-lifecycle.svg" alt="从 RayJob 声明到用户程序提交，再到收尾。调度与绑定、容器启动、RayCluster 就绪和 Ray Jobs API 提交是不同阶段；时间间隔只表示先后关系。" width="960" height="728" style="--diagram-width:960px"></a></div><figcaption>从 RayJob 声明到用户程序提交，再到收尾。调度与绑定、容器启动、RayCluster 就绪和 Ray Jobs API 提交是不同阶段；时间间隔只表示先后关系。 <a href="/kuberay-volcano-09-kuberay-volcano/04-lifecycle.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>submitter Pod 运行以后，还要通过 Dashboard 地址访问 Ray Jobs API，才能把入口命令交给 Ray。调度器负责把 Pod 放到节点上，工作目录的上传与代码版本保存属于另一层职责。Ray 的 <code>runtime_env</code> 用 <code>working_dir</code> 指定工作目录，用 <code>py_modules</code> 提供 Python 模块；本地内容的打包、上传由相应客户端与 Ray 运行环境流程处理。若还要保存版本、管理业务记录并重复提交，则需要提交平台承担这些职责。本系列的镜像内程序案例没有执行这套上传流程。</p>
+<p>submitter Pod 运行以后，通过 Dashboard 地址访问 Ray Jobs API，把入口命令交给 Ray。Volcano 的工作到 Pod 调度为止；代码包、运行环境和 Ray 内部执行由提交方式与 Ray 负责。本系列继续使用程序已在镜像内的案例。</p>
 <h2 id="完成、暂停与重试后的清理"><span id="6-完成、暂停和重试以后，PodGroup-怎么办" class="series-legacy-anchor" aria-hidden="true"></span><a href="#完成、暂停与重试后的清理" class="headerlink" title="完成、暂停与重试后的清理"></a>完成、暂停与重试后的清理</h2><p>主案例保留前五篇的结束配置：正常完成后等待 60 秒删除专用集群，保留 RayJob 等记录。在删除发生之前，存活的 head、worker 仍然占用节点资源。收尾不能只把 PodGroup 的资源量无条件置零。</p>
 <p><code>CleanupOnCompletion</code> 会用 <code>status.rayClusterName</code> 查实际集群，再重算需求：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
@@ -550,8 +549,7 @@
 </div>
 <p>更新为零也不等于节点资源已经释放。特别是对象刚进入删除流程时，Pod 可能还在终止。实际占用仍要随 Pod 生命周期与调度器观察变化。PodGroup 本身可以继续存在，最终是否由垃圾回收删除，要看拥有它的 RayJob 或 RayCluster 是否被删除。</p>
 <p>暂停与整次执行重试使用相同的清理阶段：先等待集群和 submitter Job 删除完成，再调用批调度资源清理，成功后才重置集群名、作业 ID 等状态。这个分支清理出错会返回错误，下一轮继续处理。新的执行重新初始化时，RayCluster 名和 submission ID 可以改变，仍存活的 RayJob 则继续使用按其名称生成的 PodGroup，并重新填写需求。</p>
-<p>终态分支的清理节奏与暂停、重试不同。<code>Complete/Failed</code> 用 Go 的 defer 在函数返回前调用清理；失败时记录事件和日志，本次 Reconcile 仍按原返回值结束。后续是否再次执行，取决于 RayJob 自身的重查或新的资源事件。</p>
-<p>PodGroup 的监听也按资源关系配置。Volcano factory 给 RayCluster Reconciler 增加 <code>Owns(PodGroup)</code>；RayJob 继续依赖自身的观察和重查流程推进状态。对使用者来说，PodGroup 表达调度需求，RayJob status 才是 KubeRay 跟踪作业生命周期的主要入口。</p>
+<p>终态分支通过 <code>Complete/Failed</code> 的收尾路径更新 PodGroup。PodGroup 表达当前调度需求，RayJob status 继续记录 KubeRay 看到的作业生命周期。</p>
 <h2 id="小结：两端的生命周期协作"><a href="#小结：两端的生命周期协作" class="headerlink" title="小结：两端的生命周期协作"></a>小结：两端的生命周期协作</h2><p>从使用者的角度看，一次作业的完整生命周期由几层能力共同支撑：提交平台保存代码包和业务记录，KubeRay 维护集群与提交过程，Volcano 决定 Pod 如何获得资源，Ray 执行用户计算。前面的创建顺序、资源记账、失败重试和回收条件，解释了这些组件怎样衔接，也限定了各自能够提供的保证。理解这套分工，才能把业务需要的代码版本、结果保存和重试语义安排在相应层次。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/blob/6bf05eb17a3e2e06fb454471265b2afa34d66e90/ray-operator/controllers/ray/batchscheduler/volcano/volcano_scheduler.go">KubeRay：Volcano 适配器完整实现</a></li>
@@ -1057,20 +1055,5 @@
   <noscript>
     <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
   </noscript>
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        tex2jax: {
-            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
-            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
-            processEscapes: true
-        }
-    });
-    MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax();
-        for (var i = 0; i < all.length; ++i)
-            all[i].SourceElement().parentNode.className += ' has-jax';
-    });
-</script>
-<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
 </html>
