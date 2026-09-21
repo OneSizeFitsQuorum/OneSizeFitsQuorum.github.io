@@ -7,11 +7,8 @@
 
 <head>
   <meta charset="UTF-8">
-
   <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
   <link rel="icon" href="/img/favicon.png">
-  
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
@@ -62,7 +59,7 @@
 <!-- 主题依赖的图标库，不要自行修改 -->
 <!-- Do not modify the link that theme dependent icons -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -87,7 +84,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -96,6 +93,8 @@
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
+  
+
   
 
   
@@ -263,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          6.2k 字
+          3.8k 字
         
       </span>
     
@@ -275,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          20 分钟
+          12 分钟
         
       </span>
     
@@ -288,7 +287,6 @@
           <span id="busuanzi_value_page_pv"></span> 次
         </span>
         
-
       
     
   </div>
@@ -323,14 +321,12 @@
           <article class="post-content mx-auto">
             <h1 id="seo-header">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</h1>
             
-              <p id="updated-time" class="note note-info" style="display: none">
+              <p class="note note-info">
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：2026-09-16T00:00:00+08:00
+                    本文最后更新于：5 天前
                   
-                  
-
                 
               </p>
             
@@ -339,6 +335,41 @@
                 
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 8 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li class="is-current"><a href="/kuberay-volcano-08-volcano-queues/" aria-current="page">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-07-volcano-gang/">上一篇：第 7 篇｜Volcano Gang 调度：成组分配与绑定</a><a href="/kuberay-volcano-09-kuberay-volcano/">下一篇：第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上一篇的 Gang 检查回答了一组 Pod 能否满足最低要求。现在有两个作业都在等资源：<code>demo-job</code> 和独立提交的 <code>demo-job-b</code>。它们应该按提交时间排队，按优先级选择，还是按已经占用的资源量轮流获得机会？</p>
 <p>Volcano 把这些选择放在不同层次：Queue 表达资源策略，作业和成员各有排序，节点还有自己的放置约束。本文沿用 Volcano <code>d8984501e4ad</code>，先看 proportion 插件怎样计算队列份额，再看 drf 插件怎样比较作业占用各类资源的比例，最后讨论传统 preempt（队列内抢占）和 reclaim（跨队列回收）路径。默认配置仍承接第七篇；分析驱逐时会显式增加对应 Action。数字例子只演示算法，不表示主案例已经修改配置或完成压测。</p>
+<h2 id="先把一次资源竞争拆成四步"><a href="#先把一次资源竞争拆成四步" class="headerlink" title="先把一次资源竞争拆成四步"></a>先把一次资源竞争拆成四步</h2><p>当两个作业同时等待时，调度器不是用一个总分直接选出最终 Pod。一次选择至少要经过四个层次：</p>
+<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
+<table>
+<thead>
+<tr>
+<th>次序</th>
+<th>回答的问题</th>
+<th>本篇对应机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Queue 份额</td>
+<td>每个队列本轮应得到多少资源额度</td>
+<td>proportion 的 <code>deserved</code> 计算</td>
+</tr>
+<tr>
+<td>Queue 与作业排序</td>
+<td>先检查哪个队列、哪个作业</td>
+<td>Queue priority、份额使用程度、PriorityClass、DRF</td>
+</tr>
+<tr>
+<td>可分配与节点检查</td>
+<td>候选还能不能占用队列额度，具体 Pod 能不能放到某台节点</td>
+<td><code>queueAllocatable</code>、predicates、Gang</td>
+</tr>
+<tr>
+<td>资源释放</td>
+<td>当前资源已被占用时，是等待自然释放还是驱逐合适的成员</td>
+<td>preempt、reclaim 与 Statement</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>前一步排在前面，只表示先获得检查机会。候选仍要通过后面的额度、节点和成组条件。这样看，权重、优先级、DRF 和抢占并不是四套互相替代的调度算法，而是在不同位置回答不同问题。</p>
 <h2 id="Queue-的配置与份额"><span id="1-Queue-里配置的值，和本轮算出的份额" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Queue-的配置与份额" class="headerlink" title="Queue 的配置与份额"></a>Queue 的配置与份额</h2><h3 id="配置值、需求与已分配量"><a href="#配置值、需求与已分配量" class="headerlink" title="配置值、需求与已分配量"></a>配置值、需求与已分配量</h3><p>先看两个作业都提交到 <code>ray-batch</code> 的情况。它们共享该 Queue 的资源策略；作业之间如何排序，稍后再看。讨论跨队列分配时，另设一个对比场景：第二个作业在提交时就指定新建的 <code>ray-batch-b</code>。这是两个提交条件不同的例子，没有把运行中的作业迁移到另一队列。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/01-queues.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。"><img src="/kuberay-volcano-08-volcano-queues/01-queues.svg" alt="两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。" width="960" height="370" style="--diagram-width:960px"></a></div><figcaption>两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。 <a href="/kuberay-volcano-08-volcano-queues/01-queues.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>以 proportion 插件为例，它为每个参与计算的 Queue 构造一份 <code>queueAttr</code>。下面几个量看起来都在描述“队列有多少资源”，来源和用途却不同。</p>
@@ -424,7 +455,7 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">futureUsed := attr.allocated.Clone().Add(totalReq)<br>allocatable, _ := futureUsed.LessEqualWithDimensionAndResourcesName(attr.deserved, totalReq)<br></code></pre></td></tr></table></figure>
 <p>这两行来自 <code>queueAllocatable</code> 的连续节选。排序决定先检查谁，可分配性决定这个候选还能不能继续拿资源。随后节点过滤仍可能失败，因此“队列有额度”和“Pod 能放下”还隔着一步。</p>
 <p>Queue 内部再按 JobOrder 回调选择作业。第七篇的配置把 <code>priority</code> 放在 <code>drf</code> 前面；<code>Session.JobOrderCompareFn</code> 按启用回调的顺序，遇到非零比较结果就返回。两个作业优先级不同时，前面的 priority 已经作出选择，不会再把 DRF 算出的份额与它加权平均。比较仍相同时，框架才使用创建时间和 UID 等后备规则。</p>
-<p>这里有两个不同的优先级：<code>Queue.spec.priority</code> 参与队列排序，PodGroup 引用的 PriorityClass 参与作业优先级。成员 Pod 还有自己的优先级字段。这些配置作用于不同层次的对象，不能把其中一个值当作整条调度路径上的统一顺序。</p>
+<p>这里有三个作用位置不同的优先级：<code>Queue.spec.priority</code> 参与队列排序，PodGroup 引用的 PriorityClass 参与作业排序，成员 Pod 的优先级用于成员层面的比较。它们依次作用于不同对象，共同形成选择顺序。</p>
 <h3 id="DRF-与主导资源份额"><span id="4-CPU-和-GPU-混用时，怎样衡量份额" class="series-legacy-anchor" aria-hidden="true"></span><a href="#DRF-与主导资源份额" class="headerlink" title="DRF 与主导资源份额"></a>DRF 与主导资源份额</h3><p>只数 Pod 个数无法比较资源占用：一个 Pod 请求 1 核 CPU，另一个可能请求 8 核和一张 GPU。DRF，即 Dominant Resource Fairness，用一个作业占用各类资源的最大比例表示它的主导资源份额。本节分母是参与计算的集群资源总量；上一节的 Queue share 则以队列的 deserved 为分母。两处都叫份额，回答的问题分别是作业占集群多少，以及队列用了自身额度的多少。</p>
 <p>单独构造一个数学例子：总资源为 16 核 CPU、4 张 GPU，两个作业同优先级，前面的排序回调没有分出先后。这里只看 DRF JobOrder 回调的比较，不声称这是主案例的实际配置。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
@@ -489,7 +520,7 @@
 </table>
 </div>
 <p>传统路径下，Gang 回调有一项很具体的限制：它按候选依次减少受害作业的可用成员计数，只有计数高于 <code>MinAvailable</code> 时才允许继续选成员。例如某组正好只有最低要求的三个成员，不能把其中一个当作不影响成组要求的冗余成员回收。</p>
-<p>当前源码另有 <code>gangpreempt</code>、<code>gangreclaim</code>，支持以组为单位组织驱逐决策，采用不同的候选组合模型。上面的限制针对本篇跟踪的传统 Action，不能推广成“Volcano 永远不会驱逐一个最低运行组”。这些新路径不在默认配置中，本篇不把它们与传统回调混写。</p>
+<p>当前源码另有 <code>gangpreempt</code>、<code>gangreclaim</code>，支持以组为单位组织驱逐决策，采用不同的候选组合模型。本篇跟踪的是传统 Action；这些新路径不在默认配置中，启用后应按它们自己的候选组合过程分析。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。"><img src="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" alt="传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。" width="960" height="596" style="--diagram-width:960px"></a></div><figcaption>传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。 <a href="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>preempt 和 reclaim 同样使用 Statement。它们可以先推演受害成员退出后是否放得下等待者，并将等待者记为 Pipelined。没有满足要求时撤销尝试；提交驱逐以后，资源也不会在同一瞬间可用。Pod 终止、缓存观察到变化、等待成员重新分配和绑定，都有自己的时间窗口。</p>
 <p>对 Ray 应用来说，被驱逐的 worker 上可能有用户任务、actor 或内存中的对象。后续 Pod 被补回，不代表这些计算必然无损恢复。Ray 的重试设置、检查点以及应用处理重复执行的方式，仍需按第四、五篇的故障边界分析。</p>
@@ -592,7 +623,7 @@
               
                 <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
                   <span class="hint--top hint--rounded" aria-label="BY - 署名">
-                    <i class="iconfont icon-cc-by"></i>
+                    <i class="iconfont icon-by"></i>
                   </span>
                 </a>
               
@@ -790,11 +821,10 @@
       </span>
     
     
-
   
-
 </div>
 
+  
   
   
 </div>
@@ -844,33 +874,6 @@
   
 
 
-
-
-  
-<script>
-  var relativeDate = function() {
-    var updatedTime = document.getElementById('updated-time');
-    if (updatedTime) {
-      var text = updatedTime.textContent;
-      var reg = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})/;
-      var matchs = text.match(reg);
-      if (matchs) {
-        var relativeTime = moment(matchs[0]).fromNow();
-        updatedTime.textContent = text.replace(reg, relativeTime);
-      }
-      updatedTime.style.display = '';
-    }
-  };
-  Fluid.utils.createScript('https://lib.baomitu.com/moment.js/2.29.4/moment.min.js', function() {
-    if (!'zh-cn'.startsWith('en')) {
-      Fluid.utils.createScript('https://lib.baomitu.com/moment.js/2.29.4/locale/zh-cn.min.js', function() {
-        relativeDate();
-      });
-    } else {
-      relativeDate();
-    }
-  });
-</script>
 
 
   

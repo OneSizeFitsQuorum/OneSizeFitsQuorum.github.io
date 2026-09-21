@@ -7,11 +7,8 @@
 
 <head>
   <meta charset="UTF-8">
-
   <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
   <link rel="icon" href="/img/favicon.png">
-  
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
@@ -62,7 +59,7 @@
 <!-- 主题依赖的图标库，不要自行修改 -->
 <!-- Do not modify the link that theme dependent icons -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -87,7 +84,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -96,6 +93,8 @@
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
+  
+
   
 
   
@@ -263,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          6.3k 字
+          3.2k 字
         
       </span>
     
@@ -275,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          20 分钟
+          10 分钟
         
       </span>
     
@@ -288,7 +287,6 @@
           <span id="busuanzi_value_page_pv"></span> 次
         </span>
         
-
       
     
   </div>
@@ -323,14 +321,12 @@
           <article class="post-content mx-auto">
             <h1 id="seo-header">第 6 篇｜Volcano 架构：从 Pod 到作业</h1>
             
-              <p id="updated-time" class="note note-info" style="display: none">
+              <p class="note note-info">
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：2026-09-16T00:00:00+08:00
+                    本文最后更新于：5 天前
                   
-                  
-
                 
               </p>
             
@@ -340,6 +336,51 @@
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 6 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li class="is-current"><a href="/kuberay-volcano-06-volcano-architecture/" aria-current="page">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-05-high-availability/">上一篇：第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a><a href="/kuberay-volcano-07-volcano-gang/">下一篇：第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前五篇讨论了 KubeRay 怎样把一个 RayJob 变成运行中的 Ray 集群。这里还留着一个问题：Operator 已经创建了 Pod，集群却没有足够的空闲资源，几套 Ray 集群该怎样分配这些资源？</p>
 <p>第三篇里的协调并发数决定多少个 RayCluster 可以同时被检查。调大这个数字，Operator 可以更快地创建 Pod，却不会增加机器上的 CPU、内存和 GPU。接下来四篇沿着这条边界，阅读负责批调度的 Volcano：这一篇先看对象、进程和协作关系，第七篇跟踪一次成组调度，第八篇分析资源竞争，第九篇回到 KubeRay 的接入实现。</p>
 <p>源码基线为 Volcano <code>d8984501e4ad</code>，KubeRay 仍为 <code>6bf05eb17a3e</code>。下面的资源数量用于源码推演，没有进行集群实验。主案例继续使用 <code>default/demo-job</code>，一个 head Pod、<code>compute</code> 组的两个 worker Pod，使用 K8sJobMode，关闭自动扩缩容。相对前五篇，这里新增的条件是启用 Volcano。</p>
+<h2 id="先看-KubeRay-与-Volcano-的交接"><a href="#先看-KubeRay-与-Volcano-的交接" class="headerlink" title="先看 KubeRay 与 Volcano 的交接"></a>先看 KubeRay 与 Volcano 的交接</h2><p>把一次提交压缩成一条链，两个系统的分工会直观很多：</p>
+<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>主要动作</th>
+<th>负责者</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>声明作业</td>
+<td>用户提交 RayJob</td>
+<td>Kubernetes API</td>
+</tr>
+<tr>
+<td>建立运行对象</td>
+<td>创建 RayCluster、PodGroup，以及后续的 head、worker Pod</td>
+<td>KubeRay</td>
+</tr>
+<tr>
+<td>表达成组要求</td>
+<td>PodGroup 保存最低成员、最低资源和 Queue；Pod 携带组名</td>
+<td>KubeRay 的 Volcano 适配器</td>
+</tr>
+<tr>
+<td>选择运行位置</td>
+<td>判断队列额度、Gang 门槛和节点条件，为 Pod 选择 Node</td>
+<td>Volcano Scheduler</td>
+</tr>
+<tr>
+<td>启动容器</td>
+<td>观察已经绑定的 Pod，拉取镜像并启动容器</td>
+<td>节点上的 kubelet 与容器运行时</td>
+</tr>
+<tr>
+<td>提交 Ray 程序</td>
+<td>RayCluster 就绪后创建 submitter，再调用 Ray Jobs API</td>
+<td>KubeRay、Kubernetes Job 与 Ray</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Volcano 接手的是“这些 Pod 怎样获得节点资源”。RayCluster 的期望副本、RayJob 的执行状态和用户函数的运行仍由 KubeRay 与 Ray 维护。下面先解释为什么需要把几个 Pod 当成一组，再把表中的 PodGroup、Queue 和各个进程逐一展开。</p>
 <h2 id="成组调度的需求"><span id="1-为什么要把几个-Pod-放在一起考虑" class="series-legacy-anchor" aria-hidden="true"></span><a href="#成组调度的需求" class="headerlink" title="成组调度的需求"></a>成组调度的需求</h2><p>假设有两个独立提交的 RayJob：<code>demo-job</code> 和 <code>demo-job-b</code>。为了只看调度问题，先把每个作业所需的三个 Ray Pod 简化为三个等大的资源槽，并假定业务需要三个成员都到齐才能有效计算。submitter 稍后才创建，其资源要求在第九篇单独计算。</p>
 <p>机器一共能放下四个这样的 Pod。如果两个作业各拿到两个槽，资源已经用满，双方却都还在等第三个成员。先让一组拿到三个槽，就有机会完成一次计算，释放资源后再安排另一组。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-06-volcano-architecture/01-partial.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：两个作业都需要三个成员。四个资源槽被各占两个时，双方都可能等待；先满足一组则能推进计算。这里只演示一种可能的分配结果。"><img src="/kuberay-volcano-06-volcano-architecture/01-partial.svg" alt="两个作业都需要三个成员。四个资源槽被各占两个时，双方都可能等待；先满足一组则能推进计算。这里只演示一种可能的分配结果。" width="960" height="340" style="--diagram-width:960px"></a></div><figcaption>两个作业都需要三个成员。四个资源槽被各占两个时，双方都可能等待；先满足一组则能推进计算。这里只演示一种可能的分配结果。 <a href="/kuberay-volcano-06-volcano-architecture/01-partial.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
@@ -383,7 +424,7 @@
 <p>后文会检查 Queue 是否处于 <code>Open</code>，这是允许接纳新作业的开放状态。它说明队列可接受工作，至于资源是否足够，还要继续计算。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-06-volcano-architecture/02-resources.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：原生 Volcano Job 和 RayJob 是两条提交路径。各自的控制器维护工作负载，并通过 PodGroup 表达调度要求；Queue 可被多个 PodGroup 引用。实线表示管理关系，虚线表示调度关联。"><img src="/kuberay-volcano-06-volcano-architecture/02-resources.svg" alt="原生 Volcano Job 和 RayJob 是两条提交路径。各自的控制器维护工作负载，并通过 PodGroup 表达调度要求；Queue 可被多个 PodGroup 引用。实线表示管理关系，虚线表示调度关联。" width="960" height="485" style="--diagram-width:960px"></a></div><figcaption>原生 Volcano Job 和 RayJob 是两条提交路径。各自的控制器维护工作负载，并通过 PodGroup 表达调度要求；Queue 可被多个 PodGroup 引用。实线表示管理关系，虚线表示调度关联。 <a href="/kuberay-volcano-06-volcano-architecture/02-resources.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>主案例的 Queue 命名为 <code>ray-batch</code>，PodGroup 命名为 <code>ray-demo-job-pg</code>。annotation 是写在对象元数据中的键值注解，组件按约定读取它；这里 Pod 的 <code>scheduling.k8s.io/group-name</code> annotation 填写组名，让调度器知道它属于哪一组。owner reference 则表达 Kubernetes 对象的拥有关系，影响事件映射和垃圾回收。把几个 Pod 关联到同一个组，并不会让 PodGroup 接管它们的创建与删除。</p>
-<p>Volcano Scheduler 内部还有一个 <code>JobInfo</code>。它是调度器组织 PodGroup 和成员信息的内存模型，不能看到变量名 <code>job</code> 就认定来源一定是 Volcano Job。KubeRay 创建的 PodGroup 同样可以形成这里的 JobInfo。</p>
+<p>Volcano Scheduler 内部还用 <code>JobInfo</code> 组织 PodGroup 和成员信息。它是调度器的一份内存模型，来源既可以是 Volcano Job，也可以是 KubeRay 创建的 PodGroup。后文代码里的 <code>job</code> 多数指这份调度模型。</p>
 <h2 id="组件分工与提交路径"><span id="3-核心模块分别运行在哪里" class="series-legacy-anchor" aria-hidden="true"></span><a href="#组件分工与提交路径" class="headerlink" title="组件分工与提交路径"></a>组件分工与提交路径</h2><h3 id="核心组件的进程边界"><a href="#核心组件的进程边界" class="headerlink" title="核心组件的进程边界"></a>核心组件的进程边界</h3><p>把基本部署拆开看，有三个主要的常驻服务角色：Scheduler、Controller Manager 和 Admission Webhook。Webhook 是供 API Server 调用的 HTTP 回调服务；这里的 Admission 指资源写入前的准入处理，可以校验请求或补全字段。这三个角色可以分别部署，也可以有多个副本。这里数的是职责与进程角色，实际 Pod 数量由安装配置决定。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
@@ -420,7 +461,7 @@
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-06-volcano-architecture/03-processes.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：基本部署中的进程边界。控制器和调度器通过 Kubernetes API 观察与更新对象；Admission 是 API Server 对匹配请求发起的同步调用。图中没有展开主备副本。"><img src="/kuberay-volcano-06-volcano-architecture/03-processes.svg" alt="基本部署中的进程边界。控制器和调度器通过 Kubernetes API 观察与更新对象；Admission 是 API Server 对匹配请求发起的同步调用。图中没有展开主备副本。" width="960" height="480" style="--diagram-width:960px"></a></div><figcaption>基本部署中的进程边界。控制器和调度器通过 Kubernetes API 观察与更新对象；Admission 是 API Server 对匹配请求发起的同步调用。图中没有展开主备副本。 <a href="/kuberay-volcano-06-volcano-architecture/03-processes.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>Scheduler 的 Action 和 Plugin 则运行在 Scheduler 进程内。Action 组织调度阶段，Plugin 注册排序、过滤、资源准入和就绪判断等函数。它们通常通过 Go 函数调用协作，不是每个插件起一个远程服务。</p>
 <p>这里还要区分两种“准入”。Admission Webhook 检查这次 API 请求能否接受；Scheduler 的 enqueue 阶段检查一组工作负载是否可以进入调度。RayJob 被 API Server 保存，只说明声明已经写入，后面仍可能因为资源不足而等待。</p>
-<h3 id="从工作负载声明到-Pod-运行"><span id="4-一次提交如何经过这些组件" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从工作负载声明到-Pod-运行" class="headerlink" title="从工作负载声明到 Pod 运行"></a>从工作负载声明到 Pod 运行</h3><p>先看 Volcano Job 原生路径。用户提交 Job 后，Volcano Job Controller 维护对应的 PodGroup。源码 <code>job_controller_actions.go</code> 会观察 PodGroup 的 phase；在这个版本中，组仍处于空状态或 <code>Pending</code> 时，不进入正常的 task 同步创建流程。Scheduler 通过 enqueue 推进准入，Controller 再据此继续创建 Pod。</p>
+<h3 id="从工作负载声明到-Pod-运行"><span id="4-一次提交如何经过这些组件" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从工作负载声明到-Pod-运行" class="headerlink" title="从工作负载声明到 Pod 运行"></a>从工作负载声明到 Pod 运行</h3><p>先看 Volcano Job 原生路径。用户提交 Job 后，Volcano Job Controller 维护对应的 PodGroup。源码 <code>job_controller_actions.go</code> 会观察 PodGroup 的 phase；在这个版本中，组仍处于空状态或 <code>Pending</code> 时，Controller 等待 Scheduler 通过 enqueue 推进准入，之后再进入正常的 task 同步创建流程。</p>
 <p>这个先准入、后创建成员的过程，可以减少原生作业在资源不足时生成大量等待中的 Pod。也说明两端靠资源状态协作：Controller 写出需求，Scheduler 更新调度状态，Controller 从后续观察中得知下一步可以继续。</p>
 <p>KubeRay 的路径有所不同。RayJob Controller 创建 PodGroup 和 RayCluster，RayCluster Controller 随后维护 head、worker Pod。它不会复用 Volcano Job Controller 的那套“等待 PodGroup 准入再创建 task”的流程。因此，接入 Volcano 后仍可能看到已经创建、尚未调度的 Ray Pod。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-06-volcano-architecture/04-handoff.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：KubeRay 路径的一次提交。箭头表示经 API 的请求或观察，以及节点启动动作；Ray 作业提交发生在 RayCluster 就绪以后。Volcano Job Controller 不参与创建这些 Ray Pod。"><img src="/kuberay-volcano-06-volcano-architecture/04-handoff.svg" alt="KubeRay 路径的一次提交。箭头表示经 API 的请求或观察，以及节点启动动作；Ray 作业提交发生在 RayCluster 就绪以后。Volcano Job Controller 不参与创建这些 Ray Pod。" width="960" height="662" style="--diagram-width:960px"></a></div><figcaption>KubeRay 路径的一次提交。箭头表示经 API 的请求或观察，以及节点启动动作；Ray 作业提交发生在 RayCluster 就绪以后。Volcano Job Controller 不参与创建这些 Ray Pod。 <a href="/kuberay-volcano-06-volcano-architecture/04-handoff.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
@@ -557,7 +598,7 @@
               
                 <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
                   <span class="hint--top hint--rounded" aria-label="BY - 署名">
-                    <i class="iconfont icon-cc-by"></i>
+                    <i class="iconfont icon-by"></i>
                   </span>
                 </a>
               
@@ -755,11 +796,10 @@
       </span>
     
     
-
   
-
 </div>
 
+  
   
   
 </div>
@@ -809,33 +849,6 @@
   
 
 
-
-
-  
-<script>
-  var relativeDate = function() {
-    var updatedTime = document.getElementById('updated-time');
-    if (updatedTime) {
-      var text = updatedTime.textContent;
-      var reg = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})/;
-      var matchs = text.match(reg);
-      if (matchs) {
-        var relativeTime = moment(matchs[0]).fromNow();
-        updatedTime.textContent = text.replace(reg, relativeTime);
-      }
-      updatedTime.style.display = '';
-    }
-  };
-  Fluid.utils.createScript('https://lib.baomitu.com/moment.js/2.29.4/moment.min.js', function() {
-    if (!'zh-cn'.startsWith('en')) {
-      Fluid.utils.createScript('https://lib.baomitu.com/moment.js/2.29.4/locale/zh-cn.min.js', function() {
-        relativeDate();
-      });
-    } else {
-      relativeDate();
-    }
-  });
-</script>
 
 
   
