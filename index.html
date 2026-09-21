@@ -7,11 +7,8 @@
 
 <head>
   <meta charset="UTF-8">
-
   <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
   <link rel="icon" href="/img/favicon.png">
-  
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
@@ -46,7 +43,7 @@
 <!-- 主题依赖的图标库，不要自行修改 -->
 <!-- Do not modify the link that theme dependent icons -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -71,7 +68,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -80,6 +77,8 @@
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
+  
+
   
 
   
@@ -254,7 +253,6 @@
               <div class="col-12 col-md-10 m-auto">
                 
 
-<h1 style="display: none">谭新宇的博客</h1>
 
   <div class="row mx-auto index-card">
     
@@ -805,7 +803,7 @@
       
       <a class="index-excerpt " href="/kuberay-volcano-07-volcano-gang/" target="_self">
         <div>
-          跟踪一个 PodGroup 在 Session 中的准入、试分配、Gang 检查、提交与绑定，解释分配撤销和部分绑定失败的处理边界。
+          沿一个三成员 PodGroup 走过准入、试分配、Gang 检查、提交与异步绑定，说明资源不足和部分绑定失败时会发生什么。
         </div>
       </a>
 
@@ -882,7 +880,7 @@
       
       <a class="index-excerpt " href="/kuberay-volcano-08-volcano-queues/" target="_self">
         <div>
-          用有明确前提的数字例子分析 Queue 份额、DRF、优先级和资源回收，区分策略计算、节点放置与实际 Pod 占用。
+          用两个 Queue 说明 Volcano 怎样计算资源份额、选择下一项工作，以及资源占满后怎样在 Queue 内抢占或跨 Queue 回收。
         </div>
       </a>
 
@@ -959,7 +957,7 @@
       
       <a class="index-excerpt " href="/kuberay-volcano-09-kuberay-volcano/" target="_self">
         <div>
-          说明 KubeRay 如何把 Ray 集群的调度需求交给 Volcano，以及提交、完成、暂停和重试时两端如何协作。
+          对比 RayJob 默认创建流程与接入 Volcano 后的流程，跟踪 RayCluster Controller 创建成员 Pod 的源码路径，再说明参数传递和生命周期协作。
         </div>
       </a>
 
@@ -1094,11 +1092,10 @@
       </span>
     
     
-
   
-
 </div>
 
+  
   
   
 </div>

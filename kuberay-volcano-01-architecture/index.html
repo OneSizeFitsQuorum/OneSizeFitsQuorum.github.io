@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-01.svg?v=ray-20260916">
 <meta property="article:published_time" content="2026-09-15T15:40:00.000Z">
-<meta property="article:modified_time" content="2026-09-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-21T12:11:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
 <meta property="article:tag" content="源码阅读">
@@ -324,7 +324,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：6 天前
+                    本文最后更新于：2 分钟前
                   
                 
               </p>
@@ -332,11 +332,9 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li class="is-current"><a href="/kuberay-volcano-01-architecture/" aria-current="page">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第零篇从计算与部署需求解释了 Ray、Kubernetes 和 KubeRay 的分工。这篇沿一次 RayJob 提交进入源码，追踪资源之间的交接。</p>
-<p>向 Kubernetes 提交一个 RayJob 后，集群里会陆续出现 RayCluster、head Pod、worker Pod，以及一个用来提交作业的 Kubernetes Job。用户只创建了一个对象，剩下的资源是谁创建的？这些资源准备好之后，程序又由谁启动？</p>
-<p>本例用一个名叫 <code>demo-job</code> 的 RayJob 运行 Python 程序。KubeRay 为它准备专用集群，包含一个 head Pod 和两个 worker Pod；集群就绪后提交程序，成功完成后等待 60 秒清理集群。程序及依赖已经放进运行镜像，暂不启用自动扩缩容。</p>
-<p>下文把这个提交用 Job 称为 submitter Job，它创建的 Pod 称为 submitter Pod。第一至第五篇的基础案例不启用 Volcano；第六至第九篇再增加批调度配置，分析多个作业竞争资源时的行为。</p>
-<p>这篇关注使用者提交一个声明以后，KubeRay、Kubernetes 和 Ray 怎样接力完成工作。理解这套分工，就能知道三种资源分别适合什么需求，以及“集群就绪”和“程序完成”为什么是不同的状态。队列实现、故障恢复和多副本选主在后续文章中展开。</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li class="is-current"><a href="/kuberay-volcano-01-architecture/" aria-current="page">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第零篇解释了 Ray、Kubernetes 和 KubeRay 的基本分工。这一篇把分工放进一次 RayJob 提交：使用者只创建一个 RayJob，集群里随后却出现 RayCluster、head Pod、worker Pod，以及一个运行提交程序的 Kubernetes Job。这些对象分别由谁创建，程序又从哪一步开始交给 Ray？</p>
+<p>本例使用名为 <code>demo-job</code> 的 RayJob 运行 Python 程序。KubeRay 为它准备一套专用集群，其中有一个 head Pod 和两个 worker Pod；集群就绪后再提交程序，成功完成后保留集群 60 秒。程序及依赖已经放进运行镜像，暂不启用自动扩缩容。</p>
+<p>下文把提交用的 Kubernetes Job 称为 submitter Job，把它创建的 Pod 称为 submitter Pod。第一至第五篇沿用这个不启用 Volcano 的基础案例；第六至第八篇单独介绍 Volcano，第九篇再回到 <code>demo-job</code> 说明接入方式。本文先走完资源创建、程序提交和收尾，队列、恢复与多副本接管留到后文。</p>
 <p>本文基于 KubeRay 提交 <code>6bf05eb17a3e</code>，涉及 Ray 进程结构时参考 Ray 提交 <code>3f785c0711b9</code>。这是对固定源码版本的分析，文中的时序图表示代码路径，没有加入集群实测结果。</p>
 <h2 id="KubeRay-的职责与核心资源"><span id="1-谁管理集群，谁执行计算" class="series-legacy-anchor" aria-hidden="true"></span><a href="#KubeRay-的职责与核心资源" class="headerlink" title="KubeRay 的职责与核心资源"></a>KubeRay 的职责与核心资源</h2><h3 id="集群管理与计算执行"><a href="#集群管理与计算执行" class="headerlink" title="集群管理与计算执行"></a>集群管理与计算执行</h3><p>沿用导引中的分工：Kubernetes 将 head 和 worker Pod 部署到节点上；Ray 在容器内安排 task 和 actor；KubeRay Operator 则根据 RayJob 等声明准备资源、跟踪状态。下面把这层分工落到两个具体接口上：Kubernetes API 管理资源对象，Ray Jobs API 接收入口命令并提供作业状态查询。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-01-architecture/01-system.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 1：KubeRay 的管理路径与 Ray 的计算路径"><img src="/kuberay-volcano-01-architecture/01-system.svg" alt="图 1：KubeRay 的管理路径与 Ray 的计算路径" width="960" height="400" style="--diagram-width:960px"></a></div><figcaption>图 1：KubeRay 的管理路径与 Ray 的计算路径 <a href="/kuberay-volcano-01-architecture/01-system.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>

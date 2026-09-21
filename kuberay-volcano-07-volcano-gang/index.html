@@ -18,16 +18,16 @@
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
   
-    <meta name="description" content="先解释 SchedulerCache、Session、JobInfo、TaskInfo、Action、Plugin 与 Statement，再跟踪 PodGroup 的准入、试分配、Gang 判断和绑定。">
+    <meta name="description" content="沿一个三成员 PodGroup 走过准入、试分配、Gang 检查、提交与异步绑定，说明资源不足和部分绑定失败时会发生什么。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="第 7 篇｜Volcano Gang 调度：成组分配与绑定">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-07-volcano-gang/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
-<meta property="og:description" content="先解释 SchedulerCache、Session、JobInfo、TaskInfo、Action、Plugin 与 Statement，再跟踪 PodGroup 的准入、试分配、Gang 判断和绑定。">
+<meta property="og:description" content="沿一个三成员 PodGroup 走过准入、试分配、Gang 检查、提交与异步绑定，说明资源不足和部分绑定失败时会发生什么。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-07.svg?v=ray-20260916">
 <meta property="article:published_time" content="2026-09-15T15:10:00.000Z">
-<meta property="article:modified_time" content="2026-09-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-21T12:17:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
 <meta property="article:tag" content="源码阅读">
@@ -325,7 +325,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：6 天前
+                    本文最后更新于：4 分钟后
                   
                 
               </p>
@@ -333,15 +333,15 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 7 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li class="is-current"><a href="/kuberay-volcano-07-volcano-gang/" aria-current="page">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-06-volcano-architecture/">上一篇：第 6 篇｜Volcano 架构：从 Pod 到作业</a><a href="/kuberay-volcano-08-volcano-queues/">下一篇：第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>demo-job-pg</code> 已经存在，三个成员 Pod 都在等待节点。假设前两个成员能找到位置，第三个成员放不下，Volcano 会把前两个 Pod 先启动吗？</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 7 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li class="is-current"><a href="/kuberay-volcano-07-volcano-gang/" aria-current="page">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-06-volcano-architecture/">上一篇：第 6 篇｜Volcano 架构：从 Pod 到作业</a><a href="/kuberay-volcano-08-volcano-queues/">下一篇：第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第六篇中的 PodGroup <code>ray-demo-job-pg</code> 已经进入调度器，三个成员 Pod 都在等待节点。假设前两个成员能找到位置，第三个成员放不下，Volcano 会不会先启动前两个？</p>
 <p>这篇从 Scheduler 的一次调度循环回答这个问题。沿用 Volcano <code>d8984501e4ad</code>，固定一个调度主实例、一个 Queue <code>ray-batch</code>，不启用拓扑、分片或子组策略。三个成员 Pod 都显式声明非零资源请求，最低成员数为三。以下过程按源码推演。</p>
 <h2 id="调度器手里的对象与执行结构"><a href="#调度器手里的对象与执行结构" class="headerlink" title="调度器手里的对象与执行结构"></a>调度器手里的对象与执行结构</h2><p>第六篇看到的是 Kubernetes API 中的 Volcano Job、PodGroup、Queue 和 Pod。Scheduler 收到这些对象后，会在内存中建立便于反复比较的调度模型。后面的源码主要操作这些内存对象。</p>
-<p>以 <code>demo-job-pg</code> 为例，PodGroup 和三个成员 Pod 被组织成一个 <code>JobInfo</code>，每个 Pod 对应一个 <code>TaskInfo</code>。Queue 和 Node 也有相应的内存信息。调度器在这些对象上比较先后、计算资源和尝试放置，最终才把选中的 Node 写回 Kubernetes。</p>
+<p>以 <code>ray-demo-job-pg</code> 为例，PodGroup 和三个成员 Pod 被组织成一个 <code>JobInfo</code>，每个 Pod 对应一个 <code>TaskInfo</code>。Queue 和 Node 也有相应的内存信息。调度器在这些对象上比较先后、计算资源和尝试放置，最终才把选中的 Node 写回 Kubernetes。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
 <tr>
-<th>先记住的角色</th>
+<th>在调度循环中的角色</th>
 <th>源码名称与作用</th>
 <th>在本例中对应什么</th>
 </tr>
@@ -360,7 +360,7 @@
 <tr>
 <td>作业</td>
 <td><code>JobInfo</code> 表示一个 PodGroup 及其成员，包括最低成员数和成员状态</td>
-<td><code>demo-job-pg</code> 与三个成员的集合</td>
+<td><code>ray-demo-job-pg</code> 与三个成员的集合</td>
 </tr>
 <tr>
 <td>成员</td>
@@ -397,7 +397,7 @@
 </div>
 <p>这里有两组容易混在一起的关系。<code>JobInfo</code> 包含多个 <code>TaskInfo</code>，描述“调度什么”；Action 调用 Plugin 注册的函数，描述“怎样做决定”。Session 把本轮使用的数据和这些执行结构放在一起，Statement 则记录本轮尚未正式绑定的尝试。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/01-session.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。"><img src="/kuberay-volcano-07-volcano-gang/01-session.svg" alt="长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。" width="960" height="440" style="--diagram-width:960px"></a></div><figcaption>长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。 <a href="/kuberay-volcano-07-volcano-gang/01-session.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<h2 id="先走完一次成组调度"><a href="#先走完一次成组调度" class="headerlink" title="先走完一次成组调度"></a>先走完一次成组调度</h2><p>把这些术语放进同一轮执行，<code>demo-job-pg</code> 会经历下面几步：</p>
+<h2 id="先走完一次成组调度"><a href="#先走完一次成组调度" class="headerlink" title="先走完一次成组调度"></a>先走完一次成组调度</h2><p>把这些术语放进同一轮执行，<code>ray-demo-job-pg</code> 会经历下面几步：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>

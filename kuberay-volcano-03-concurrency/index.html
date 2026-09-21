@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-03.svg?v=ray-20260916">
 <meta property="article:published_time" content="2026-09-15T15:30:00.000Z">
-<meta property="article:modified_time" content="2026-09-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-21T12:13:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
 <meta property="article:tag" content="源码阅读">
@@ -261,7 +261,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          8.4k 字
+          8.3k 字
         
       </span>
     
@@ -273,7 +273,7 @@
         
         
           <!-- compatible with older versions-->
-          27 分钟
+          26 分钟
         
       </span>
     
@@ -324,7 +324,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：6 天前
+                    本文最后更新于：几秒后
                   
                 
               </p>
@@ -333,7 +333,7 @@
               <div class="markdown-body">
                 
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 3 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li class="is-current"><a href="/kuberay-volcano-03-concurrency/" aria-current="page">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-02-reconcile/">上一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a><a href="/kuberay-volcano-04-recovery/">下一篇：第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第二篇说明了一个 RayCluster 怎样得到一次检查机会，以及本轮结束后怎样继续处理。现在把范围扩大到同一个 Kubernetes 集群里的 100 个 RayCluster：Operator 怎样在它们之间分配处理机会？配置中的协调并发数设为 2，究竟限制了什么？</p>
-<p>下面沿一次管理请求展开：先看多个集群怎样共享协调协程、同一集群的请求怎样接续，再看队列内部的分工。请求开始执行后，还要结合本地缓存观察资源，并与其他写入者共同维护对象。这几部分连起来，才能说明 Operator 怎样同时管理许多集群。</p>
+<p>下面先看不同 RayCluster 怎样共享协调协程，以及同一个 RayCluster 的多次请求为什么不会并行执行；再进入队列内部，说明请求如何合并、等待和分配。取得请求之后，Controller 还要面对缓存同步延迟和其他写入者，这两类问题决定了资源操作怎样安全接续。</p>
 <p>本文基于 KubeRay <code>6bf05eb17a3e</code>，依赖版本按该提交的 <code>go.mod</code> 核对为 controller-runtime <code>v0.24.1</code>、client-go <code>v0.37.0</code>。100 个集群和下文时间线均为源码推演，没有进行容量实测。</p>
 <h2 id="多个集群怎样共享协调协程"><span id="多个集群共享协调协程" class="series-legacy-anchor" aria-hidden="true"></span><span id="Controller-的协调并发" class="series-legacy-anchor" aria-hidden="true"></span><span id="1-两个协调协程怎样照看-100-个集群" class="series-legacy-anchor" aria-hidden="true"></span><a href="#多个集群怎样共享协调协程" class="headerlink" title="多个集群怎样共享协调协程"></a>多个集群怎样共享协调协程</h2><p>先看 RayCluster Controller。它有自己的工作队列，队列中的请求标识需要检查哪套集群。例如 <code>default/demo-job-abcde</code>，斜杠前是命名空间，后面是对象名；源码中的标准 <code>reconcile.Request</code> 保存这两个字段。队列用这个标识区分对象，后文把它称为“键”。</p>
 <p>负责从队列取请求并调用 <code>Reconcile</code> 的执行单元叫协调协程。一轮协调会读取资源、判断差异，完成当前能做的创建、更新等操作，然后返回。协程可以接着处理另一套集群，并不固定属于某个 RayCluster。</p>
@@ -611,7 +611,6 @@
 <h2 id="小结：从请求安排到资源维护"><span id="小结：管理并发的作用与边界" class="series-legacy-anchor" aria-hidden="true"></span><a href="#小结：从请求安排到资源维护" class="headerlink" title="小结：从请求安排到资源维护"></a>小结：从请求安排到资源维护</h2><p>协调协程主动取任务，队列后台分别整理请求、处理延时和分配任务；取得对象后，协调协程才执行 <code>Reconcile</code>。同一个集群的待处理请求可以合并，本轮执行期间也可以留下下一轮请求。待处理索引和执行锁定共同保证这些后续检查能够保留，同时避免同一对象的两轮协调重叠。</p>
 <p>进入资源维护后，扩缩容预期衔接 API 写入与缓存观察之间的时间差，对象版本检查处理多个写入者的更新冲突。队列、预期记录和版本检查分别作用于请求安排、操作确认和资源写回，合在一起说明了多套集群的管理工作怎样推进。</p>
 <p>评估并发配置时，需要结合每个 RayCluster 的 Pod 规模和变更负载，比较调整前后的排队耗时、错误速率及集群就绪耗时，才能判断这 100 个集群是否得到及时处理。下一篇把视角转向进程重启：资源已经创建，状态尚未写回时，Operator 怎样识别已有进展并继续协调。</p>
-<p>若等待发生在 Pod 已经创建、但节点资源不足而无法启动的阶段，则涉及 Pod 调度和作业之间的资源竞争。第六至第九篇引入 Volcano 时再展开这条路径。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/tree/6bf05eb17a3e2e06fb454471265b2afa34d66e90">KubeRay 源码基线（6bf05eb17a3e）</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/blob/6bf05eb17a3e2e06fb454471265b2afa34d66e90/ray-operator/go.mod">KubeRay：ray-operator/go.mod</a></li>
