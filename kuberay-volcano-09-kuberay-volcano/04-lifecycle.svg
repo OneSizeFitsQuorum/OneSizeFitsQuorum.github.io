@@ -12,8 +12,8 @@
   <text class="t h" x="28" y="38">不开启批调度</text>
   <g class="t">
     <rect class="box ray" x="28" y="70" width="118" height="58" rx="7"/><text class="s" x="87" y="96" text-anchor="middle">RayJob</text><text class="n" x="87" y="116" text-anchor="middle">初始化身份</text>
-    <rect class="box ray" x="178" y="70" width="130" height="58" rx="7"/><text class="s" x="243" y="96" text-anchor="middle">创建 RayCluster</text><text class="n" x="243" y="116" text-anchor="middle">专用集群</text>
-    <rect class="box" x="340" y="70" width="128" height="58" rx="7"/><text class="s" x="404" y="96" text-anchor="middle">创建 Ray Pod</text><text class="n" x="404" y="116" text-anchor="middle">head + worker</text>
+    <rect class="box ray" x="178" y="70" width="130" height="58" rx="7"/><text class="s" x="243" y="96" text-anchor="middle">写入 RayCluster</text><text class="n" x="243" y="116" text-anchor="middle">RayJob Controller</text>
+    <rect class="box" x="340" y="70" width="128" height="58" rx="7"/><text class="s" x="404" y="96" text-anchor="middle">协调 Service/Pod</text><text class="n" x="404" y="116" text-anchor="middle">独立 Reconcile</text>
     <rect class="box" x="500" y="70" width="132" height="58" rx="7"/><text class="s" x="566" y="96" text-anchor="middle">默认调度器</text><text class="n" x="566" y="116" text-anchor="middle">逐个绑定 Pod</text>
     <rect class="box ok" x="664" y="70" width="116" height="58" rx="7"/><text class="s" x="722" y="96" text-anchor="middle">Cluster Ready</text><text class="n" x="722" y="116" text-anchor="middle">KubeRay 等待</text>
     <rect class="box ray" x="812" y="70" width="120" height="58" rx="7"/><text class="s" x="872" y="96" text-anchor="middle">创建 submitter</text><text class="n" x="872" y="116" text-anchor="middle">提交 Ray 作业</text>
@@ -26,8 +26,8 @@
   <g class="t">
     <rect class="box ray" x="28" y="270" width="118" height="58" rx="7"/><text class="s" x="87" y="296" text-anchor="middle">RayJob</text><text class="n" x="87" y="316" text-anchor="middle">计算组需求</text>
     <rect class="box vol" x="178" y="270" width="130" height="58" rx="7"/><text class="s" x="243" y="296" text-anchor="middle">写入 PodGroup</text><text class="n" x="243" y="316" text-anchor="middle">API 成功即继续</text>
-    <rect class="box ray" x="340" y="270" width="130" height="58" rx="7"/><text class="s" x="405" y="296" text-anchor="middle">创建 RayCluster</text><text class="n" x="405" y="316" text-anchor="middle">不等待 PG Ready</text>
-    <rect class="box" x="502" y="270" width="130" height="58" rx="7"/><text class="s" x="567" y="296" text-anchor="middle">创建 Ray Pod</text><text class="n" x="567" y="316" text-anchor="middle">写入组名和角色</text>
+    <rect class="box ray" x="340" y="270" width="130" height="58" rx="7"/><text class="s" x="405" y="296" text-anchor="middle">写入 RayCluster</text><text class="n" x="405" y="316" text-anchor="middle">不等待 PG Ready</text>
+    <rect class="box" x="502" y="270" width="130" height="58" rx="7"/><text class="s" x="567" y="296" text-anchor="middle">协调 Service/Pod</text><text class="n" x="567" y="316" text-anchor="middle">写入组名和角色</text>
     <rect class="box vol" x="664" y="270" width="116" height="58" rx="7"/><text class="s" x="722" y="296" text-anchor="middle">Volcano</text><text class="n" x="722" y="316" text-anchor="middle">Gang 分配与绑定</text>
     <rect class="box ok" x="812" y="270" width="120" height="58" rx="7"/><text class="s" x="872" y="296" text-anchor="middle">Cluster Ready</text><text class="n" x="872" y="316" text-anchor="middle">KubeRay 等待</text>
     <path class="line" d="M146 299 H178"/><path class="line" d="M308 299 H340"/><path class="line" d="M470 299 H502"/><path class="line" d="M632 299 H664"/><path class="line" d="M780 299 H812"/>
