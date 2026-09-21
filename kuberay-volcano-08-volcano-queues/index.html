@@ -18,12 +18,12 @@
   <meta name="author" content="谭新宇">
   <meta name="keywords" content="">
   
-    <meta name="description" content="用有明确前提的数字例子分析 Queue 份额、DRF、优先级和资源回收，区分策略计算、节点放置与实际 Pod 占用。">
+    <meta name="description" content="从一份贯穿全文的 Queue 资源账本出发，推导 proportion 份额、Queue 与 Job 排序、DRF，以及 preempt、reclaim 到 Pipelined 的资源释放过程。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="第 8 篇｜Volcano 资源竞争：队列份额与作业调度">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano-08-volcano-queues/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
-<meta property="og:description" content="用有明确前提的数字例子分析 Queue 份额、DRF、优先级和资源回收，区分策略计算、节点放置与实际 Pod 占用。">
+<meta property="og:description" content="从一份贯穿全文的 Queue 资源账本出发，推导 proportion 份额、Queue 与 Job 排序、DRF，以及 preempt、reclaim 到 Pipelined 的资源释放过程。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-08.svg?v=ray-20260916">
 <meta property="article:published_time" content="2026-09-15T15:05:00.000Z">
@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          3.5k 字
+          2.9k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          11 分钟
+          9 分钟
         
       </span>
     
@@ -333,130 +333,207 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 8 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li class="is-current"><a href="/kuberay-volcano-08-volcano-queues/" aria-current="page">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-07-volcano-gang/">上一篇：第 7 篇｜Volcano Gang 调度：成组分配与绑定</a><a href="/kuberay-volcano-09-kuberay-volcano/">下一篇：第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上一篇的 Gang 检查回答了一组 Pod 能否满足最低要求。现在有两个作业都在等资源：<code>demo-job</code> 和独立提交的 <code>demo-job-b</code>。它们应该按提交时间排队，按优先级选择，还是按已经占用的资源量轮流获得机会？</p>
-<p>Volcano 把这些选择放在不同层次：Queue 表达资源策略，作业和成员各有排序，节点还有自己的放置约束。本文沿用 Volcano <code>d8984501e4ad</code>，先看 proportion 插件怎样计算队列份额，再看 drf 插件怎样比较作业占用各类资源的比例，最后讨论传统 preempt（队列内抢占）和 reclaim（跨队列回收）路径。默认配置仍承接第七篇；分析驱逐时会显式增加对应 Action。数字例子只演示算法，不表示主案例已经修改配置或完成压测。</p>
-<h2 id="先把一次资源竞争拆成四步"><a href="#先把一次资源竞争拆成四步" class="headerlink" title="先把一次资源竞争拆成四步"></a>先把一次资源竞争拆成四步</h2><p>当两个作业同时等待时，调度器不是用一个总分直接选出最终 Pod。一次选择至少要经过四个层次：</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 8 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li class="is-current"><a href="/kuberay-volcano-08-volcano-queues/" aria-current="page">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-07-volcano-gang/">上一篇：第 7 篇｜Volcano Gang 调度：成组分配与绑定</a><a href="/kuberay-volcano-09-kuberay-volcano/">下一篇：第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上一篇沿一个 <code>JobInfo</code> 解释了成员怎样通过 enqueue、allocate、Gang 判断和绑定。现在把第二个作业放进来：<code>demo-job</code> 和 <code>demo-job-b</code> 都有待运行的成员，集群资源已经被占满，调度器需要决定下一份资源先给谁，以及是否从已有成员手中收回资源。</p>
+<p>这篇沿用 Volcano <code>d8984501e4ad</code>，把 Queue 份额、作业排序、节点放置和资源释放接成一条完整路径。默认 Action 仍是 <code>enqueue, allocate, backfill</code>；讨论驱逐时再加入 preempt 或 reclaim。所有数字都用于源码推演。</p>
+<h2 id="先建立一份贯穿全文的资源账本"><span id="先把一次资源竞争拆成四步" class="series-legacy-anchor" aria-hidden="true"></span><a href="#先建立一份贯穿全文的资源账本" class="headerlink" title="先建立一份贯穿全文的资源账本"></a>先建立一份贯穿全文的资源账本</h2><p>主案例使用两个 Queue，每个 Queue 中各有一个 JobInfo。集群有 12 核 CPU 和 4 张 GPU；计算 Queue 份额时先投影到 CPU 维度，DRF 一节再把同一时刻的 GPU 占用加回来。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
 <tr>
-<th>次序</th>
-<th>回答的问题</th>
-<th>本篇对应机制</th>
+<th>对象</th>
+<th>配置或当前状态</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Queue 份额</td>
-<td>每个队列本轮应得到多少资源额度</td>
-<td>proportion 的 <code>deserved</code> 计算</td>
+<td>Queue A：<code>ray-batch</code></td>
+<td>weight=1，guarantee=2 核，capability=6 核，request=4 核，allocated=2 核</td>
 </tr>
 <tr>
-<td>Queue 与作业排序</td>
-<td>先检查哪个队列、哪个作业</td>
-<td>Queue priority、份额使用程度、PriorityClass、DRF</td>
+<td>Queue B：<code>ray-batch-b</code></td>
+<td>weight=2，guarantee=0，capability=10 核，request=10 核，allocated=10 核</td>
 </tr>
 <tr>
-<td>可分配与节点检查</td>
-<td>候选还能不能占用队列额度，具体 Pod 能不能放到某台节点</td>
-<td><code>queueAllocatable</code>、predicates、Gang</td>
+<td><code>demo-job</code></td>
+<td>属于 Queue A；当前占用 2 核、1 张 GPU，另有一个请求 2 核 CPU 的成员等待运行</td>
 </tr>
 <tr>
-<td>资源释放</td>
-<td>当前资源已被占用时，是等待自然释放还是驱逐合适的成员</td>
-<td>preempt、reclaim 与 Statement</td>
+<td><code>demo-job-b</code></td>
+<td>属于 Queue B；当前占用 10 核、2 张 GPU</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>前一步产生候选，后一步继续检查额度、节点和成组条件。权重、优先级、DRF 和抢占分别作用在这条路径的不同位置。</p>
-<h2 id="Queue-的配置与份额"><span id="1-Queue-里配置的值，和本轮算出的份额" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Queue-的配置与份额" class="headerlink" title="Queue 的配置与份额"></a>Queue 的配置与份额</h2><h3 id="配置值、需求与已分配量"><a href="#配置值、需求与已分配量" class="headerlink" title="配置值、需求与已分配量"></a>配置值、需求与已分配量</h3><p>先看两个作业都提交到 <code>ray-batch</code> 的情况。它们共享该 Queue 的资源策略。讨论跨队列分配时，另设一个对比场景：第二个作业在提交时指定 <code>ray-batch-b</code>。</p>
+<p>两个 Queue 的核心配置可以写成：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">scheduling.volcano.sh/v1beta1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Queue</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">ray-batch</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">weight:</span> <span class="hljs-number">1</span><br>  <span class="hljs-attr">capability:</span><br>    <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;6&quot;</span><br>  <span class="hljs-attr">guarantee:</span><br>    <span class="hljs-attr">resource:</span><br>      <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;2&quot;</span><br>  <span class="hljs-attr">reclaimable:</span> <span class="hljs-literal">true</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">scheduling.volcano.sh/v1beta1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Queue</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">ray-batch-b</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">weight:</span> <span class="hljs-number">2</span><br>  <span class="hljs-attr">capability:</span><br>    <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;10&quot;</span><br>  <span class="hljs-attr">reclaimable:</span> <span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/01-queues.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。"><img src="/kuberay-volcano-08-volcano-queues/01-queues.svg" alt="两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。" width="960" height="370" style="--diagram-width:960px"></a></div><figcaption>两个作业分别进入两个 Queue。Queue 是集群级对象，可以汇集多个命名空间的工作负载；图中仍沿用 default。资源份额不等于把节点永久切成两组。 <a href="/kuberay-volcano-08-volcano-queues/01-queues.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>以 proportion 插件为例，它为每个参与计算的 Queue 构造一份 <code>queueAttr</code>。下面几个量看起来都在描述“队列有多少资源”，来源和用途却不同。</p>
+<p>在这个快照中，CPU 已全部占用：Queue A 使用 2 核，Queue B 使用 10 核。proportion 根据配置与需求算出 A、B 本轮的 <code>deserved</code> 分别为 4 核和 8 核。于是 A 还有 2 核额度，B 已超过自身份额 2 核。等待中的成员虽然通过 Queue 额度检查，却找不到当前空闲 CPU；reclaim 可以把 B 超出份额的 2 核转入释放过程，A 的成员先进入 Pipelined，资源真正释放后再绑定。</p>
+<p>后文会逐步推导这段结果。先看份额怎样算出，再看 Queue 和 Job 怎样排序，最后看 2 核资源怎样从 B 回到 A。</p>
+<h2 id="Queue-资源账本从哪里来"><span id="Queue-的配置与份额" class="series-legacy-anchor" aria-hidden="true"></span><span id="1-Queue-里配置的值，和本轮算出的份额" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Queue-资源账本从哪里来" class="headerlink" title="Queue 资源账本从哪里来"></a>Queue 资源账本从哪里来</h2><h3 id="配置值、观察值与计算值"><span id="配置值、需求与已分配量" class="series-legacy-anchor" aria-hidden="true"></span><a href="#配置值、观察值与计算值" class="headerlink" title="配置值、观察值与计算值"></a>配置值、观察值与计算值</h3><p>proportion 在每轮 Session 打开时，为有作业参与的 Queue 建立 <code>queueAttr</code>。其中的字段分为三组。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
 <tr>
+<th>类型</th>
 <th>名称</th>
-<th>来源与含义</th>
+<th>来源与用途</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td>Queue 配置</td>
 <td><code>weight</code></td>
-<td>Queue 配置的权重，用于计算有需求队列的相对份额</td>
+<td>多个仍有需求的 Queue 分配剩余资源时使用的相对权重</td>
 </tr>
 <tr>
+<td>Queue 配置</td>
+<td><code>guarantee</code></td>
+<td>该 Queue 的保障量，参与 <code>realCapability</code> 与 <code>deserved</code> 的下限计算</td>
+</tr>
+<tr>
+<td>Queue 配置</td>
 <td><code>capability</code></td>
-<td>Queue 配置的资源上限；插件还会结合总资源和其他队列保障量计算 <code>realCapability</code></td>
+<td>Queue 声明的资源上限</td>
 </tr>
 <tr>
-<td><code>guarantee.resource</code></td>
-<td>配置的保障资源，参与份额下限及其他队列可用上限的计算</td>
-</tr>
-<tr>
+<td>Session 观察</td>
 <td><code>request</code></td>
-<td>插件从本轮可见的已分配和 Pending 成员汇总的需求</td>
+<td>已分配成员与 Pending 成员的资源请求总和</td>
 </tr>
 <tr>
-<td><code>deserved</code></td>
-<td>proportion 在本轮依据权重、需求和上限算出的份额</td>
-</tr>
-<tr>
+<td>Session 观察</td>
 <td><code>allocated</code></td>
-<td>调度模型中已经分配的资源量，按成员资源请求记账，不是实时 CPU 使用率</td>
+<td>已处于 Allocated、Binding、Bound、Running 等已分配状态的成员请求总和</td>
+</tr>
+<tr>
+<td>Session 观察</td>
+<td><code>inqueue</code></td>
+<td>已准入作业的最低资源需求中，尚未被已分配成员覆盖的部分</td>
+</tr>
+<tr>
+<td>Session 观察</td>
+<td><code>elastic</code></td>
+<td>已分配量中超过作业最低运行要求的部分，可用于准入计算</td>
+</tr>
+<tr>
+<td>本轮计算</td>
+<td><code>realCapability</code></td>
+<td>综合集群总量、所有 Queue 的 guarantee 和本 Queue capability 后得到的实际计算上限</td>
+</tr>
+<tr>
+<td>本轮计算</td>
+<td><code>deserved</code></td>
+<td>proportion 根据权重、需求、保障量与上限算出的本轮份额</td>
+</tr>
+<tr>
+<td>本轮计算</td>
+<td><code>share</code></td>
+<td><code>allocated / deserved</code> 在各资源维度中的最大值，用于 Queue 排序</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>因此，“业务当前 CPU 使用率很低”和“调度器认为队列还占着很多资源”可以同时成立。只要相应 Pod 仍占用资源请求，节点或队列的调度账目就不会因为进程暂时空闲而自动归零。</p>
-<h3 id="proportion-的份额计算"><span id="2-用一组数字推演-proportion" class="series-legacy-anchor" aria-hidden="true"></span><a href="#proportion-的份额计算" class="headerlink" title="proportion 的份额计算"></a>proportion 的份额计算</h3><p>为看清权重的作用，先只算 CPU：本轮可分配总量为 12 核，没有其他占用；两个 Queue 优先级相同，权重分别为 1 和 2，保障量为零，上限不构成限制。假设 Pod 请求可以组成所需份额，内存和放置约束都已满足。</p>
-<p>如果两个队列的需求都足够大，第一轮份额计算得到 4 核和 8 核。这里是在计算后续分配要遵循的额度，还没有把 Pod 放到节点上。源码中对应的动作，是把剩余资源乘以权重比例，加入各自 <code>deserved</code>。<code>proportion.go</code> 的连续节选如下：</p>
+<p><code>allocated</code> 统计 Pod 的资源请求，不读取进程的实时 CPU 使用率。一个请求 2 核的 Pod 即使暂时只消耗 0.2 核，调度账本仍按 2 核记录，直到成员状态变化并被 SchedulerCache 观察到。</p>
+<h3 id="guarantee、capability-与-realCapability"><a href="#guarantee、capability-与-realCapability" class="headerlink" title="guarantee、capability 与 realCapability"></a>guarantee、capability 与 realCapability</h3><p>这三个量都像“限额”，作用位置并不相同。先按源码计算主案例：</p>
+<ol>
+<li>集群 CPU 总量是 12 核。</li>
+<li>所有 Queue 的 guarantee 合计为 2 核，来自 Queue A。</li>
+<li>扣除全部保障量后，公共部分还有 10 核。</li>
+<li>Queue A 的公共部分加自身 guarantee 为 12 核，再受 capability=6 限制，因此 <code>realCapability_A=6</code>。</li>
+<li>Queue B 没有 guarantee，公共部分仍是 10 核，再受 capability=10 限制，因此 <code>realCapability_B=10</code>。</li>
+</ol>
+<p>可以把它写成下面的关系：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">realCapability(queue)<br>  = min(capability(queue), max(totalResource - totalGuarantee, 0) + guarantee(queue))<br></code></pre></td></tr></table></figure>
+<p>这里按 CPU 一维展示；源码实际对 CPU、内存和标量资源分别计算。<code>guarantee</code> 形成 Queue 的份额下限，<code>capability</code> 是配置上限，<code>realCapability</code> 则是综合其他 Queue 保障量后，本轮用于准入和 <code>deserved</code> 裁剪的上限。</p>
+<h2 id="proportion-怎样算出-4-核和-8-核"><span id="proportion-的份额计算" class="series-legacy-anchor" aria-hidden="true"></span><span id="2-用一组数字推演-proportion" class="series-legacy-anchor" aria-hidden="true"></span><a href="#proportion-怎样算出-4-核和-8-核" class="headerlink" title="proportion 怎样算出 4 核和 8 核"></a>proportion 怎样算出 4 核和 8 核</h2><h3 id="第一轮：按权重分配"><a href="#第一轮：按权重分配" class="headerlink" title="第一轮：按权重分配"></a>第一轮：按权重分配</h3><p>两个 Queue 的 request 分别为 4 核和 10 核，都不低于本轮最初能得到的份额。剩余 12 核按 weight 1:2 分配：</p>
+<ul>
+<li>Queue A：12 × 1/3 = 4 核。</li>
+<li>Queue B：12 × 2/3 = 8 核。</li>
+</ul>
+<p>随后依次应用 <code>realCapability</code>、<code>request</code> 和 <code>guarantee</code>。A 的 4 核没有超过上限 6，也正好满足需求 4，并且高于保障量 2；B 的 8 核没有超过上限和需求，所以本轮得到 4 核和 8 核。</p>
+<p>源码中的连续计算是：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go">oldDeserved := attr.deserved.Clone()<br>attr.deserved.Add(remaining.Clone().Multi(<span class="hljs-type">float64</span>(attr.weight) / <span class="hljs-type">float64</span>(totalWeight)))<br><br><span class="hljs-keyword">if</span> attr.realCapability != <span class="hljs-literal">nil</span> &#123;<br>	attr.deserved.MinDimensionResource(attr.realCapability, api.Infinity)<br>&#125;<br>attr.deserved.MinDimensionResource(attr.request, api.Zero)<br><br>attr.deserved = helpers.Max(attr.deserved, attr.guarantee)<br></code></pre></td></tr></table></figure>
-<p>这里紧接着做了上限和需求裁剪。若 <code>ray-batch</code> 实际只需要 2 核，分给它的 4 核就会裁到 2 核；另一队列先得到 8 核。剩余 2 核继续分配给尚未满足需求、也未达到上限的队列，最终可以得到 2 核和 10 核。</p>
+<p>这段循环不是只执行一次。某个 Queue 因 request 或 realCapability 提前停止增长后，未分完的资源会在仍有需求的 Queue 之间再次按权重计算。</p>
+<h3 id="第二轮：把未用完的份额继续分配"><a href="#第二轮：把未用完的份额继续分配" class="headerlink" title="第二轮：把未用完的份额继续分配"></a>第二轮：把未用完的份额继续分配</h3><p>下面三行只改变一个或两个输入，可以看清循环为何需要重复：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
 <tr>
-<th>本轮条件</th>
-<th><code>ray-batch</code> 的 deserved</th>
-<th><code>ray-batch-b</code> 的 deserved</th>
-<th>未计入两队列份额的量</th>
+<th>相对主案例的变化</th>
+<th>A 的 deserved</th>
+<th>B 的 deserved</th>
+<th>剩余量</th>
+<th>计算过程</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>双方需求均充足，上限不限制</td>
-<td>4 核</td>
-<td>8 核</td>
+<td>无变化：A request=4，B request=10</td>
+<td>4</td>
+<td>8</td>
 <td>0</td>
+<td>第一轮按 1:2 分完</td>
 </tr>
 <tr>
-<td>第一队列只需 2 核，第二队列至少需 10 核</td>
-<td>2 核</td>
-<td>10 核</td>
+<td>A request 改为 2</td>
+<td>2</td>
+<td>10</td>
 <td>0</td>
+<td>A 在 2 核满足需求；释放出的 2 核继续给 B</td>
 </tr>
 <tr>
-<td>第一队列只需 2 核，第二队列上限为 7 核</td>
-<td>2 核</td>
-<td>7 核</td>
-<td>3 核</td>
+<td>再把 B capability 改为 7</td>
+<td>2</td>
+<td>7</td>
+<td>3</td>
+<td>A 已满足需求，B 已到上限，循环结束</td>
 </tr>
 </tbody>
 </table>
 </div>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/02-shares.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：同一组权重在不同需求与上限下得到不同份额。灰色部分表示未计入两队列 deserved 的余量，不代表实测节点空闲量。图中忽略其他资源维度。"><img src="/kuberay-volcano-08-volcano-queues/02-shares.svg" alt="同一组权重在不同需求与上限下得到不同份额。灰色部分表示未计入两队列 deserved 的余量，不代表实测节点空闲量。图中忽略其他资源维度。" width="960" height="350" style="--diagram-width:960px"></a></div><figcaption>同一组权重在不同需求与上限下得到不同份额。灰色部分表示未计入两队列 deserved 的余量，不代表实测节点空闲量。图中忽略其他资源维度。 <a href="/kuberay-volcano-08-volcano-queues/02-shares.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>第三种情况下，一个队列已经满足需求，另一个达到上限，余下 3 核不再计入两者的 <code>deserved</code>。后续 Pod 通过节点和 Gang 检查后，份额才转化为实际占用。权重 1:2 决定本轮份额计算，不固定任意时刻的实际占用比例。</p>
-<p>此外，<code>deserved</code> 的变化不会立即改变运行中的 Pod。假如第二个队列此前已经使用 10 核，现在第一队列新增需求，重新计算可能得到 4 核和 8 核，但第二个队列当前仍占着 10 核。如何让占用向新的份额靠拢，还需要等待资源自然释放或执行符合策略的回收。</p>
-<h2 id="队列与作业的选择顺序"><span id="3-排得靠前，和还能拿资源，是两件事" class="series-legacy-anchor" aria-hidden="true"></span><a href="#队列与作业的选择顺序" class="headerlink" title="队列与作业的选择顺序"></a>队列与作业的选择顺序</h2><h3 id="优先级与资源可分配性"><a href="#优先级与资源可分配性" class="headerlink" title="优先级与资源可分配性"></a>优先级与资源可分配性</h3><p>proportion 注册的 Queue 排序函数先比较 <code>Queue.spec.priority</code>，相同时再比较资源份额使用程度。其 share 按各资源维度的 <code>allocated / deserved</code> 计算，取最大值。这里的分母是该队列本轮算出的份额：只考虑 CPU 时，分到 4 核额度、已经占用 2 核，对应 50%。份额使用程度较低的队列，在这个比较中排在前面。</p>
-<p>但从优先队列取出一个 Queue 后，还要执行资源可分配性检查。插件会计算分配候选 Pod 后的占用量，检查它是否超过该队列本轮的 deserved：</p>
+<p>第三行的 3 核只是没有进入这两个 Queue 的 <code>deserved</code>。它与节点当前是否空闲是两份不同信息：运行中的 Pod 可能仍占着资源，也可能还有其他 Queue 没有出现在这个简化算例中。</p>
+<p><code>deserved</code> 每轮都可以随 request、Queue 配置和集群总量重新计算。它不会直接缩小已经运行的 Pod；因此主案例中 B 的 deserved 已变为 8 核，allocated 仍可以暂时保持 10 核。这个差额正是后面 reclaim 判断的输入。</p>
+<h2 id="从-Queue-排序到成员放置"><span id="队列与作业的选择顺序" class="series-legacy-anchor" aria-hidden="true"></span><span id="3-排得靠前，和还能拿资源，是两件事" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从-Queue-排序到成员放置" class="headerlink" title="从 Queue 排序到成员放置"></a>从 Queue 排序到成员放置</h2><h3 id="Queue-share-决定先检查谁"><span id="优先级与资源可分配性" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Queue-share-决定先检查谁" class="headerlink" title="Queue share 决定先检查谁"></a>Queue share 决定先检查谁</h3><p>proportion 用各资源维度的 <code>allocated / deserved</code> 计算 Queue share，取其中最大值。先只看 CPU：</p>
+<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
+<table>
+<thead>
+<tr>
+<th>Queue</th>
+<th>allocated</th>
+<th>deserved</th>
+<th>Queue share</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>2 核</td>
+<td>4 核</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>B</td>
+<td>10 核</td>
+<td>8 核</td>
+<td>125%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Queue priority 相同时，share 较小的 A 先被取出。把 GPU 维度加回来：A、B 的 GPU request 分别为 1 张和 2 张，<code>deserved</code> 会受 request 裁剪为 1 张和 2 张，因此两边的 GPU share 都是 100%。A 的 Queue share 为 max(50%, 100%)=100%，B 为 max(125%, 100%)=125%，顺序仍然是 A 在前。排序只决定检查顺序，候选成员还要通过 Queue 额度和节点条件。</p>
+<p>等待成员请求 2 核 CPU。对 A 来说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">futureUsed = allocated 2 + candidate 2 = 4<br>4 &lt;= deserved 4<br></code></pre></td></tr></table></figure>
+<p>所以 Queue 额度允许继续。源码中的 <code>queueAllocatable</code> 做同样的计算：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">futureUsed := attr.allocated.Clone().Add(totalReq)<br>allocatable, _ := futureUsed.LessEqualWithDimensionAndResourcesName(attr.deserved, totalReq)<br></code></pre></td></tr></table></figure>
-<p>这两行来自 <code>queueAllocatable</code> 的连续节选。排序决定先检查谁，可分配性决定这个候选还能不能继续拿资源。随后节点过滤仍可能失败，因此“队列有额度”和“Pod 能放下”还隔着一步。</p>
-<p>Queue 内部再按 JobOrder 回调选择作业。第七篇的配置把 <code>priority</code> 放在 <code>drf</code> 前面；<code>Session.JobOrderCompareFn</code> 按启用回调的顺序，遇到非零比较结果就返回。两个作业优先级不同时，前面的 priority 已经作出选择，不会再把 DRF 算出的份额与它加权平均。比较仍相同时，框架才使用创建时间和 UID 等后备规则。</p>
-<p>这里有三个作用位置不同的优先级：<code>Queue.spec.priority</code> 参与队列排序，PodGroup 引用的 PriorityClass 参与作业排序，成员 Pod 的优先级用于成员层面的比较。它们依次作用于不同对象，共同形成选择顺序。</p>
-<h3 id="DRF-与主导资源份额"><span id="4-CPU-和-GPU-混用时，怎样衡量份额" class="series-legacy-anchor" aria-hidden="true"></span><a href="#DRF-与主导资源份额" class="headerlink" title="DRF 与主导资源份额"></a>DRF 与主导资源份额</h3><p>只数 Pod 个数无法比较资源占用：一个 Pod 请求 1 核 CPU，另一个可能请求 8 核和一张 GPU。DRF，即 Dominant Resource Fairness，用一个作业占用各类资源的最大比例表示它的主导资源份额。本节分母是参与计算的集群资源总量；上一节的 Queue share 则以队列的 deserved 为分母。两处都叫份额，回答的问题分别是作业占集群多少，以及队列用了自身额度的多少。</p>
-<p>再看一个 DRF 算例：总资源为 16 核 CPU、4 张 GPU，两个作业同优先级，前面的排序回调没有分出先后。</p>
+<p>如果候选请求 3 核，<code>futureUsed=5</code>，就会在这里被挡住。请求 2 核通过以后，predicates 仍要为它寻找具体 Node；主案例的 12 核 CPU 已被 A 和 B 全部占用，因此当前没有节点能够直接接纳它。</p>
+<h3 id="Job-priority-与-DRF-决定-Queue-内先看哪个作业"><span id="DRF-与主导资源份额" class="series-legacy-anchor" aria-hidden="true"></span><span id="4-CPU-和-GPU-混用时，怎样衡量份额" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Job-priority-与-DRF-决定-Queue-内先看哪个作业" class="headerlink" title="Job priority 与 DRF 决定 Queue 内先看哪个作业"></a>Job priority 与 DRF 决定 Queue 内先看哪个作业</h3><p>一个 Queue 可以包含多个 JobInfo。第七篇配置中的 JobOrder 回调先执行 priority，再执行 DRF：</p>
+<ol>
+<li>priority 比较 PodGroup 引用的 PriorityClass 数值。</li>
+<li>优先级相同时，DRF 比较作业的主导资源份额。</li>
+<li>两者仍相同时，再使用创建时间和 UID 等后备顺序。</li>
+</ol>
+<p>DRF，即 Dominant Resource Fairness，会计算作业在每种资源上的占用比例，并取最大值。同一集群共有 12 核 CPU、4 张 GPU；沿主案例的当前占用：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
@@ -471,61 +548,94 @@
 <tbody>
 <tr>
 <td><code>demo-job</code></td>
-<td>8 核、1 张 GPU</td>
-<td>8/16 = 50%</td>
+<td>2 核、1 张 GPU</td>
+<td>2/12 = 16.7%</td>
 <td>1/4 = 25%</td>
-<td>50%</td>
+<td>25%</td>
 </tr>
 <tr>
 <td><code>demo-job-b</code></td>
-<td>2 核、2 张 GPU</td>
-<td>2/16 = 12.5%</td>
+<td>10 核、2 张 GPU</td>
+<td>10/12 = 83.3%</td>
 <td>2/4 = 50%</td>
-<td>50%</td>
+<td>83.3%</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>两个作业占用的形状不同，主导份额却相同。若第二个作业只有 2 核、1 张 GPU，它的主导份额就是 25%，DRF 的这个比较会让它排在前面。实际能否再分配，仍然取决于它所在队列的份额、剩余资源和 Pod 约束。</p>
+<p>在同优先级且前序回调没有分出先后的条件下，主导份额较小的作业排在前面。源码 <code>drf.calculateShare</code> 逐个资源维度计算比例并保留最大值；每次分配和撤销分配都会更新 allocated，下一次比较随之变化。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/03-drf.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：DRF 取各资源占用比例的最大值。两个作业的主导资源可以不同；此图只解释份额比较，没有推导下一次必然分配给谁。"><img src="/kuberay-volcano-08-volcano-queues/03-drf.svg" alt="DRF 取各资源占用比例的最大值。两个作业的主导资源可以不同；此图只解释份额比较，没有推导下一次必然分配给谁。" width="960" height="386" style="--diagram-width:960px"></a></div><figcaption>DRF 取各资源占用比例的最大值。两个作业的主导资源可以不同；此图只解释份额比较，没有推导下一次必然分配给谁。 <a href="/kuberay-volcano-08-volcano-queues/03-drf.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>源码 <code>drf.calculateShare</code> 逐一计算资源维度的 share，保留最大值。每次分配或撤销分配，插件通过事件回调调整已分配量，后续比较就能反映本轮发生的变化。</p>
-<p>proportion 计算 Queue 的份额并约束队列分配，DRF 在当前配置中参与 Job 排序。Volcano 的 capacity 插件则直接读取 <code>Queue.spec.deserved</code> 作为配置份额；使用 capacity 时，应按它的配置模型计算。</p>
-<h2 id="资源抢占与回收"><span id="5-preempt-与-reclaim-怎样释放资源" class="series-legacy-anchor" aria-hidden="true"></span><a href="#资源抢占与回收" class="headerlink" title="资源抢占与回收"></a>资源抢占与回收</h2><p>默认的 <code>enqueue, allocate, backfill</code> 不包含主动驱逐。这里的驱逐指让选中的已有 Pod 退出，把资源释放给等待者；被选中的 Pod 在源码中常称为 victim，下文称为受害成员。以下分析假设配置已启用对应 Action，等待中的作业也已经通过前置准入。单纯提高优先级，不足以越过所有准入和资源约束。</p>
-<p>传统 <code>preempt</code> 处理队列内部的竞争。源码先寻找同一 Queue 中其他作业的候选成员，另外还有同一作业内成员竞争的分支。跨作业候选的核心条件是：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">return</span> job.Queue == preemptorJob.Queue &amp;&amp; preemptor.Job != task.Job<br></code></pre></td></tr></table></figure>
-<p>候选还要满足可抢占状态、成员允许被抢占等条件。priority 插件在不同作业间比较作业优先级，在同一作业内比较成员优先级；Gang 等插件继续筛选受害者，节点约束也要验证。作业只是排得靠前，并不代表一定能驱逐任意一个正在运行的 Pod。</p>
-<p>传统 <code>reclaim</code> 处理跨 Queue 的资源回收。它从其他队列里寻找允许被回收的运行中成员，检查来源队列的 <code>reclaimable</code> 设置，再交给策略回调判断。在 proportion 中，超过 deserved 的占用是筛选回收对象的重要依据。</p>
+<p>Queue share 与 DRF share 使用相似的除法，分母和比较对象不同：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
 <tr>
-<th>路径</th>
-<th>主要竞争范围</th>
-<th>还要检查什么</th>
+<th>名称</th>
+<th>比较对象</th>
+<th>分母</th>
+<th>回答的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>proportion Queue share</td>
+<td>QueueInfo</td>
+<td>本 Queue 的 deserved</td>
+<td>哪个 Queue 对自己的份额使用得更少</td>
+</tr>
+<tr>
+<td>DRF dominant share</td>
+<td>JobInfo</td>
+<td>Session 的总资源</td>
+<td>哪个作业对某一种资源占用得最多</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>proportion 负责 Queue 份额与 Queue 可分配性，DRF 在当前配置中参与 JobInfo 排序。capacity 是另一套 Queue 资源插件，它直接读取 <code>Queue.spec.deserved</code>；切换到 capacity 后，Queue 份额不再沿用本节的权重循环。</p>
+<h2 id="资源已经占满时怎样继续"><span id="资源抢占与回收" class="series-legacy-anchor" aria-hidden="true"></span><span id="5-preempt-与-reclaim-怎样释放资源" class="series-legacy-anchor" aria-hidden="true"></span><a href="#资源已经占满时怎样继续" class="headerlink" title="资源已经占满时怎样继续"></a>资源已经占满时怎样继续</h2><h3 id="preempt-与-reclaim-的范围"><a href="#preempt-与-reclaim-的范围" class="headerlink" title="preempt 与 reclaim 的范围"></a>preempt 与 reclaim 的范围</h3><p>默认 <code>enqueue, allocate, backfill</code> 不会主动结束已经运行的 Pod。启用驱逐 Action 后，Volcano 有两条传统路径：</p>
+<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>竞争范围</th>
+<th>典型触发关系</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>preempt</code></td>
-<td>同 Queue 的作业之间，以及同作业内成员之间</td>
-<td>优先级、可抢占性、Gang、节点条件等</td>
+<td>同一个 Queue 内</td>
+<td>高优先级 JobInfo 从同 Queue 的其他作业选择受害成员，也包含同一作业内的成员竞争分支</td>
 </tr>
 <tr>
 <td><code>reclaim</code></td>
 <td>不同 Queue 之间</td>
-<td>来源队列允许回收、资源份额、成员可抢占性、Gang、节点条件等</td>
+<td>份额不足的 Queue 从超过 deserved 且允许回收的 Queue 选择受害成员</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>传统路径下，Gang 回调有一项很具体的限制：它按候选依次减少受害作业的可用成员计数，只有计数高于 <code>MinAvailable</code> 时才允许继续选成员。例如某组正好只有最低要求的三个成员，不能把其中一个当作不影响成组要求的冗余成员回收。</p>
-<p>当前源码另有 <code>gangpreempt</code>、<code>gangreclaim</code>，支持以组为单位组织驱逐决策，采用不同的候选组合模型。本篇跟踪的是传统 Action；这些新路径不在默认配置中，启用后应按它们自己的候选组合过程分析。</p>
+<p>preempt 的跨作业候选首先要求双方属于同一个 Queue：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">return</span> job.Queue == preemptorJob.Queue &amp;&amp; preemptor.Job != task.Job<br></code></pre></td></tr></table></figure>
+<p>priority、成员可抢占状态、Gang 和节点条件继续筛选候选。reclaim 则检查来源 Queue 的 <code>reclaimable</code> 配置，并通过 proportion 找出 allocated 超过 deserved 的 Queue。</p>
+<h3 id="主案例怎样回收-2-核"><a href="#主案例怎样回收-2-核" class="headerlink" title="主案例怎样回收 2 核"></a>主案例怎样回收 2 核</h3><p>回到贯穿全文的账本：</p>
+<ol>
+<li>A 的 deserved=4、allocated=2，等待成员还需要 2 核。</li>
+<li>B 的 deserved=8、allocated=10，超过份额 2 核，并且 <code>reclaimable=true</code>。</li>
+<li>reclaim 在 B 的成员中筛选受害者。假设其中一个成员请求 2 核，并通过优先级、可抢占性和 Gang 检查。</li>
+<li>Statement 先记录 Evict，再把 A 的等待成员 Pipeline 到受害者所在节点。</li>
+<li>Commit 后，受害 Pod 进入终止过程，这 2 核在 NodeInfo 中处于 Releasing；A 的成员处于 Pipelined。</li>
+<li>kubelet 完成终止、SchedulerCache 观察到资源释放后，后续调度把 A 的成员转为正常分配并提交绑定。</li>
+</ol>
+<p>传统 Gang 回调在筛选受害者时会减少来源作业的可用成员计数。若 B 的作业正好只有 <code>MinAvailable</code> 个可用成员，移走一个就会破坏最低成员要求，这个候选会被排除。</p>
+<p>当前源码还提供 <code>gangpreempt</code> 和 <code>gangreclaim</code>，它们以组为单位组织候选组合。本篇跟踪传统 preempt、reclaim；两套 Action 的候选构造和提交方式不同。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。"><img src="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" alt="传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。" width="960" height="596" style="--diagram-width:960px"></a></div><figcaption>传统驱逐路径先推演、再提交。候选不满足条件时撤销本轮尝试；提交后仍需等待受害 Pod 退出，未来可用资源才能成为当前可用资源。 <a href="/kuberay-volcano-08-volcano-queues/04-reclaim.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>preempt 和 reclaim 同样使用 Statement。它们可以先推演受害成员退出后是否放得下等待者，并将等待者记为 Pipelined。没有满足要求时撤销尝试；提交驱逐以后，资源也不会在同一瞬间可用。Pod 终止、缓存观察到变化、等待成员重新分配和绑定，都有自己的时间窗口。</p>
-<h2 id="小结：资源策略与实际运行机会"><span id="6-有空闲资源，为什么作业还在排队" class="series-legacy-anchor" aria-hidden="true"></span><a href="#小结：资源策略与实际运行机会" class="headerlink" title="小结：资源策略与实际运行机会"></a>小结：资源策略与实际运行机会</h2><p>一组作业要获得运行机会，需要同时满足策略与实际资源条件。Queue 是否 Open、作业是否通过 enqueue 准入，决定它能否进入后续分配；需求、上限、保障量和本轮计算的 deserved 决定队列还能分配多少。这里的资源账目依据声明的请求与 allocated 占用，和机器上的实时 CPU 利用率含义不同。</p>
-<p>额度允许以后，还需要为具体 Pod 找到合适节点。资源碎片、GPU 型号、节点亲和性和存储条件，都可能让总量足够的资源无法使用。节点污点是节点上用来排斥特定 Pod 的标记，相应 Pod 需要配置容忍条件才能通过这类检查。若某个候选放不下，Gang 的最低要求还可能使本轮已试分配的部分被撤销。</p>
-<p>资源不足时能否驱逐已有 Pod，取决于实际启用的 Action、插件和参数。没有启用驱逐，就要等待资源自然释放；即使已经提交驱逐，受害 Pod 退出、等待成员绑定和容器启动也不会同时完成。因此，份额与优先级表达了竞争规则，实际运行机会还受节点条件和资源释放进度约束。</p>
-<p>至此，Volcano 一侧的对象、Gang 分配和资源竞争已经连成完整路径。下一篇回到 KubeRay，逐字段核对它怎样生成 PodGroup、关联成员 Pod，并在生命周期变化时更新调度需求。</p>
+<p>Statement 允许调度器先推演“移走谁以后，等待成员能否放下”。不满足 Queue、节点或 Gang 条件时，Discard 恢复本轮账目；Commit 以后，Pod 终止仍由 Kubernetes 和节点侧异步完成。第七篇中的 <code>FutureIdle=Idle+Releasing</code> 与 Pipelined，正是在这里接上实际资源释放过程。</p>
+<h2 id="小结：从资源账本到运行机会"><span id="小结：资源策略与实际运行机会" class="series-legacy-anchor" aria-hidden="true"></span><span id="6-有空闲资源，为什么作业还在排队" class="series-legacy-anchor" aria-hidden="true"></span><a href="#小结：从资源账本到运行机会" class="headerlink" title="小结：从资源账本到运行机会"></a>小结：从资源账本到运行机会</h2><p>一次资源竞争可以沿同一份账本理解：Session 打开时汇总 request、allocated、inqueue 和 elastic；proportion 根据 weight、guarantee、capability 算出 realCapability 与 deserved；Queue share 决定先看哪个 Queue，priority 和 DRF 决定 Queue 内先看哪个 JobInfo；queueAllocatable、predicates 与 Gang 再检查候选能否进入 Statement。</p>
+<p>主案例中，A 的 2 核等待需求在 Queue 额度上成立，但节点没有当前空闲资源。B 超过 deserved 的 2 核为 reclaim 提供了候选范围。驱逐提交后，这 2 核先进入 Releasing，等待成员处于 Pipelined；资源真正释放并被缓存观察到以后，成员才重新分配和绑定。</p>
+<p>下一篇回到 KubeRay，核对 RayJob 怎样生成 PodGroup、Queue 关联和成员元数据，以及 submitter 的资源为何会提前进入这套账本。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/plugins/proportion/proportion.go">Volcano：proportion 插件</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/volcano-sh/volcano/blob/d8984501e4ad9cd7c5a920d1dd2a28b9df48b681/pkg/scheduler/plugins/drf/drf.go">Volcano：DRF 插件</a></li>
@@ -1028,5 +1138,20 @@
   <noscript>
     <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
   </noscript>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
 </html>
