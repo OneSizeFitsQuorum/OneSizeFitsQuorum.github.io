@@ -7,11 +7,8 @@
 
 <head>
   <meta charset="UTF-8">
-
   <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
   <link rel="icon" href="/img/favicon.png">
-  
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
@@ -61,7 +58,7 @@
 <!-- 主题依赖的图标库，不要自行修改 -->
 <!-- Do not modify the link that theme dependent icons -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
 
@@ -86,7 +83,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"tanxinyu.work","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -95,6 +92,8 @@
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
+  
+
   
 
   
@@ -262,7 +261,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          12k 字
+          4.3k 字
         
       </span>
     
@@ -274,7 +273,7 @@
         
         
           <!-- compatible with older versions-->
-          37 分钟
+          14 分钟
         
       </span>
     
@@ -287,7 +286,6 @@
           <span id="busuanzi_value_page_pv"></span> 次
         </span>
         
-
       
     
   </div>
@@ -322,21 +320,19 @@
           <article class="post-content mx-auto">
             <h1 id="seo-header">第 1 篇｜KubeRay 架构：组件分工与协作</h1>
             
-              <p id="updated-time" class="note note-info" style="display: none">
+              <p class="note note-info">
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：2026-09-16T00:00:00+08:00
+                    本文最后更新于：6 天前
                   
-                  
-
                 
               </p>
             
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 10 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li class="is-current"><a href="/kuberay-volcano-01-architecture/" aria-current="page">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第零篇从计算与部署需求解释了 Ray、Kubernetes 和 KubeRay 的分工。这篇沿一次 RayJob 提交进入源码，追踪资源之间的交接。</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li class="is-current"><a href="/kuberay-volcano-01-architecture/" aria-current="page">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第零篇从计算与部署需求解释了 Ray、Kubernetes 和 KubeRay 的分工。这篇沿一次 RayJob 提交进入源码，追踪资源之间的交接。</p>
 <p>向 Kubernetes 提交一个 RayJob 后，集群里会陆续出现 RayCluster、head Pod、worker Pod，以及一个用来提交作业的 Kubernetes Job。用户只创建了一个对象，剩下的资源是谁创建的？这些资源准备好之后，程序又由谁启动？</p>
 <p>本例用一个名叫 <code>demo-job</code> 的 RayJob 运行 Python 程序。KubeRay 为它准备专用集群，包含一个 head Pod 和两个 worker Pod；集群就绪后提交程序，成功完成后等待 60 秒清理集群。程序及依赖已经放进运行镜像，暂不启用自动扩缩容。</p>
 <p>下文把这个提交用 Job 称为 submitter Job，它创建的 Pod 称为 submitter Pod。第一至第五篇的基础案例不启用 Volcano；第六至第九篇再增加批调度配置，分析多个作业竞争资源时的行为。</p>
@@ -555,7 +551,7 @@
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/ray/blob/3f785c0711b94f93f97fea2a438abcd6a9738655/doc/source/ray-core/key-concepts.md">Ray Core 概念与环境依赖</a></li>
 <li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/">Kubernetes：annotations</a></li>
 </ul>
-<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 10 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav></div>
+<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 11 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav></div>
                 
               </div>
             
@@ -634,7 +630,7 @@
               
                 <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
                   <span class="hint--top hint--rounded" aria-label="BY - 署名">
-                    <i class="iconfont icon-cc-by"></i>
+                    <i class="iconfont icon-by"></i>
                   </span>
                 </a>
               
@@ -832,11 +828,10 @@
       </span>
     
     
-
   
-
 </div>
 
+  
   
   
 </div>
@@ -886,33 +881,6 @@
   
 
 
-
-
-  
-<script>
-  var relativeDate = function() {
-    var updatedTime = document.getElementById('updated-time');
-    if (updatedTime) {
-      var text = updatedTime.textContent;
-      var reg = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})/;
-      var matchs = text.match(reg);
-      if (matchs) {
-        var relativeTime = moment(matchs[0]).fromNow();
-        updatedTime.textContent = text.replace(reg, relativeTime);
-      }
-      updatedTime.style.display = '';
-    }
-  };
-  Fluid.utils.createScript('https://lib.baomitu.com/moment.js/2.29.4/moment.min.js', function() {
-    if (!'zh-cn'.startsWith('en')) {
-      Fluid.utils.createScript('https://lib.baomitu.com/moment.js/2.29.4/locale/zh-cn.min.js', function() {
-        relativeDate();
-      });
-    } else {
-      relativeDate();
-    }
-  });
-</script>
 
 
   

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="560" viewBox="0 0 960 560" role="img" aria-labelledby="title desc">
+  <title id="title">KubeRay、Volcano 与 Ray 的三个控制循环</title>
+  <desc id="desc">KubeRay 和 Volcano 通过 Kubernetes API 对象交接状态，submitter 再通过 Ray Jobs API 把程序交给 Ray 运行时。</desc>
+  <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#64748b"/></marker></defs>
+  <rect width="960" height="560" fill="#fbfcfe"/>
+  <style>.t{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;fill:#243449}.h{font-size:22px;font-weight:700}.m{font-size:17px;font-weight:700}.s{font-size:14px;fill:#536579}.line{fill:none;stroke:#64748b;stroke-width:1.7;marker-end:url(#a)}</style>
+  <text x="36" y="42" class="t h">三个循环，各自推进一段状态</text>
+  <rect x="330" y="84" width="300" height="114" rx="14" fill="#f2f6fa" stroke="#9fb1c5" stroke-width="1.5"/>
+  <text x="480" y="118" text-anchor="middle" class="t m">Kubernetes API</text><text x="480" y="146" text-anchor="middle" class="t s">RayJob · RayCluster · PodGroup · Pod</text><text x="480" y="170" text-anchor="middle" class="t s">spec · status · label · annotation</text>
+  <rect x="40" y="258" width="250" height="198" rx="14" fill="#eef4ff" stroke="#78a3e8" stroke-width="1.5"/>
+  <text x="165" y="294" text-anchor="middle" class="t m">KubeRay 协调循环</text><text x="70" y="330" class="t s">watch 对象变化</text><text x="70" y="360" class="t s">对象键进入工作队列</text><text x="70" y="390" class="t s">Reconcile 读取当前状态</text><text x="70" y="420" class="t s">创建资源或写回 status</text>
+  <rect x="355" y="258" width="250" height="198" rx="14" fill="#fff3e8" stroke="#df9b62" stroke-width="1.5"/>
+  <text x="480" y="294" text-anchor="middle" class="t m">Volcano 调度循环</text><text x="385" y="330" class="t s">建立 Session 快照</text><text x="385" y="360" class="t s">检查 Gang 与 Queue</text><text x="385" y="390" class="t s">试分配并提交 Statement</text><text x="385" y="420" class="t s">绑定 Pod 或等待下一轮</text>
+  <rect x="670" y="258" width="250" height="198" rx="14" fill="#eaf7f3" stroke="#79baa8" stroke-width="1.5"/>
+  <text x="795" y="294" text-anchor="middle" class="t m">Ray 运行时</text><text x="700" y="330" class="t s">接收 Ray Jobs API 请求</text><text x="700" y="360" class="t s">维护 task 与 Actor</text><text x="700" y="390" class="t s">使用集群内部资源</text><text x="700" y="420" class="t s">返回程序运行状态</text>
+  <path d="M165 258V141H330" class="line"/><path d="M630 141H795V258" class="line"/><path d="M480 198V258" class="line"/>
+  <path d="M290 357H355" class="line"/><path d="M605 357H670" class="line"/>
+  <text x="322" y="342" text-anchor="middle" class="t s">对象</text><text x="638" y="342" text-anchor="middle" class="t s">Jobs API</text>
+  <text x="480" y="510" text-anchor="middle" class="t s">事件可以重复或合并；每套循环都重新读取自己负责的当前状态。</text>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">状态位置与恢复边界</title>
+  <desc id="desc">状态分为 Kubernetes 持久化对象、Controller 和 Scheduler 进程内状态，以及 Ray 运行时状态。</desc>
+  <rect width="960" height="540" fill="#fbfcfe"/>
+  <style>.t{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;fill:#243449}.h{font-size:22px;font-weight:700}.m{font-size:17px;font-weight:700}.s{font-size:14px;fill:#536579}.ok{font-size:14px;fill:#277871;font-weight:650}</style>
+  <text x="36" y="42" class="t h">恢复取决于状态保存在哪里</text>
+  <rect x="36" y="86" width="278" height="358" rx="14" fill="#eef4ff" stroke="#78a3e8" stroke-width="1.5"/>
+  <text x="175" y="122" text-anchor="middle" class="t m">Kubernetes API 对象</text>
+  <text x="64" y="164" class="t s">• spec 与 status</text><text x="64" y="194" class="t s">• 对象是否存在</text><text x="64" y="224" class="t s">• label 与 annotation</text><text x="64" y="254" class="t s">• owner reference</text>
+  <line x1="64" y1="282" x2="286" y2="282" stroke="#bfd0e3"/>
+  <text x="64" y="318" class="t ok">Operator 重启后可重新读取</text><text x="64" y="348" class="t s">list/watch 重建观察入口</text><text x="64" y="378" class="t s">Reconcile 恢复资源关系</text><text x="64" y="408" class="t s">对象是控制过程的交接记录</text>
+  <rect x="341" y="86" width="278" height="358" rx="14" fill="#fff3e8" stroke="#df9b62" stroke-width="1.5"/>
+  <text x="480" y="122" text-anchor="middle" class="t m">进程内状态</text>
+  <text x="369" y="164" class="t s">• informer cache</text><text x="369" y="194" class="t s">• 工作队列与键锁</text><text x="369" y="224" class="t s">• expectations</text><text x="369" y="254" class="t s">• Scheduler Session</text>
+  <line x1="369" y1="282" x2="591" y2="282" stroke="#ead1bd"/>
+  <text x="369" y="318" class="t ok">重启后可以重新建立</text><text x="369" y="348" class="t s">用于效率、并发控制和观察延迟</text><text x="369" y="378" class="t s">不能成为唯一的恢复依据</text><text x="369" y="408" class="t s">队列事件本身不是持久化日志</text>
+  <rect x="646" y="86" width="278" height="358" rx="14" fill="#eaf7f3" stroke="#79baa8" stroke-width="1.5"/>
+  <text x="785" y="122" text-anchor="middle" class="t m">Ray 运行时状态</text>
+  <text x="674" y="164" class="t s">• head 与 worker 进程</text><text x="674" y="194" class="t s">• GCS 元数据</text><text x="674" y="224" class="t s">• 对象存储</text><text x="674" y="254" class="t s">• task 与 Actor</text>
+  <line x1="674" y1="282" x2="896" y2="282" stroke="#bddbd2"/>
+  <text x="674" y="318" class="t ok">按 Ray 的机制判断恢复</text><text x="674" y="348" class="t s">与 Operator 重新选主不是一件事</text><text x="674" y="378" class="t s">集群 Ready 不等于程序完成</text><text x="674" y="408" class="t s">服务切换还有独立的可用性条件</text>
+  <rect x="36" y="474" width="888" height="42" rx="10" fill="#f2f6fa" stroke="#c9d5e2"/>
+  <text x="480" y="501" text-anchor="middle" class="t s">阅读恢复路径时，先找出下一步所需信息，再确认它是否能在对应组件重启后重新取得。</text>
+</svg>
