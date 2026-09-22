@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          3k 字
+          2.8k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          10 分钟
+          9 分钟
         
       </span>
     
@@ -325,7 +325,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：18 小时前
+                    本文最后更新于：21 小时前
                   
                 
               </p>
@@ -333,10 +333,9 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 10 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li class="is-current"><a href="/kuberay-volcano-10-source-reading-report/" aria-current="page">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-09-kuberay-volcano/">上一篇：第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a><a href="/kuberay-volcano/">已到系列末篇 · 返回目录</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>从第零篇走到第九篇，我们先拆开 KubeRay 的资源模型、协调、并发、恢复和高可用，再进入 Volcano 的 Gang、Queue 与接入流程。这一篇不再展开新的机制，而是把这些结论放回同一次 RayJob 执行：每个阶段由谁推进，状态保存在哪里，某一层完成以后还要等待什么。</p>
-<p>这份报告沿用全系列的固定源码基线：KubeRay <code>6bf05eb17a3e</code>、Ray <code>3f785c0711b9</code>、Volcano <code>d8984501e4ad</code>。文中的容量、故障和时序仍是源码推演，没有加入集群压测或故障注入结果。</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 10 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li class="is-current"><a href="/kuberay-volcano-10-source-reading-report/" aria-current="page">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-09-kuberay-volcano/">上一篇：第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a><a href="/kuberay-volcano/">已到系列末篇 · 返回目录</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前面十篇从 KubeRay 的资源模型出发，经过协调、并发和恢复，再进入 Volcano 的调度与接入流程。现在把这些过程放回同一次 RayJob 执行，看看每一步由谁推进，状态保存在哪里，完成后又交给谁。</p>
 <h2 id="从-RayJob-到用户程序"><a href="#从-RayJob-到用户程序" class="headerlink" title="从 RayJob 到用户程序"></a>从 RayJob 到用户程序</h2><p>在本文的 Kubernetes 场景中，使用者先提交 RayJob。KubeRay 根据 RayJob 创建专用 RayCluster，再由 RayCluster Controller 创建 head、worker Pod 和 Service。集群进入 Ready 后，KubeRay 创建 submitter Kubernetes Job；submitter 连接 Ray Dashboard 的 Jobs API，把入口命令交给 Ray。Ray 接收提交后安排用户程序运行，再处理程序发起的 task 和 actor。</p>
-<p>启用 Volcano 时，这条主干增加了两组调度信息：创建 RayCluster 之前先写入 PodGroup；创建 Pod 时再写入 <code>schedulerName</code>、PodGroup 名和成员角色。Volcano 接管的是 Pod 获得节点的过程。它不会替 KubeRay 判断 RayCluster 是否 Ready，也不会替 Ray 执行用户程序。</p>
+<p>启用 Volcano 时，这条主干增加了两组调度信息：创建 RayCluster 之前先写入 PodGroup；创建 Pod 时再写入 <code>schedulerName</code>、PodGroup 名和成员角色。Volcano 为 Pod 分配节点，KubeRay 继续判断 RayCluster 是否 Ready，Ray 负责执行用户程序。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-10-source-reading-report/01-lifecycle-overview.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：一次 RayJob 从声明、集群准备、Pod 调度到 Ray 程序运行的完整路径。Volcano 是 Pod 调度阶段的可选接入，RayCluster Ready 之后才会创建 submitter。"><img src="/kuberay-volcano-10-source-reading-report/01-lifecycle-overview.svg" alt="一次 RayJob 从声明、集群准备、Pod 调度到 Ray 程序运行的完整路径。Volcano 是 Pod 调度阶段的可选接入，RayCluster Ready 之后才会创建 submitter。" width="960" height="560" style="--diagram-width:960px"></a></div><figcaption>一次 RayJob 从声明、集群准备、Pod 调度到 Ray 程序运行的完整路径。Volcano 是 Pod 调度阶段的可选接入，RayCluster Ready 之后才会创建 submitter。 <a href="/kuberay-volcano-10-source-reading-report/01-lifecycle-overview.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>把流程按阶段展开，可以得到下面的分工：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
@@ -407,7 +406,7 @@
 <p>Volcano Scheduler 周期性建立 Session，把缓存中的 Node、Queue、JobInfo 和 TaskInfo 组织成一次调度快照。enqueue、allocate、backfill，以及按需启用的 preempt、reclaim，在 Session 中计算候选结果并提交绑定。它处理的是一组 Pod 能否获得节点，以及多个作业怎样竞争资源。</p>
 <p>Ray 的运行时循环发生在集群内部。head、worker 建立连接后，Ray 根据可用资源执行 task 和 actor；Ray Jobs API 管理用户程序的提交与状态。它处理的是计算任务怎样运行。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-10-source-reading-report/02-control-loops.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：KubeRay 协调循环、Volcano 调度循环和 Ray 运行时通过 Kubernetes 对象及 Ray API 依次衔接。三套循环各自读取状态并推进自己负责的阶段。"><img src="/kuberay-volcano-10-source-reading-report/02-control-loops.svg" alt="KubeRay 协调循环、Volcano 调度循环和 Ray 运行时通过 Kubernetes 对象及 Ray API 依次衔接。三套循环各自读取状态并推进自己负责的阶段。" width="960" height="560" style="--diagram-width:960px"></a></div><figcaption>KubeRay 协调循环、Volcano 调度循环和 Ray 运行时通过 Kubernetes 对象及 Ray API 依次衔接。三套循环各自读取状态并推进自己负责的阶段。 <a href="/kuberay-volcano-10-source-reading-report/02-control-loops.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>三套循环没有共享一份进程内状态。KubeRay 与 Volcano 通过 Kubernetes 对象交接信息：PodGroup 表达最低成员和资源需求，Pod 上的字段表达调度器选择与组关系，RayCluster status 表达 KubeRay 观察到的集群状态。submitter 再通过 Ray Jobs API 跨入 Ray 的运行时边界。</p>
+<p>KubeRay 与 Volcano 通过 Kubernetes 对象交接信息：PodGroup 表达最低成员和资源需求，Pod 上的字段表达调度器选择与组关系，RayCluster status 表达 KubeRay 观察到的集群状态。submitter 再通过 Ray Jobs API 将程序交给 Ray。每个组件根据这些接口获得进展，各自维护进程内状态。</p>
 <p>这种协作方式允许各组件独立重试。某个 watch 事件重复到达，工作队列可以合并同一个对象键；某个事件没有对应一次独立执行，后续 Reconcile 仍会读取对象的最新状态。Scheduler 也根据当前 Session 重新计算候选，不依赖逐条重放此前发生的资源变化。</p>
 <h2 id="状态、并发与恢复"><a href="#状态、并发与恢复" class="headerlink" title="状态、并发与恢复"></a>状态、并发与恢复</h2><p>源码中最容易混在一起的是事件、状态和正在执行的工作。它们承担不同职责：</p>
 <ul>
@@ -430,45 +429,44 @@
 <li>preempt 和 reclaim 选出需要释放的成员后，资源还要等待 Pod 实际退出，才能重新用于绑定。</li>
 </ul>
 <p>沿执行顺序看，Queue 份额先给出资源策略上的额度，实际位置仍要逐个 Pod 选择；Gang 满足最低成员门槛后提交分配，成员随后还要完成绑定和启动；RayCluster 就绪后才轮到提交程序。扩容时新增的 worker 也继续经过各自的调度与启动过程。读取状态时，需要把它放回对应阶段，才能判断后面还剩哪些工作。</p>
-<h2 id="这份源码报告能够支持哪些判断"><a href="#这份源码报告能够支持哪些判断" class="headerlink" title="这份源码报告能够支持哪些判断"></a>这份源码报告能够支持哪些判断</h2><p>基于固定版本源码，可以确认下面这些行为关系：</p>
+<h2 id="这份源码报告能够支持哪些判断"><a href="#这份源码报告能够支持哪些判断" class="headerlink" title="这份源码报告能够支持哪些判断"></a>这份源码报告能够支持哪些判断</h2><p>前面的调用链可以用来回答这些问题：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
 <tr>
-<th>可以从源码确认</th>
-<th>仍需部署或实验确认</th>
+<th>要理解的问题</th>
+<th>对应的执行过程</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Controller 的 watch、队列、Reconcile 和重试路径</td>
-<td>特定集群规模下的协调延迟与吞吐</td>
+<td>Pod 已经变化，Controller 何时再检查？</td>
+<td>watch 映射对象标识，队列合并请求，Reconcile 重新读取状态</td>
 </tr>
 <tr>
-<td>RayJob、RayCluster、PodGroup 和成员 Pod 的创建顺序</td>
-<td>安装版本、CRD、Webhook 与 Kubernetes 版本的实际兼容性</td>
+<td>声明 RayJob 后，其他资源怎样出现？</td>
+<td>RayJob 创建 RayCluster，RayCluster Controller 创建成员，调度器绑定节点</td>
 </tr>
 <tr>
-<td>Leader Election、状态写回和对象重建所依赖的信息</td>
-<td>控制面故障时的真实恢复时间</td>
+<td>Operator 中断后，下一任从哪里继续？</td>
+<td>取得 Lease，读取已保存的身份和状态，再查询实际资源</td>
 </tr>
 <tr>
-<td>Gang、Queue 份额、抢占与回收的源码条件</td>
-<td>具体工作负载下的排队时间和资源利用率</td>
+<td>等待中的作业怎样获得资源？</td>
+<td>Queue 排序与额度检查、节点选择、Gang 判断，以及按需启用的抢占或回收</td>
 </tr>
 <tr>
-<td>KubeRay 与 Volcano 通过哪些字段协作</td>
-<td>Admission 注入、Pod overhead 等环境差异造成的最终资源请求</td>
+<td>KubeRay 怎样把需求交给 Volcano？</td>
+<td>PodGroup 保存组需求，Pod 字段保存调度器选择与成员关联</td>
 </tr>
 <tr>
-<td>submitter 何时创建，以及它怎样进入同一个 PodGroup</td>
-<td>用户代码、依赖包、存储和结果提交的可靠性</td>
+<td>Ray 程序从哪一步开始运行？</td>
+<td>集群就绪后创建 submitter，提交程序调用 Ray Jobs API</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>这也是全系列一直保留源码版本和条件分支的原因。源码能够说明控制路径与判断条件；时间、容量和稳定性数据仍需要在目标环境中测量。</p>
-<h2 id="怎样继续使用这套阅读方法"><a href="#怎样继续使用这套阅读方法" class="headerlink" title="怎样继续使用这套阅读方法"></a>怎样继续使用这套阅读方法</h2><p>这次阅读没有从文件列表开始，而是始终沿一个问题寻找下一次状态交接：谁观察对象，谁把键放进队列，谁重新读取状态，谁创建下级资源，谁写回结果。遇到并发和失败分支时，再分别检查持久化状态、进程内状态和外部组件状态。</p>
+<h2 id="怎样继续使用这套阅读方法"><a href="#怎样继续使用这套阅读方法" class="headerlink" title="怎样继续使用这套阅读方法"></a>怎样继续使用这套阅读方法</h2><p>这次阅读始终沿着状态交接往下走：谁观察对象，谁把键放进队列，谁重新读取状态，谁创建下级资源，谁写回结果。遇到并发和失败分支时，再检查持久化状态、进程内状态和外部组件状态。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-10-source-reading-report/04-reading-map.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：全系列的阅读路线：先建立对象与生命周期，再进入协调、并发和恢复，随后阅读 Volcano 的调度与资源竞争，最后回到接入流程和系统边界。"><img src="/kuberay-volcano-10-source-reading-report/04-reading-map.svg" alt="全系列的阅读路线：先建立对象与生命周期，再进入协调、并发和恢复，随后阅读 Volcano 的调度与资源竞争，最后回到接入流程和系统边界。" width="960" height="560" style="--diagram-width:960px"></a></div><figcaption>全系列的阅读路线：先建立对象与生命周期，再进入协调、并发和恢复，随后阅读 Volcano 的调度与资源竞争，最后回到接入流程和系统边界。 <a href="/kuberay-volcano-10-source-reading-report/04-reading-map.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>把这种方法用于其他 Controller 或调度器时，可以保持下面的顺序：</p>
 <ol>
@@ -476,11 +474,11 @@
 <li>找到 watch 注册、队列键和 Reconcile 入口，确认事件怎样变成一次状态检查。</li>
 <li>沿每次 API 写入继续追踪下一位观察者，直到请求进入真正执行工作的组件。</li>
 <li>将 status、缓存、锁、队列和外部存储分开，判断重启后哪些信息仍然存在。</li>
-<li>对版本条件和失败分支单独记录，不用当前版本的实现替代其他版本行为。</li>
+<li>遇到失败分支，记录已经生效的操作，以及下一轮继续执行所需的信息。</li>
 </ol>
 <p>对于部署选择，也可以沿组件边界判断。Ray 可以独立运行；希望用 Kubernetes 管理 Ray 集群生命周期时再引入 KubeRay；需要最低成员共同启动、Queue 份额或批作业资源竞争时，再为相应工作负载接入 Volcano。每增加一层能力，也会增加一组需要维护的对象、状态和版本关系。</p>
 <h2 id="小结：沿状态交接理解整个系统"><a href="#小结：沿状态交接理解整个系统" class="headerlink" title="小结：沿状态交接理解整个系统"></a>小结：沿状态交接理解整个系统</h2><p>从 RayJob 到用户程序，系统没有一条贯穿所有组件的同步调用链。KubeRay、Kubernetes 调度器或 Volcano、Ray 依次观察属于自己的状态，并把结果写到下一层能够读取的位置。watch、队列和重试让协调可以重复发生；Kubernetes 对象让控制过程能够在重启后重新建立；PodGroup 和 Queue 为多个 Pod、多个作业补充调度约束；Ray 在资源就绪后接管计算。</p>
-<p>读源码时抓住对象、状态和控制循环，就能判断一项能力由哪一层提供，也能看出某个状态成立之后，系统还需要经过哪些阶段。到这里，这组源码阅读形成了一条完整路径：从架构分工出发，经过协调、并发、恢复和调度，最后回到一次用户程序如何真正运行。</p>
+<p>沿对象和状态往下读，就能判断一项能力由哪一层提供，也能看出当前阶段完成后，系统还需要做哪些工作。从一份 RayJob 声明到用户程序运行，前面各篇讨论的机制就在这些交接处连了起来。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/blob/6bf05eb17a3e2e06fb454471265b2afa34d66e90/ray-operator/controllers/ray/rayjob_controller.go">KubeRay：RayJob Controller</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/blob/6bf05eb17a3e2e06fb454471265b2afa34d66e90/ray-operator/controllers/ray/raycluster_controller.go">KubeRay：RayCluster Controller</a></li>

@@ -261,7 +261,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          4.9k 字
+          4.8k 字
         
       </span>
     
@@ -273,7 +273,7 @@
         
         
           <!-- compatible with older versions-->
-          16 分钟
+          15 分钟
         
       </span>
     
@@ -324,7 +324,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：18 小时前
+                    本文最后更新于：21 小时前
                   
                 
               </p>
@@ -334,7 +334,6 @@
                 
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 2 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li class="is-current"><a href="/kuberay-volcano-02-reconcile/" aria-current="page">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-01-architecture/">上一篇：第 1 篇｜KubeRay 架构：组件分工与协作</a><a href="/kuberay-volcano-03-concurrency/">下一篇：第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第一篇里，RayJob <code>default/demo-job</code> 创建了专用 RayCluster，示例名称为 <code>default/demo-job-abcde</code>，包含一个 head Pod 和 <code>compute</code> 组的两个 worker Pod。RayJob Controller 要等集群就绪，才会创建 submitter Job。假设最后一个 worker Pod 已经进入 <code>Running</code>，Ready 条件也刚变为 True，这个变化怎样传到 Operator，又怎样让作业继续提交？</p>
 <p>沿着这次 Ready 变化，可以把协调过程分成三段：事件先把 RayCluster 标识放进队列；一轮 <code>Reconcile</code> 维护资源、计算状态，再把结果交给 RayJob Controller；本轮返回以后，新的事件、延时请求或错误重试继续安排下一轮处理。</p>
-<p>阅读基线是 KubeRay <code>6bf05eb17a3e</code> 和它依赖的 controller-runtime <code>v0.24.1</code>。图中展示源码路径，时间间隔为示意，没有运行集群实验。</p>
 <h2 id="从资源变化到协调请求"><span id="先走完一次就绪后的交接" class="series-legacy-anchor" aria-hidden="true"></span><span id="1-Operator-怎么知道-Pod-变了" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从资源变化到协调请求" class="headerlink" title="从资源变化到协调请求"></a>从资源变化到协调请求</h2><h3 id="监听、缓存与事件通知"><span id="监听范围与事件筛选" class="series-legacy-anchor" aria-hidden="true"></span><a href="#监听、缓存与事件通知" class="headerlink" title="监听、缓存与事件通知"></a>监听、缓存与事件通知</h3><p>导引中负责回报 Pod 状态的 kubelet，会把本节点观察到的结果写入 API Server。Operator 通过 watch 接收所关注资源的变化通知；这是 Kubernetes API 提供的监听机制。</p>
 <p>例如，某个 worker 的 Ready 条件从 False 变成 True，API Server 中相应 Pod 的记录也随之更新。监听这个 Pod 的客户端可以收到更新通知，得知这个对象发生了变化。通知提供了重新检查资源的机会，至于整个集群是否已经就绪，还要由后面的协调逻辑判断。</p>
 <p>管理这些对象同步和通知的客户端组件叫 informer。它在 Operator 进程内维护资源的本地缓存：例如某个 Pod 的名称、所属集群和已观察到的状态，都可以从这份对象记录中读取。收到对象更新后，informer 更新本地记录，并通知注册的事件处理器，源码中通常称为 handler。</p>
@@ -350,7 +349,7 @@
 <p>对照代码中的括号，<code>WithPredicates(...)</code> 是传给 <code>For(RayCluster)</code> 的参数，只筛选 RayCluster 自身这条监听路径。三个条件用 <code>predicate.Or</code> 连接：对更新事件，只要 generation、label 或 annotation 有一项变化，就可以通过这组筛选。</p>
 <p>例如，使用者修改 worker 数量要求，RayCluster 的期望配置发生变化，generation 随之变化，可以触发重新检查；Controller 只把观察结果写回 status 时，通常不会改变 generation，也就不会仅凭这一条件触发自身协调。这样可以避免每次写回状态都立即通过同一条监听路径再次入队。</p>
 <p>代码中的 <code>Owns(Pod)</code> 没有传入这组筛选条件，因此 worker 的 Ready 条件变化仍然可以触发集群检查。RayJob 对下级 RayCluster 的监听也独立配置。同一次 RayCluster 状态更新，可以被 RayJob Controller 接收，而被 RayCluster Controller 自身的这组条件过滤掉。</p>
-<p>owner reference 是创建资源时写入的拥有关系。<code>Owns(Pod)</code> 利用这份关系注册监听，本身不会创建 Pod，也不会靠名称前缀猜测 Pod 属于哪个集群。比如最后一个 worker 就绪时，处理器从它的拥有关系找到 <code>demo-job-abcde</code>；入队的仍然是这个 RayCluster，后续检查才能同时考虑 head 和其他 worker。</p>
+<p>owner reference 是创建资源时写入的拥有关系，<code>Owns(Pod)</code> 利用它注册下级资源的监听。比如最后一个 worker 就绪时，处理器沿这份关系找到 <code>demo-job-abcde</code>，把这个 RayCluster 放入队列，后续检查便能同时考虑 head 和其他 worker。</p>
 <p>这段注册还包括 Secret 和 PersistentVolumeClaim（PVC）。前者用于存放密码等敏感配置，后者用于声明持久存储需求。不同集群配置会用到不同辅助资源，列在 <code>Owns</code> 中不表示每套 RayCluster 都会创建它们。</p>
 <p>这个行为能在 controller-runtime 的 <code>Builder.doWatch</code> 中看到：<code>For</code> 使用 <code>EnqueueRequestForObject</code>，<code>Owns</code> 使用 <code>EnqueueRequestForOwner</code>；默认情况下，后者只匹配标记为 controller owner 的引用，也就是 owner reference 中 <code>controller: true</code> 的那一项。对象可以记录多个 owner，但至多有一个这样标记的管理者。处理器检查直接拥有关系，不会递归寻找任意层级的祖先。</p>
 <p>owner handler 匹配资源的 API 组 Group 和类型 Kind，例如 <code>ray.io</code> 与 <code>RayCluster</code>，再构造下面的请求。以下是 <code>getOwnerReconcileRequest</code> 的连续节选：</p>
@@ -384,7 +383,7 @@
 <h2 id="一轮结束后的再次触发"><span id="返回结果与后续调度" class="series-legacy-anchor" aria-hidden="true"></span><span id="4-返回以后，谁安排下一轮" class="series-legacy-anchor" aria-hidden="true"></span><a href="#一轮结束后的再次触发" class="headerlink" title="一轮结束后的再次触发"></a>一轮结束后的再次触发</h2><p>前面说明了两层 Controller 怎样通过资源状态交接。每个 Controller 完成本轮能做的事情后，都需要把执行机会交回框架：集群可能仍在准备，Ray 作业也可能还在运行。接下来要解决的是，怎样在条件变化后继续处理这些对象。</p>
 <h3 id="事件通知与主动重查"><a href="#事件通知与主动重查" class="headerlink" title="事件通知与主动重查"></a>事件通知与主动重查</h3><p>一轮 Reconcile 返回以后，watch 仍然持续工作。例如，worker 的 Ready 条件更新，可以沿前面的事件路径触发新的 RayCluster 协调；集群状态写回后，又可以触发 RayJob 协调。每轮处理都会重新读取当前状态、判断下一步条件。这种由事件触发的检查，本身不需要定时轮询。</p>
 <p>随着案例进入作业执行阶段，RayJob Controller 还要跟踪另一类进展：Ray 内部的作业状态。程序执行完成时，承载它的 Pod 可能仍然正常运行，未必产生相应的 Kubernetes 资源更新。只等待 Pod 事件，就可能无法及时发现作业已经结束。因此，RayJob Controller 会查询 Ray Jobs API；如果作业还在运行，就安排稍后再查。</p>
-<p>如果某条流程所依赖的变化都能通过监听触发协调，就可以依靠事件推进，定时重查并非每条路径的必需步骤。本版本 KubeRay 在等待集群和跟踪作业等路径上也会安排延时重查。这些延时请求与资源事件共同提供后续处理机会，等待期间 watch 继续接收变化。</p>
+<p>能通过监听获知的变化，可以由事件推进。等待集群和跟踪 Ray 作业时，KubeRay 也会安排延时重查；等待期间 watch 继续接收变化，两条路径都可以触发后续协调。</p>
 <h3 id="返回结果与队列安排"><a href="#返回结果与队列安排" class="headerlink" title="返回结果与队列安排"></a>返回结果与队列安排</h3><p>前面写回 API 的 <code>status</code> 描述资源已经走到哪一步，供使用者和其他 Controller 读取。这里的 <code>Result</code> 与 <code>error</code> 则返回给调用 Reconcile 的框架：前者表达是否以及何时再查，后者表达本轮是否失败。框架根据它们安排当前对象的下一轮处理。</p>
 <p>例如，成功查询 Ray Jobs API、得知作业仍在运行，是正常等待，可以要求稍后再看；查询失败、没能获得作业状态，则需要按错误规则安排重试。一次协调成功，只表示本轮检查和管理动作没有报错，并不要求 Ray 作业已经完成。</p>
 <p>需要延时重查时，代码返回 <code>RequeueAfter</code>，把后续安排交给框架，当前函数随后就结束了。等待期间，协调协程可以处理其他对象，不必留在函数里等待 Pod 就绪或 Ray 作业完成。框架登记同一个对象的延时入队要求，到时再给它处理机会；下一轮会从协调入口重新读取资源，而不是从上次函数退出的位置继续执行。</p>
@@ -418,7 +417,7 @@
 </tr>
 <tr>
 <td>error 为空，<code>RequeueAfter &lt;= 0</code> 且 <code>Requeue: true</code></td>
-<td>走限速重排路径；这是该版本仍兼容的旧字段</td>
+<td>走限速重排路径</td>
 </tr>
 <tr>
 <td>error 为空，空 Result</td>
@@ -433,8 +432,8 @@
 <p>队列把同一对象尚待处理的请求合并，协调逻辑依据当前能读到的状态判断；本轮进行期间的新变化，还可以留下下一轮检查。对使用者来说，声明已保存、Pod 已就绪、RayJob 已推进到下一阶段，可以出现在不同时间，它们通过上述过程逐步完成。</p>
 <p>下一篇把这条路径放到 100 个 RayCluster 同时变化的场景里，沿入队、请求合并和任务分配的实现，分析不同对象怎样并行，以及同一个对象的多轮检查怎样串行衔接。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/tree/6bf05eb17a3e2e06fb454471265b2afa34d66e90">KubeRay 源码基线（6bf05eb17a3e）</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/kubernetes-sigs/controller-runtime/tree/v0.24.1">controller-runtime 源码基线（v0.24.1）</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/tree/6bf05eb17a3e2e06fb454471265b2afa34d66e90">KubeRay 源码</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kubernetes-sigs/controller-runtime/tree/v0.24.1">controller-runtime 源码</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/blob/6bf05eb17a3e2e06fb454471265b2afa34d66e90/ray-operator/main.go">KubeRay：ray-operator/main.go</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/blob/6bf05eb17a3e2e06fb454471265b2afa34d66e90/ray-operator/internal/managercache/cache.go">KubeRay：ray-operator/internal/managercache/cache.go</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/kubernetes-sigs/controller-runtime/blob/v0.24.1/pkg/internal/source/kind.go">controller-runtime：pkg/internal/source/kind.go</a></li>

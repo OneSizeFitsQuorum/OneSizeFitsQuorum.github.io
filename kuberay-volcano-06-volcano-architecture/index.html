@@ -325,7 +325,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：18 小时前
+                    本文最后更新于：21 小时前
                   
                 
               </p>
@@ -334,13 +334,13 @@
               <div class="markdown-body">
                 
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 6 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li class="is-current"><a href="/kuberay-volcano-06-volcano-architecture/" aria-current="page">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-05-high-availability/">上一篇：第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a><a href="/kuberay-volcano-07-volcano-gang/">下一篇：第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第一至第五篇讨论了 KubeRay 怎样创建和维护 Ray 集群。从这一篇开始，先把 KubeRay 放到一边：当一批 Pod 已经成为待调度对象，Volcano 怎样把它们组织成作业、表达最低成员要求，并在作业之间分配资源？第九篇再把这条调度路径接回 RayJob 生命周期。</p>
-<p>源码基线为 Volcano <code>d8984501e4ad</code>。开头用两个各需三个成员的 Volcano Job 说明成组调度的动机，再沿其中一个作业展开对象和组件。这里借用 <code>demo-job</code> 和 <code>demo-job-b</code> 作为名称，它们是独立的调度示例；第八篇另设 CPU 数量分析两个 Queue 的竞争，第九篇才回到 KubeRay 创建的资源。资源数量用于源码推演，没有进行集群实验。</p>
+<p>这次用两个各需三个成员的 Volcano Job 说明成组调度的需求，再沿其中一个作业展开对象和组件。它们分别叫 <code>demo-job</code> 和 <code>demo-job-b</code>，是独立的 Volcano 示例。第八篇另设 CPU 数量分析两个 Queue 的竞争，第九篇再回到 KubeRay 创建的资源。</p>
 <h2 id="成组调度的需求"><span id="1-为什么要把几个-Pod-放在一起考虑" class="series-legacy-anchor" aria-hidden="true"></span><a href="#成组调度的需求" class="headerlink" title="成组调度的需求"></a>成组调度的需求</h2><p>假设提交了两个 Volcano Job：<code>demo-job</code> 和 <code>demo-job-b</code>。每个作业需要三个成员 Pod，并且三个成员到齐后才能有效计算。为了先看清成组分配，把每个 Pod 简化为一个等大的资源槽。</p>
 <p>机器一共能放下四个这样的 Pod。如果两个作业各拿到两个槽，资源已经用满，双方却都还在等第三个成员。先让一组拿到三个槽，就有机会完成一次计算，释放资源后再安排另一组。</p>
-<figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-06-volcano-architecture/01-partial.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：两个作业都需要三个成员。四个资源槽被各占两个时，双方都可能等待；先满足一组则能推进计算。这里只演示一种可能的分配结果。"><img src="/kuberay-volcano-06-volcano-architecture/01-partial.svg" alt="两个作业都需要三个成员。四个资源槽被各占两个时，双方都可能等待；先满足一组则能推进计算。这里只演示一种可能的分配结果。" width="960" height="340" style="--diagram-width:960px"></a></div><figcaption>两个作业都需要三个成员。四个资源槽被各占两个时，双方都可能等待；先满足一组则能推进计算。这里只演示一种可能的分配结果。 <a href="/kuberay-volcano-06-volcano-architecture/01-partial.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
+<figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-06-volcano-architecture/01-partial.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：两个作业都需要三个成员。四个资源槽被各占两个时，双方都可能等待；先满足一组则能推进计算。"><img src="/kuberay-volcano-06-volcano-architecture/01-partial.svg" alt="两个作业都需要三个成员。四个资源槽被各占两个时，双方都可能等待；先满足一组则能推进计算。" width="960" height="340" style="--diagram-width:960px"></a></div><figcaption>两个作业都需要三个成员。四个资源槽被各占两个时，双方都可能等待；先满足一组则能推进计算。 <a href="/kuberay-volcano-06-volcano-architecture/01-partial.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>若只让三个 Pod 各自寻找节点，调度器无法知道它们需要同时获得资源。Volcano 用 PodGroup 这个资源对象保存整组要求：最低资源量用于判断是否接纳这组需求，最低成员数用于判断试分配的结果是否足够。前一个检查属于 enqueue 准入阶段，后一个由 Gang 插件参与，在提交分配结果前完成。下面先认识承载这些要求的对象，第七篇再展开检查过程。</p>
 <p>本例把最低成员数设为三。实际工作负载应按能够开始有效计算的最小规模配置这个门槛。</p>
-<p>此外，四个槽只是便于推演。实际资源要同时记录 CPU、内存、GPU 等多个数量，下文称为资源向量：某台节点空闲 CPU 很多，也可能没有 GPU；集群总量够，也可能被分散在几台放不下单个 Pod 的节点上。组的需求和单 Pod 的放置条件都需要检查。</p>
+<p>实际调度时，资源要同时记录 CPU、内存、GPU 等多个数量，下文称为资源向量。某台节点空闲 CPU 很多，也可能没有 GPU；集群总量够，也可能分散在几台放不下单个 Pod 的节点上。因此，调度器既要检查整组需求，也要为每个 Pod 找到合适的节点。</p>
 <h2 id="工作负载与调度对象"><span id="2-Job、PodGroup-和-Queue-分别表达什么" class="series-legacy-anchor" aria-hidden="true"></span><a href="#工作负载与调度对象" class="headerlink" title="工作负载与调度对象"></a>工作负载与调度对象</h2><p>读 Volcano 时经常遇到 Job。先把 Kubernetes Job、Volcano Job 和调度器内部的 JobInfo 分开。表中的 Volcano task 指一类 Pod 的模板和副本要求；进入调度器后，一个 TaskInfo 通常对应一个具体 Pod。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
@@ -403,7 +403,7 @@
 </tbody>
 </table>
 </div>
-<p>客户端工具用于提交、查询和管理资源，不是每次作业都需要附带运行的常驻服务。当前源码还有拓扑、分片等扩展组件，这四篇先分析基本调度路径，不把所有 <code>cmd</code> 目录都算成必装进程。</p>
+<p>客户端工具用于提交、查询和管理资源，运行时按需调用。<code>cmd</code> 目录中还包括拓扑、分片等扩展组件，各组件按所需功能部署。</p>
 <p>Controller Manager 内部的多个控制器也不对应多个独立进程。<code>cmd/controller-manager/app/server.go</code> 的 <code>startControllers</code> 遍历已注册且启用的控制器，初始化后启动各自的运行循环。关键动作是：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">go</span> c.Run(ctx.Done())<br></code></pre></td></tr></table></figure>
 <p>它们可以在同一进程里共享客户端和 informer。informer 持续从 API Server 接收资源变化，维护本地缓存，再通知感兴趣的控制器。</p>
