@@ -325,7 +325,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：18 小时前
+                    本文最后更新于：20 小时前
                   
                 
               </p>
@@ -526,10 +526,15 @@
 <td>RayJob 怎样表达组需求，完成后怎样调整？</td>
 <td>理解调度需求、程序提交与资源回收的衔接</td>
 </tr>
+<tr>
+<td><a href="/kuberay-volcano-10-source-reading-report/">十：源码阅读报告</a></td>
+<td>从 RayJob 声明到用户程序运行，各阶段怎样连起来？</td>
+<td>串起全系列的执行链，回顾协调、调度与恢复的职责边界</td>
+</tr>
 </tbody>
 </table>
 </div>
-<p>第十篇是全系列的<a href="/kuberay-volcano-10-source-reading-report/">源码阅读报告</a>，不再引入新的机制，而是把前面的对象、状态和控制循环重新放回一次完整执行中。读完第九篇后，可以用这份报告收束整条执行链；已经熟悉 RayJob、PodGroup 等基本术语的读者，也可以先用它定位自己关心的机制，再回到对应篇目。</p>
+<p>读完第九篇后，可以用第十篇的源码阅读报告回顾整条执行链；已经熟悉 RayJob、PodGroup 等基本术语的读者，也可以先用它定位自己关心的机制，再回到对应篇目。</p>
 <p>各篇会先解释机制，再给出支撑分析的源码。如果希望进一步核对实现，可以从下面三个位置开始。文末参考资料给出了对应固定提交的链接。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
