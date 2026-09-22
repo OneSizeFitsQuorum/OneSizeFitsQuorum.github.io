@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="560" viewBox="0 0 960 560" role="img" aria-labelledby="title desc">
   <title id="title">从第零篇到第十篇的源码阅读路线</title>
-  <desc id="desc">阅读路线由背景与对象开始，经过 KubeRay 生命周期和可靠性，再进入 Volcano 调度，最后回到接入与源码阅读报告。</desc>
+  <desc id="desc">阅读路线由背景与对象开始，经过 KubeRay 生命周期和可靠性，再进入 Volcano 调度，最后回到接入与系列总结。</desc>
   <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#64748b"/></marker></defs>
   <rect width="960" height="560" fill="#fbfcfe"/>
   <style>.t{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;fill:#243449}.h{font-size:22px;font-weight:700}.m{font-size:16px;font-weight:700}.s{font-size:14px;fill:#536579}.n{font-size:20px;font-weight:700}.line{fill:none;stroke:#64748b;stroke-width:1.7;marker-end:url(#ar)}</style>
@@ -12,7 +12,7 @@
   <path d="M806 149H862V272H806" class="line"/>
   <rect x="556" y="242" width="250" height="122" rx="14" fill="#fff3e8" stroke="#df9b62"/><text x="578" y="276" class="t n">06—08</text><text x="578" y="308" class="t m">Volcano 调度</text><text x="578" y="336" class="t s">一组 Pod 与多个作业怎样竞争</text>
   <rect x="260" y="242" width="250" height="122" rx="14" fill="#eaf7f3" stroke="#79baa8"/><text x="282" y="276" class="t n">09</text><text x="282" y="308" class="t m">两端接入</text><text x="282" y="336" class="t s">调度怎样接回 RayJob 生命周期</text>
-  <rect x="36" y="242" width="178" height="122" rx="14" fill="#eaf7f3" stroke="#79baa8"/><text x="58" y="276" class="t n">10</text><text x="58" y="308" class="t m">源码阅读报告</text><text x="58" y="336" class="t s">结论、边界与方法</text>
+  <rect x="36" y="242" width="178" height="122" rx="14" fill="#eaf7f3" stroke="#79baa8"/><text x="58" y="276" class="t n">10</text><text x="58" y="308" class="t m">系列总结</text><text x="58" y="336" class="t s">Operator 设计</text>
   <path d="M556 303H510M260 303H214" class="line"/>
   <rect x="36" y="414" width="770" height="92" rx="14" fill="#fff" stroke="#c9d5e2"/>
   <text x="58" y="449" class="t m">贯穿全文的三个问题</text><text x="58" y="478" class="t s">当前事实保存在哪里？谁会再次观察它？下一步成立需要哪些条件？</text>

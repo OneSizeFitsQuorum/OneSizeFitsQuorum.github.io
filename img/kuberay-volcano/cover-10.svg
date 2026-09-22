@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
-<title id="title">第 10 篇：源码阅读报告</title><desc id="desc">从源码理解 KubeRay 与 Volcano；KubeRay + Volcano 主题封面。Ray 图标来自 ray-project/ray，Kubernetes 与 Volcano 图标来自 CNCF artwork。KubeRay 使用 Ray 与 Kubernetes 图标的编辑组合标识。</desc>
+<title id="title">第 10 篇：系列总结</title><desc id="desc">从源码理解 KubeRay 与 Volcano；KubeRay + Volcano 主题封面。Ray 图标来自 ray-project/ray，Kubernetes 与 Volcano 图标来自 CNCF artwork。KubeRay 使用 Ray 与 Kubernetes 图标的编辑组合标识。</desc>
 <rect width="960" height="600" fill="#f9fafc"/><rect x="580" width="380" height="600" fill="#e8f2ef"/>
 <g aria-label="KubeRay：Ray 与 Kubernetes 的组合标识">
 <rect x="606" y="126" width="328" height="198" rx="18" fill="white" stroke="#bed1e5" stroke-width="2"/>
@@ -11,7 +11,7 @@
 <text x="166" y="98" font-size="22" letter-spacing="3" fill="#65778b">SOURCE READING</text>
 <rect x="64" y="160" width="56" height="5" rx="2.5" fill="#277871"/>
 <text x="64" y="260" font-size="36" font-weight="600" fill="#243449">KubeRay + Volcano</text>
-<text x="64" y="340" font-size="56" font-weight="650" fill="#243449">源码阅读报告</text>
+<text x="64" y="340" font-size="56" font-weight="650" fill="#243449">系列总结</text>
 <text x="64" y="502" font-size="25" fill="#627286">Ray 集群管理与批调度</text>
 <text x="64" y="544" font-size="20" letter-spacing="1.5" fill="#7b8998">TANXINYU.WORK</text>
 <text x="770" y="560" text-anchor="middle" font-size="19" fill="#65778b">KUBERAY · VOLCANO</text>
