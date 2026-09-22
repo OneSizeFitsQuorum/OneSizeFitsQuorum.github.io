@@ -19,34 +19,28 @@
   <meta name="keywords" content="">
   
     <meta name="description" content="Ray 集群管理与批调度。从背景导引到 KubeRay 协调、恢复，再到 Volcano Gang、队列、两端接入与系列总结的十一篇文章。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="从源码理解 KubeRay 与 Volcano">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从源码理解 KubeRay 与 Volcano：系列目录">
 <meta property="og:url" content="https://tanxinyu.work/kuberay-volcano/index.html">
 <meta property="og:site_name" content="谭新宇的博客">
 <meta property="og:description" content="Ray 集群管理与批调度。从背景导引到 KubeRay 协调、恢复，再到 Volcano Gang、队列、两端接入与系列总结的十一篇文章。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-00.svg?v=ray-20260916">
-<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-01.svg?v=ray-20260916">
-<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-02.svg?v=ray-20260916">
-<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-03.svg?v=ray-20260916">
-<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-04.svg?v=ray-20260916">
-<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-05.svg?v=ray-20260916">
-<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-06.svg?v=ray-20260916">
-<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-07.svg?v=ray-20260916">
-<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-08.svg?v=ray-20260916">
-<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-09.svg?v=ray-20260916">
-<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-10.svg?v=summary-20260922">
+<meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-series.svg">
 <meta property="article:published_time" content="2026-09-15T16:00:00.000Z">
 <meta property="article:modified_time" content="2026-09-15T16:00:00.000Z">
 <meta property="article:author" content="谭新宇">
+<meta property="article:tag" content="Ray">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="KubeRay">
+<meta property="article:tag" content="Volcano">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-00.svg?v=ray-20260916">
+<meta name="twitter:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-series.svg">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>从源码理解 KubeRay 与 Volcano - 谭新宇的博客</title>
+  <title>从源码理解 KubeRay 与 Volcano：系列目录 - 谭新宇的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -242,9 +236,59 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="从源码理解 KubeRay 与 Volcano"></span>
+            <span id="subtitle" data-typed-text="从源码理解 KubeRay 与 Volcano：系列目录"></span>
           
         </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-09-16 00:00" pubdate>
+          2026年9月16日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          738 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          3 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
 
         
       </div>
@@ -260,65 +304,234 @@
 
   <main>
     
-      <div class="container nopadding-x-md">
-        <div id="board"
-          >
-          
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-10 m-auto">
-                
+      
 
-<article class="page-content">
-  <div class="markdown-body series-directory"><h2 id="Ray-集群管理与批调度"><a href="#Ray-集群管理与批调度" class="headerlink" title="Ray 集群管理与批调度"></a>Ray 集群管理与批调度</h2><p>从一次 RayJob 提交开始，追踪资源由谁创建、状态怎样传递、故障后根据什么恢复，再分析多个作业争用资源时的调度过程。</p>
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">从源码理解 KubeRay 与 Volcano：系列目录</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <div class="markdown-body series-directory"><h2 id="Ray-集群管理与批调度"><a href="#Ray-集群管理与批调度" class="headerlink" title="Ray 集群管理与批调度"></a>Ray 集群管理与批调度</h2><p>从一次 RayJob 提交开始，追踪资源由谁创建、状态怎样传递、故障后根据什么恢复，再分析多个作业争用资源时的调度过程。</p>
 <p>本系列面向希望理解系统原理的使用者，围绕核心架构、组件分工和设计取舍展开，源码用于说明机制及其成立条件。例子中的资源名称和内部标识，会在进入具体流程前说明用途。</p>
 <p>Ray 可以独立部署；Kubernetes 是本系列选择的研究场景，Volcano 按调度需求接入。初次接触这些项目，可以从第 0 篇开始；熟悉基础概念的读者可以从第 1 篇进入源码；希望先建立整体认识，也可以先读第 10 篇系列总结。</p>
 <div class="series-index"><section><h3>背景导引</h3><ol start="0"><li><div class="series-card"><a class="series-cover" href="/kuberay-volcano-00-reading-guide/" tabindex="-1" aria-hidden="true"><img src="/img/kuberay-volcano/cover-00.svg?v=ray-20260916" alt width="960" height="600" loading="eager"></a><div class="series-card-copy"><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a><p>从计算与部署需求出发，解释 Ray、Kubernetes、KubeRay 与 Volcano 的职责和采用条件，给出面向使用者的架构与设计阅读路线。</p></div></div></li></ol></section><section><h3>KubeRay：集群管理、协调与恢复</h3><ol start="1"><li><div class="series-card"><a class="series-cover" href="/kuberay-volcano-01-architecture/" tabindex="-1" aria-hidden="true"><img src="/img/kuberay-volcano/cover-01.svg?v=ray-20260916" alt width="960" height="600" loading="eager"></a><div class="series-card-copy"><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a><p>以一次 RayJob 提交说明各类资源的用途，解释 KubeRay、Kubernetes 与 Ray 如何分工完成集群准备、程序执行和收尾。</p></div></div></li><li><div class="series-card"><a class="series-cover" href="/kuberay-volcano-02-reconcile/" tabindex="-1" aria-hidden="true"><img src="/img/kuberay-volcano/cover-02.svg?v=ray-20260916" alt width="960" height="600" loading="eager"></a><div class="series-card-copy"><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a><p>从 worker Pod 的状态变化进入监听、缓存和工作队列，跟踪一次 Reconcile，以及事件、延时和错误怎样触发下一轮协调。</p></div></div></li><li><div class="series-card"><a class="series-cover" href="/kuberay-volcano-03-concurrency/" tabindex="-1" aria-hidden="true"><img src="/img/kuberay-volcano/cover-03.svg?v=ray-20260916" alt width="960" height="600" loading="eager"></a><div class="series-card-copy"><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a><p>以 100 个 RayCluster 为推演场景，分析协调协程、队列键锁、缓存滞后与 expectations，区分管理并发和 Ray 计算并发。</p></div></div></li><li><div class="series-card"><a class="series-cover" href="/kuberay-volcano-04-recovery/" tabindex="-1" aria-hidden="true"><img src="/img/kuberay-volcano/cover-04.svg?v=ray-20260916" alt width="960" height="600" loading="eager"></a><div class="series-card-copy"><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a><p>把中断放在资源创建与状态写回之间，沿持久化身份、对象查询和重试分支，分析 Operator 重启后的恢复依据与防重边界。</p></div></div></li><li><div class="series-card"><a class="series-cover" href="/kuberay-volcano-05-high-availability/" tabindex="-1" aria-hidden="true"><img src="/img/kuberay-volcano/cover-05.svg?v=ray-20260916" alt width="960" height="600" loading="eager"></a><div class="series-card-copy"><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a><p>从 Operator 的 Lease 选主与接管，追到 Kubernetes 控制面、Ray head、GCS 和 RayService，分别核对管理恢复、计算恢复与请求可用性。</p></div></div></li></ol></section><section><h3>Volcano：批调度与 KubeRay 接入</h3><ol start="6"><li><div class="series-card"><a class="series-cover" href="/kuberay-volcano-06-volcano-architecture/" tabindex="-1" aria-hidden="true"><img src="/img/kuberay-volcano/cover-06.svg?v=ray-20260916" alt width="960" height="600" loading="eager"></a><div class="series-card-copy"><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a><p>从几个 Pod 争用资源的问题进入 Volcano，区分 Job、PodGroup、Queue，以及 Scheduler、Controller Manager 和 Admission 的协作。</p></div></div></li><li><div class="series-card"><a class="series-cover" href="/kuberay-volcano-07-volcano-gang/" tabindex="-1" aria-hidden="true"><img src="/img/kuberay-volcano/cover-07.svg?v=ray-20260916" alt width="960" height="600" loading="eager"></a><div class="series-card-copy"><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a><p>沿一个三成员 PodGroup 走过准入、试分配、Gang 检查、提交与异步绑定，说明资源不足和部分绑定失败时会发生什么。</p></div></div></li><li><div class="series-card"><a class="series-cover" href="/kuberay-volcano-08-volcano-queues/" tabindex="-1" aria-hidden="true"><img src="/img/kuberay-volcano/cover-08.svg?v=ray-20260916" alt width="960" height="600" loading="eager"></a><div class="series-card-copy"><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a><p>用两个 Queue 说明 Volcano 怎样计算资源份额、选择下一项工作，以及资源占满后怎样在 Queue 内抢占或跨 Queue 回收。</p></div></div></li><li><div class="series-card"><a class="series-cover" href="/kuberay-volcano-09-kuberay-volcano/" tabindex="-1" aria-hidden="true"><img src="/img/kuberay-volcano/cover-09.svg?v=ray-20260916" alt width="960" height="600" loading="eager"></a><div class="series-card-copy"><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a><p>对比默认流程与 Volcano 接入流程，跟踪 RayCluster Controller 创建成员 Pod 的路径，再说明参数传递和生命周期协作。</p></div></div></li></ol></section><section><h3>源码阅读总结</h3><ol start="10"><li><div class="series-card"><a class="series-cover" href="/kuberay-volcano-10-source-reading-report/" tabindex="-1" aria-hidden="true"><img src="/img/kuberay-volcano/cover-10.svg?v=summary-20260922" alt width="960" height="600" loading="eager"></a><div class="series-card-copy"><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜总结：从 KubeRay 与 Volcano 看 Operator 设计</a><p>总结 Operator 的资源建模与协调逻辑、并发控制、恢复和高可用设计，以及 Kubernetes 和 controller-runtime 提供的支撑机制。</p></div></div></li></ol></section></div>
 </div>
-
-  
-
-</article>
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-  
-  
-
-
-
-
-
-
-
-
+                
               </div>
-            </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="category-chain-item">源码阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Ray/" class="print-no-link">#Ray</a>
+      
+        <a href="/tags/Kubernetes/" class="print-no-link">#Kubernetes</a>
+      
+        <a href="/tags/KubeRay/" class="print-no-link">#KubeRay</a>
+      
+        <a href="/tags/Volcano/" class="print-no-link">#Volcano</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>从源码理解 KubeRay 与 Volcano：系列目录</div>
+      <div>https://tanxinyu.work/kuberay-volcano/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>谭新宇</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年9月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
           </div>
         </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/kuberay-volcano-00-reading-guide/" title="第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano">
+                        <span class="hidden-mobile">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments">
+      
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'OneSizeFitsQuorum/OneSizeFitsQuorum.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'blog comments');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
       </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
     
 
     
@@ -435,6 +648,46 @@
   
 
 
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
 
 
   <script src=https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js></script>
