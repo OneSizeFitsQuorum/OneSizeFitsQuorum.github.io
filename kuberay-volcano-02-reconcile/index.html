@@ -30,8 +30,8 @@
 <meta property="article:modified_time" content="2026-09-21T12:12:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
-<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="分布式计算">
+<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="Kubernetes">
 <meta property="article:tag" content="KubeRay">
 <meta name="twitter:card" content="summary_large_image">
@@ -324,7 +324,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：1 分钟前
+                    本文最后更新于：18 小时前
                   
                 
               </p>
@@ -380,8 +380,7 @@
 <p><code>CheckAllPodsRunning</code> 位于 <code>utils/util.go</code>，输入是 Pod 列表，返回值表示是否通过检查。函数如下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">CheckAllPodsRunning</span><span class="hljs-params">(ctx context.Context, runningPods corev1.PodList)</span></span> <span class="hljs-type">bool</span> &#123;<br>	log := ctrl.LoggerFrom(ctx)<br>	<span class="hljs-comment">// check if there are no pods.</span><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(runningPods.Items) == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>	&#125;<br>	<span class="hljs-keyword">for</span> _, pod := <span class="hljs-keyword">range</span> runningPods.Items &#123;<br>		<span class="hljs-keyword">if</span> pod.Status.Phase != corev1.PodRunning &#123;<br>			log.Info(<span class="hljs-string">&quot;CheckAllPodsRunning: Pod is not running.&quot;</span>, <span class="hljs-string">&quot;podName&quot;</span>, pod.Name, <span class="hljs-string">&quot;pod Status.Phase&quot;</span>, pod.Status.Phase)<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>		&#125;<br>		<span class="hljs-keyword">for</span> _, cond := <span class="hljs-keyword">range</span> pod.Status.Conditions &#123;<br>			<span class="hljs-keyword">if</span> cond.Type == corev1.PodReady &amp;&amp; cond.Status != corev1.ConditionTrue &#123;<br>				log.Info(<span class="hljs-string">&quot;CheckAllPodsRunning: Pod is not ready.&quot;</span>, <span class="hljs-string">&quot;podName&quot;</span>, pod.Name, <span class="hljs-string">&quot;pod Status.Conditions[PodReady]&quot;</span>, cond)<br>				<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>			&#125;<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <p>按代码顺序看：列表为空时返回 false；有 Pod 的 phase 不是 Running 时返回 false；有 Ready 条件且值不是 True 时，也返回 false。因此，若三个 Pod 都已 Running，但最后一个 worker 的 Ready 仍为 False，集群就不会在这一分支被设为 Ready。等它变成 True，后续协调重新读取 Pod，满足上述条件后才会设置集群状态。</p>
-<p>计算成功并写回 API 后，本例才完成从 Pod 状态到 RayCluster 状态的交接。RayJob Controller 通过自己注册的 <code>Owns(RayCluster)</code> 观察到变化，再检查 <code>demo-job</code> 是否可以进入提交阶段。这是两次不同 Controller 的处理，中间由资源状态衔接。</p>
-<p>这次交接也经过队列：RayCluster Controller 写回状态后，RayJob Controller 的事件处理器再把所属 RayJob 的标识放入自己的队列。后者轮到处理时才继续判断提交条件。RayCluster Controller 不需要在当前函数里直接调用 RayJob Controller，也不需要一直等到作业提交完成。</p>
+<p>集群状态计算成功并写回 API 后，RayJob Controller 通过自己注册的 <code>Owns(RayCluster)</code> 观察到变化，把所属 <code>demo-job</code> 的标识放入自己的队列。轮到它处理时，再读取集群状态、判断提交条件。到这里，worker 的就绪变化才传到了作业管理层：两次协调通过 API 中保存的状态接续，RayCluster Controller 完成本轮后即可返回。</p>
 <h2 id="一轮结束后的再次触发"><span id="返回结果与后续调度" class="series-legacy-anchor" aria-hidden="true"></span><span id="4-返回以后，谁安排下一轮" class="series-legacy-anchor" aria-hidden="true"></span><a href="#一轮结束后的再次触发" class="headerlink" title="一轮结束后的再次触发"></a>一轮结束后的再次触发</h2><p>前面说明了两层 Controller 怎样通过资源状态交接。每个 Controller 完成本轮能做的事情后，都需要把执行机会交回框架：集群可能仍在准备，Ray 作业也可能还在运行。接下来要解决的是，怎样在条件变化后继续处理这些对象。</p>
 <h3 id="事件通知与主动重查"><a href="#事件通知与主动重查" class="headerlink" title="事件通知与主动重查"></a>事件通知与主动重查</h3><p>一轮 Reconcile 返回以后，watch 仍然持续工作。例如，worker 的 Ready 条件更新，可以沿前面的事件路径触发新的 RayCluster 协调；集群状态写回后，又可以触发 RayJob 协调。每轮处理都会重新读取当前状态、判断下一步条件。这种由事件触发的检查，本身不需要定时轮询。</p>
 <p>随着案例进入作业执行阶段，RayJob Controller 还要跟踪另一类进展：Ray 内部的作业状态。程序执行完成时，承载它的 Pod 可能仍然正常运行，未必产生相应的 Kubernetes 资源更新。只等待 Pod 事件，就可能无法及时发现作业已经结束。因此，RayJob Controller 会查询 Ray Jobs API；如果作业还在运行，就安排稍后再查。</p>
@@ -483,9 +482,9 @@
       
         <a href="/tags/Ray/" class="print-no-link">#Ray</a>
       
-        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
-      
         <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/" class="print-no-link">#分布式计算</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
       
         <a href="/tags/Kubernetes/" class="print-no-link">#Kubernetes</a>
       

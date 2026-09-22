@@ -30,8 +30,8 @@
 <meta property="article:modified_time" content="2026-09-21T12:15:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
-<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="分布式计算">
+<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="Kubernetes">
 <meta property="article:tag" content="KubeRay">
 <meta name="twitter:card" content="summary_large_image">
@@ -324,7 +324,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：2 分钟后
+                    本文最后更新于：18 小时前
                   
                 
               </p>
@@ -364,7 +364,7 @@
 <tr>
 <td>RayService 服务层</td>
 <td>让稳定入口指向可提供服务的 Ray 集群</td>
-<td>active/pending 状态、Serve 应用状态、Service selector</td>
+<td>当前集群与接替集群的状态、Serve 应用状态、Service 的后端选择条件</td>
 </tr>
 </tbody>
 </table>
@@ -440,7 +440,7 @@
 <h2 id="Ray-集群怎样分层恢复"><a href="#Ray-集群怎样分层恢复" class="headerlink" title="Ray 集群怎样分层恢复"></a>Ray 集群怎样分层恢复</h2><p>控制面恢复后，KubeRay 可以重新维护 Pod 数量，但“Pod 被补回来”和“原来的计算继续”仍是两个问题。前者由 Kubernetes 资源协调完成；后者取决于丢失的是 worker 还是 head，以及 Ray 和应用保存了哪些状态。</p>
 <h3 id="worker-丢失：补回节点，再按计算策略恢复"><span id="worker、head-与-GCS-恢复" class="series-legacy-anchor" aria-hidden="true"></span><span id="5-worker、head-和-GCS-的恢复条件" class="series-legacy-anchor" aria-hidden="true"></span><a href="#worker-丢失：补回节点，再按计算策略恢复" class="headerlink" title="worker 丢失：补回节点，再按计算策略恢复"></a>worker 丢失：补回节点，再按计算策略恢复</h3><p>worker Pod 丢失后，KubeRay 根据 RayCluster 的期望配置补足 Pod，Kubernetes 调度并启动新的容器。这一步恢复的是集群成员数量。原 worker 上的 task、actor 和对象如何处理，由 Ray 与应用层决定。</p>
 <p>普通 task 的 <code>max_retries</code> 约束重试；actor 的 <code>max_restarts</code> 默认是零。即使允许 actor 重启，它原有的进程内状态也需要恢复来源。例如，程序可以把进度写入检查点，再由重启后的程序读取；检查点保存哪些内容、在什么时机提交，属于应用自己的恢复设计。</p>
-<p>因此，worker 恢复可以分成两步理解：KubeRay 让新的 worker Pod 回到集群，Ray 决定哪些计算可以重新执行，应用检查点决定业务进度能回到哪里。</p>
+<p>新的 worker Pod 回到集群，只恢复了可用的计算环境。接下来由 Ray 决定哪些计算重新执行，应用再从检查点读回需要延续的业务进度。</p>
 <h3 id="head-丢失：先恢复-GCS，再让-worker-重连"><a href="#head-丢失：先恢复-GCS，再让-worker-重连" class="headerlink" title="head 丢失：先恢复 GCS，再让 worker 重连"></a>head 丢失：先恢复 GCS，再让 worker 重连</h3><p>head 承载 GCS 等进程。新的 head Pod 可以由 KubeRay 重建，但 GCS 重启后能读回多少集群信息，取决于它使用的存储后端。默认内存后端把数据留在原进程中；head 丢失后，新进程只能建立新的运行环境，原集群元数据需要其他来源。driver 的 Python 调用栈和应用进度也不属于 GCS 元数据，仍要由各自的运行进程或检查点保存。</p>
 <p>是否补建 head 还受配置控制：已标记为 provisioned（完成初始资源准备），且带 <code>ray.io/disable-provisioned-head-restart</code> 禁用标记的集群会跳过 head 重建，这个判断位于维护 Pod 的 <code>reconcilePods</code> 中。</p>
 <p>启用 GCS 容错后，恢复链变为：KubeRay 重建 head Pod，新的 GCS 连接外部后端并加载元数据，存活 worker 在重连期限内重新连接 GCS，随后依赖 GCS 的节点注册、actor 管理等操作继续进行。KubeRay 在用户未覆盖时把 worker 重连超时设为 600 秒；超过期限仍未恢复连接的 worker 会退出。</p>
@@ -514,7 +514,7 @@
 </tbody>
 </table>
 </div>
-<p>这几层不是一套开关。Operator 多副本让管理进程能够接管；Kubernetes 控制面保存并维护资源对象；GCS 后端保存 Ray 集群元数据；应用检查点保存业务进度；RayService 再把可提供服务的集群接到稳定入口。设计高可用方案时，需要先确定希望恢复到哪一层，再为该层保存必要状态并保证它的依赖可用。</p>
+<p>例如，备用 Operator 已取得 Lease，只能说明资源协调有人接手；若 head 同时丢失，还要继续核对 GCS 后端和计算进度的恢复来源。判断一次故障是否已经恢复，应沿受影响的那条路径检查，直到计算或服务请求能够继续。</p>
 <p>第一至第五篇到这里完成了 KubeRay 管理、协调与恢复流程的分析。第六篇开始转向 Volcano，先独立追踪资源不足时 Pod 如何获得运行机会；第九篇再把调度流程接回 RayJob。调度器驱逐 Pod 后，计算恢复仍遵守本篇说明的 Ray 策略与应用状态边界。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/tree/6bf05eb17a3e2e06fb454471265b2afa34d66e90">KubeRay 源码基线（6bf05eb17a3e）</a></li>
@@ -577,9 +577,9 @@
       
         <a href="/tags/Ray/" class="print-no-link">#Ray</a>
       
-        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
-      
         <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/" class="print-no-link">#分布式计算</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
       
         <a href="/tags/Kubernetes/" class="print-no-link">#Kubernetes</a>
       

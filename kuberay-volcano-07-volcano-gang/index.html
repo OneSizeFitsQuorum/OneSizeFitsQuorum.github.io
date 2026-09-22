@@ -30,8 +30,8 @@
 <meta property="article:modified_time" content="2026-09-21T12:17:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
-<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="分布式计算">
+<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="Kubernetes">
 <meta property="article:tag" content="KubeRay">
 <meta property="article:tag" content="Volcano">
@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          3.2k 字
+          3.4k 字
         
       </span>
     
@@ -325,7 +325,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：4 分钟后
+                    本文最后更新于：18 小时前
                   
                 
               </p>
@@ -333,10 +333,11 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 7 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li class="is-current"><a href="/kuberay-volcano-07-volcano-gang/" aria-current="page">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-06-volcano-architecture/">上一篇：第 6 篇｜Volcano 架构：从 Pod 到作业</a><a href="/kuberay-volcano-08-volcano-queues/">下一篇：第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第六篇中的 PodGroup <code>ray-demo-job-pg</code> 已经进入调度器，三个成员 Pod 都在等待节点。假设前两个成员能找到位置，第三个成员放不下，Volcano 会不会先启动前两个？</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 7 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li class="is-current"><a href="/kuberay-volcano-07-volcano-gang/" aria-current="page">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-06-volcano-architecture/">上一篇：第 6 篇｜Volcano 架构：从 Pod 到作业</a><a href="/kuberay-volcano-08-volcano-queues/">下一篇：第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第六篇中的 PodGroup 已经进入调度器，下面继续用 <code>ray-demo-job-pg</code> 作为示意名称。三个成员 Pod 都在等待节点。假设前两个成员能找到位置，第三个成员放不下，Volcano 会不会先启动前两个？</p>
 <p>这篇从 Scheduler 的一次调度循环回答这个问题。沿用 Volcano <code>d8984501e4ad</code>，固定一个调度主实例、一个 Queue <code>ray-batch</code>，不启用拓扑、分片或子组策略。三个成员 Pod 都显式声明非零资源请求，最低成员数为三。以下过程按源码推演。</p>
 <h2 id="调度器手里的对象与执行结构"><a href="#调度器手里的对象与执行结构" class="headerlink" title="调度器手里的对象与执行结构"></a>调度器手里的对象与执行结构</h2><p>第六篇看到的是 Kubernetes API 中的 Volcano Job、PodGroup、Queue 和 Pod。Scheduler 收到这些对象后，会在内存中建立便于反复比较的调度模型。后面的源码主要操作这些内存对象。</p>
 <p>以 <code>ray-demo-job-pg</code> 为例，PodGroup 和三个成员 Pod 被组织成一个 <code>JobInfo</code>，每个 Pod 对应一个 <code>TaskInfo</code>。Queue 和 Node 也有相应的内存信息。调度器在这些对象上比较先后、计算资源和尝试放置，最终才把选中的 Node 写回 Kubernetes。</p>
+<p>为了判断三个成员能否都找到可用节点，调度器先取一份本轮工作视图，在其中试放第一个、第二个成员，并记下各自占用的资源。第三个也能放下，才提交结果；第三个放不下，就需要撤销前面的尝试。下面的 Session 对应这份工作视图，Statement 对应可提交或撤销的操作记录。其余名称可以随着后面的执行过程逐一对照。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
@@ -516,14 +517,14 @@
 </table>
 </div>
 <p>例如，<code>Session.JobOrderFn</code> 是比较 JobInfo 先后的判断点，<code>JobEnqueueable</code> 是资源准入判断点，<code>JobReady</code> 是 Gang 门槛判断点。这些名字表示 Action 向 Session 发起的问题，具体答案由已经注册的 Plugin 函数组合得出。</p>
-<h2 id="从资源准入到成员试分配"><span id="资源准入与-Gang-门槛" class="series-legacy-anchor" aria-hidden="true"></span><span id="从资源准入到成组分配" class="series-legacy-anchor" aria-hidden="true"></span><span id="3-进入调度与满足-Gang-是两个判断" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从资源准入到成员试分配" class="headerlink" title="从资源准入到成员试分配"></a>从资源准入到成员试分配</h2><h3 id="enqueue：让作业进入可调度状态"><a href="#enqueue：让作业进入可调度状态" class="headerlink" title="enqueue：让作业进入可调度状态"></a>enqueue：让作业进入可调度状态</h3><p>先看 <code>actions/enqueue/enqueue.go</code> 的核心分支：</p>
+<h2 id="从资源准入到成员试分配"><span id="资源准入与-Gang-门槛" class="series-legacy-anchor" aria-hidden="true"></span><span id="从资源准入到成组分配" class="series-legacy-anchor" aria-hidden="true"></span><span id="3-进入调度与满足-Gang-是两个判断" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从资源准入到成员试分配" class="headerlink" title="从资源准入到成员试分配"></a>从资源准入到成员试分配</h2><h3 id="enqueue：让作业进入可调度状态"><a href="#enqueue：让作业进入可调度状态" class="headerlink" title="enqueue：让作业进入可调度状态"></a>enqueue：让作业进入可调度状态</h3><p>先确认作业怎样取得后续分配的资格。<code>actions/enqueue/enqueue.go</code> 根据组的最低资源需求进行下面的判断：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> job.PodGroup.Spec.MinResources == <span class="hljs-literal">nil</span> || ssn.JobEnqueueable(job) &#123;<br>	ssn.JobEnqueued(job)<br>	job.PodGroup.Status.Phase = scheduling.PodGroupInqueue<br>	ssn.Jobs[job.UID] = job<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>enqueue 处理整个 JobInfo，不为单个 TaskInfo 选择节点。有 <code>minResources</code> 时，<code>JobEnqueueable</code> 调用资源准入回调：overcommit 计算集群还能接纳多少需求，proportion 检查 Queue 状态、份额和上限。通过后，当前 Session 中的 JobInfo 进入后续分配，PodGroup phase 更新为 <code>Inqueue</code>。</p>
 <p>未设置 <code>minResources</code> 时，这个条件直接通过，enqueue 阶段不做这组资源总量检查。allocate 仍然会检查 Queue 额度、节点条件和 Gang 门槛。</p>
 <h3 id="allocate：逐个选择成员和节点"><a href="#allocate：逐个选择成员和节点" class="headerlink" title="allocate：逐个选择成员和节点"></a>allocate：逐个选择成员和节点</h3><p>allocate 依次选择 Queue、JobInfo、TaskInfo 和 NodeInfo。前两层决定当前轮到哪个队列和作业，TaskInfo 是这次准备放置的具体成员，NodeInfo 则是它的候选位置。</p>
 <p>选择 Node 时会发生两类检查。proportion 等插件先判断 Queue 是否还能分配这份资源；predicates 再判断节点的剩余资源、亲和性、污点等条件是否允许这个 Pod 放入。集群总共有四张空闲 GPU，如果分散在四台机器上，一个需要同机两张 GPU 的 Pod 仍然找不到合法节点。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/02-cycle.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：资源准入、节点试分配和组就绪是不同检查。图中只展开本例的 enqueue 与 allocate，省略 BestEffort、拓扑和其他扩展分支。"><img src="/kuberay-volcano-07-volcano-gang/02-cycle.svg" alt="资源准入、节点试分配和组就绪是不同检查。图中只展开本例的 enqueue 与 allocate，省略 BestEffort、拓扑和其他扩展分支。" width="960" height="454" style="--diagram-width:960px"></a></div><figcaption>资源准入、节点试分配和组就绪是不同检查。图中只展开本例的 enqueue 与 allocate，省略 BestEffort、拓扑和其他扩展分支。 <a href="/kuberay-volcano-07-volcano-gang/02-cycle.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<h2 id="Gang-判断与-Statement"><a href="#Gang-判断与-Statement" class="headerlink" title="Gang 判断与 Statement"></a>Gang 判断与 Statement</h2><h3 id="JobReady-统计什么"><a href="#JobReady-统计什么" class="headerlink" title="JobReady 统计什么"></a>JobReady 统计什么</h3><p>Gang 插件在 <code>OnSessionOpen</code> 注册 <code>JobReady</code> 回调，以下为连续源码节选：</p>
+<h2 id="Gang-判断与-Statement"><a href="#Gang-判断与-Statement" class="headerlink" title="Gang 判断与 Statement"></a>Gang 判断与 Statement</h2><h3 id="JobReady-统计什么"><a href="#JobReady-统计什么" class="headerlink" title="JobReady 统计什么"></a>JobReady 统计什么</h3><p>成员逐个找到候选节点以后，还要判断本轮结果是否达到整组要求。Gang 插件在 <code>OnSessionOpen</code> 注册的 <code>JobReady</code> 回调负责参与这个判断，以下为连续源码节选：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go">ssn.AddJobReadyFn(gp.Name(), <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(obj <span class="hljs-keyword">interface</span>&#123;&#125;)</span></span> <span class="hljs-type">bool</span> &#123;<br>	ji := obj.(*api.JobInfo)<br>	<span class="hljs-keyword">if</span> ji.CheckTaskReady() &amp;&amp; ji.CheckSubJobReady() &amp;&amp; ji.IsReady() &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>&#125;)<br></code></pre></td></tr></table></figure>
 <p>PodGroup 的 <code>minMember</code> 进入内存模型后对应 <code>JobInfo.MinAvailable</code>。<code>JobReady</code> 接收的是整个 JobInfo；它检查作业级最低成员数，也预留了 task 和子组层面的门槛。本例没有额外配置 task 或子组策略。</p>
 <p>这里的 Ready 是 Volcano 调度器内部的“成员数量已经满足提交条件”。<code>ReadyTaskNum()</code> 统计的状态包括：</p>
@@ -568,7 +569,7 @@
 <p>后台的 <code>BindTask</code> 依次执行两类动作：PreBind 运行绑定前的插件准备，Binder 向 Kubernetes 提交 Pod 与 Node 的绑定。每个 TaskInfo 单独得到成功或失败结果。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/04-bind.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：提交把分配送入长期缓存，再异步执行绑定。失败成员需要重新同步；已经成功绑定的其他成员不会因本次失败自动回到未绑定状态。"><img src="/kuberay-volcano-07-volcano-gang/04-bind.svg" alt="提交把分配送入长期缓存，再异步执行绑定。失败成员需要重新同步；已经成功绑定的其他成员不会因本次失败自动回到未绑定状态。" width="960" height="596" style="--diagram-width:960px"></a></div><figcaption>提交把分配送入长期缓存，再异步执行绑定。失败成员需要重新同步；已经成功绑定的其他成员不会因本次失败自动回到未绑定状态。 <a href="/kuberay-volcano-07-volcano-gang/04-bind.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>绑定失败时，<code>SchedulerCache.Bind</code> 记录调度错误，执行相应的 PreBind 回滚，再通过 <code>resyncTask</code> 重新读取这个 Pod 的实际状态。假设前两个成员已经绑定成功，第三个成员因节点状态变化而失败，前两个结果继续保留；失败成员回到后续调度循环重新处理。</p>
-<h2 id="小结：Gang-在调度链中的位置"><span id="小结：Gang-约束的作用范围" class="series-legacy-anchor" aria-hidden="true"></span><a href="#小结：Gang-在调度链中的位置" class="headerlink" title="小结：Gang 在调度链中的位置"></a>小结：Gang 在调度链中的位置</h2><p>SchedulerCache 保存长期观察结果，Session 提供一轮工作视图，Action 推进准入和分配，Plugin 在判断点提供规则，Statement 负责提交或撤销本轮尝试。JobInfo 和 TaskInfo 则是这些过程共同操作的作业与成员模型。</p>
+<h2 id="小结：Gang-在调度链中的位置"><span id="小结：Gang-约束的作用范围" class="series-legacy-anchor" aria-hidden="true"></span><a href="#小结：Gang-在调度链中的位置" class="headerlink" title="小结：Gang 在调度链中的位置"></a>小结：Gang 在调度链中的位置</h2><p>回到开头的问题：三个成员都在等待、最低成员数为三时，只找到两个位置还不能提交这次分配。前两个成员的试分配保存在 Session 和 Statement 中，第三个放不下就撤销这次尝试，等待后续调度。</p>
 <p>Gang 的判断发生在试分配之后、Commit 之前。它保证提交时已经达到最低成员要求；Commit 之后，每个成员仍要分别完成绑定、容器启动和应用初始化。</p>
 <p>下一篇加入第二个作业，沿 Queue、proportion 和 DRF 分析多个 JobInfo 怎样竞争资源，以及 preempt、reclaim 怎样把未来释放的资源交给等待者。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
@@ -623,9 +624,9 @@
       
         <a href="/tags/Ray/" class="print-no-link">#Ray</a>
       
-        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
-      
         <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/" class="print-no-link">#分布式计算</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
       
         <a href="/tags/Kubernetes/" class="print-no-link">#Kubernetes</a>
       

@@ -30,8 +30,8 @@
 <meta property="article:modified_time" content="2026-09-21T12:11:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
-<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="分布式计算">
+<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="Kubernetes">
 <meta property="article:tag" content="KubeRay">
 <meta name="twitter:card" content="summary_large_image">
@@ -261,7 +261,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          4.3k 字
+          4.2k 字
         
       </span>
     
@@ -324,7 +324,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：2 分钟前
+                    本文最后更新于：18 小时前
                   
                 
               </p>
@@ -402,7 +402,7 @@
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">ray.io/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">RayJob</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">demo-job</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">default</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">entrypoint:</span> <span class="hljs-string">python</span> <span class="hljs-string">/app/main.py</span><br>  <span class="hljs-attr">submissionMode:</span> <span class="hljs-string">K8sJobMode</span><br>  <span class="hljs-attr">shutdownAfterJobFinishes:</span> <span class="hljs-literal">true</span><br>  <span class="hljs-attr">ttlSecondsAfterFinished:</span> <span class="hljs-number">60</span><br>  <span class="hljs-comment"># rayClusterSpec 在此省略：配置一个 head、compute 组的两个 worker 及其 Pod 模板。</span><br></code></pre></td></tr></table></figure>
 <p>RayJob 描述一次作业的管理要求，RayCluster 描述这次作业使用的集群。二者是两种 Kubernetes 资源类型，各有自己的对象名。本例的 RayJob 叫 <code>demo-job</code>，由它创建的 RayCluster 示意为 <code>demo-job-abcde</code>。末尾的 <code>abcde</code> 代表 Controller 自动生成的随机后缀，用来组成新集群的名字，不表示集群类型、版本或 worker 数量。</p>
 <p>提交程序把入口命令交给 Ray Jobs API 时，还会携带一个 submission ID，即“作业提交标识”。Ray 用它关联这次提交的状态和日志。它标识的是 Ray 中的一次作业提交，和 Kubernetes 中的集群对象名用途不同。本例没有指定 <code>spec.jobId</code>，Controller 会生成一个值，示意为 <code>demo-job-fghij</code>。</p>
-<p>因此，读表时先看左列的用途，再看右列的示例名称。<code>abcde</code> 和 <code>fghij</code> 都是为了讲解而写的示意后缀，不需要记住；实际名称保存在 RayJob 的 <code>status</code> 中。</p>
+<p>下面把这些名称放在一起对照。<code>abcde</code> 和 <code>fghij</code> 是两次独立生成的后缀示意，实际集群名和提交标识保存在 RayJob 的 <code>status</code> 中。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
@@ -584,9 +584,9 @@
       
         <a href="/tags/Ray/" class="print-no-link">#Ray</a>
       
-        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
-      
         <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/" class="print-no-link">#分布式计算</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
       
         <a href="/tags/Kubernetes/" class="print-no-link">#Kubernetes</a>
       

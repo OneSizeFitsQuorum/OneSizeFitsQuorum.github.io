@@ -30,8 +30,8 @@
 <meta property="article:modified_time" content="2026-09-21T12:18:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
-<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="分布式计算">
+<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="Kubernetes">
 <meta property="article:tag" content="KubeRay">
 <meta property="article:tag" content="Volcano">
@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          1.8k 字
+          2k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          6 分钟
+          7 分钟
         
       </span>
     
@@ -325,7 +325,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：5 分钟后
+                    本文最后更新于：18 小时前
                   
                 
               </p>
@@ -335,7 +335,7 @@
                 
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 8 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li class="is-current"><a href="/kuberay-volcano-08-volcano-queues/" aria-current="page">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜源码阅读报告：从 RayJob 到用户程序</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-07-volcano-gang/">上一篇：第 7 篇｜Volcano Gang 调度：成组分配与绑定</a><a href="/kuberay-volcano-09-kuberay-volcano/">下一篇：第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上一篇跟踪了一个 Volcano 作业的准入、试分配和绑定。这一篇加入第二个作业，集中回答三个问题：每个 Queue 可以继续使用多少资源，调度器先看谁，以及资源已经占满时怎样让等待成员继续运行。</p>
 <p>源码基线仍是 Volcano <code>d8984501e4ad</code>。主案例使用两个 Queue 和 12 核 CPU，先把 Queue 份额讲清楚；CPU、GPU 混合占用只在介绍 Queue 内作业排序时简要出现。默认流程是 <code>enqueue, allocate, backfill</code>，主动释放资源需要另外启用 preempt 或 reclaim。</p>
-<h2 id="Queue-表达什么"><span id="先算每个-Queue-可参与分配的上限" class="series-legacy-anchor" aria-hidden="true"></span><span id="需求、已分配量与本轮份额" class="series-legacy-anchor" aria-hidden="true"></span><span id="三个配置项分别管什么" class="series-legacy-anchor" aria-hidden="true"></span><span id="Queue-的份额由哪些量决定" class="series-legacy-anchor" aria-hidden="true"></span><span id="guarantee、capability-与-realCapability" class="series-legacy-anchor" aria-hidden="true"></span><span id="配置值、观察值与计算值" class="series-legacy-anchor" aria-hidden="true"></span><span id="Queue-资源账本从哪里来" class="series-legacy-anchor" aria-hidden="true"></span><span id="配置值、需求与已分配量" class="series-legacy-anchor" aria-hidden="true"></span><span id="Queue-的配置与份额" class="series-legacy-anchor" aria-hidden="true"></span><span id="1-Queue-里配置的值，和本轮算出的份额" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Queue-表达什么" class="headerlink" title="Queue 表达什么"></a>Queue 表达什么</h2><p>Queue 是一组资源竞争规则。它可以包含多个作业，但不对应固定的一组节点。本文只需要下面五个量：</p>
+<h2 id="Queue-表达什么"><span id="先算每个-Queue-可参与分配的上限" class="series-legacy-anchor" aria-hidden="true"></span><span id="需求、已分配量与本轮份额" class="series-legacy-anchor" aria-hidden="true"></span><span id="三个配置项分别管什么" class="series-legacy-anchor" aria-hidden="true"></span><span id="Queue-的份额由哪些量决定" class="series-legacy-anchor" aria-hidden="true"></span><span id="guarantee、capability-与-realCapability" class="series-legacy-anchor" aria-hidden="true"></span><span id="配置值、观察值与计算值" class="series-legacy-anchor" aria-hidden="true"></span><span id="Queue-资源账本从哪里来" class="series-legacy-anchor" aria-hidden="true"></span><span id="配置值、需求与已分配量" class="series-legacy-anchor" aria-hidden="true"></span><span id="Queue-的配置与份额" class="series-legacy-anchor" aria-hidden="true"></span><span id="1-Queue-里配置的值，和本轮算出的份额" class="series-legacy-anchor" aria-hidden="true"></span><a href="#Queue-表达什么" class="headerlink" title="Queue 表达什么"></a>Queue 表达什么</h2><p>Queue 保存一组作业共享资源时使用的策略，并不对应固定的一组节点。要知道一个 Queue 还能否继续获得资源，需要把它的需求、当前占用和算出的份额放在一起看：</p>
 <ul>
 <li><code>request</code>：Queue 中已经分配和仍在等待的成员总共请求多少资源。</li>
 <li><code>allocated</code>：已经进入 Allocated、Binding、Bound、Running 等状态的成员占了多少资源。</li>
@@ -345,7 +345,7 @@
 </ul>
 <p><code>guarantee</code> 还可以为 Queue 设置保障量。它参与份额下限和可用上限的计算；主案例中 A 的保障量是 2 核，而按权重算出的份额是 4 核，所以它不会改变最终结果。</p>
 <p>这些数字使用 Pod 声明的资源请求。一个 Pod 请求 2 核 CPU，即使进程此刻只用了 0.2 核，<code>allocated</code> 仍按 2 核计算。</p>
-<h2 id="用两个-Queue-计算一次份额"><span id="proportion-怎样算出-4-核和-8-核" class="series-legacy-anchor" aria-hidden="true"></span><span id="用两个-Queue-看一次资源竞争" class="series-legacy-anchor" aria-hidden="true"></span><span id="先建立一份贯穿全文的资源账本" class="series-legacy-anchor" aria-hidden="true"></span><span id="proportion-的份额计算" class="series-legacy-anchor" aria-hidden="true"></span><span id="先把一次资源竞争拆成四步" class="series-legacy-anchor" aria-hidden="true"></span><span id="2-用一组数字推演-proportion" class="series-legacy-anchor" aria-hidden="true"></span><a href="#用两个-Queue-计算一次份额" class="headerlink" title="用两个 Queue 计算一次份额"></a>用两个 Queue 计算一次份额</h2><p>集群共有 12 核 CPU。当前状态如下：</p>
+<h2 id="用两个-Queue-计算一次份额"><span id="proportion-怎样算出-4-核和-8-核" class="series-legacy-anchor" aria-hidden="true"></span><span id="用两个-Queue-看一次资源竞争" class="series-legacy-anchor" aria-hidden="true"></span><span id="先建立一份贯穿全文的资源账本" class="series-legacy-anchor" aria-hidden="true"></span><span id="proportion-的份额计算" class="series-legacy-anchor" aria-hidden="true"></span><span id="先把一次资源竞争拆成四步" class="series-legacy-anchor" aria-hidden="true"></span><span id="2-用一组数字推演-proportion" class="series-legacy-anchor" aria-hidden="true"></span><a href="#用两个-Queue-计算一次份额" class="headerlink" title="用两个 Queue 计算一次份额"></a>用两个 Queue 计算一次份额</h2><p>这里单独设定一组资源数量，不沿用第六篇的等大资源槽：集群共有 12 核 CPU，<code>demo-job</code> 属于 Queue A，<code>demo-job-b</code> 属于 Queue B。A 已占用 2 核，另有一个请求 2 核的成员等待；B 已占用 10 核。当前状态如下：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
@@ -386,7 +386,7 @@
 <li>B 增加的份额：12 × 2/3 = 8 核。</li>
 </ul>
 <p>两边都没有超过各自的需求和上限，因此 <code>deserved</code> 最终是 4 核和 8 核。<code>weight</code> 影响的是份额计算，不会立即移动正在运行的 Pod，也不会直接绑定新的 Pod。</p>
-<p>源码中对应的连续计算是：</p>
+<p>这段计算先按权重增加份额，再依次受可用上限和需求约束，最后考虑保障量。源码里的 <code>realCapability</code> 结合集群资源与各 Queue 的保障量计算可用上限，再受本 Queue 的 <code>capability</code> 限制。本例总保障量是 2 核，扣除后再加回本 Queue 的保障量：A 的上限为 min(12−2+2, 6)=6 核，B 为 min(12−2+0, 10)=10 核，恰好与表中的上限相同：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go">oldDeserved := attr.deserved.Clone()<br>attr.deserved.Add(remaining.Clone().Multi(<span class="hljs-type">float64</span>(attr.weight) / <span class="hljs-type">float64</span>(totalWeight)))<br><br><span class="hljs-keyword">if</span> attr.realCapability != <span class="hljs-literal">nil</span> &#123;<br>	attr.deserved.MinDimensionResource(attr.realCapability, api.Infinity)<br>&#125;<br>attr.deserved.MinDimensionResource(attr.request, api.Zero)<br><br>attr.deserved = helpers.Max(attr.deserved, attr.guarantee)<br></code></pre></td></tr></table></figure>
 <p>如果 A 只需要 2 核，按权重得到的 4 核会被 request 截到 2 核，余下 2 核继续给仍有需求的 B，结果变成 2 核和 10 核。若 B 的上限又只有 7 核，最终是 2 核和 7 核，还有 3 核没有进入这两个 Queue 的 <code>deserved</code>。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/02-shares.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：同一组权重在不同需求与上限下得到不同份额。灰色部分表示未计入两队列 deserved 的余量，不代表实测节点空闲量。图中忽略其他资源维度。"><img src="/kuberay-volcano-08-volcano-queues/02-shares.svg" alt="同一组权重在不同需求与上限下得到不同份额。灰色部分表示未计入两队列 deserved 的余量，不代表实测节点空闲量。图中忽略其他资源维度。" width="960" height="350" style="--diagram-width:960px"></a></div><figcaption>同一组权重在不同需求与上限下得到不同份额。灰色部分表示未计入两队列 deserved 的余量，不代表实测节点空闲量。图中忽略其他资源维度。 <a href="/kuberay-volcano-08-volcano-queues/02-shares.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
@@ -418,13 +418,13 @@
 </tbody>
 </table>
 </div>
-<p>Queue priority 相同时，share 较小的 A 先被检查。B 的 125% 表示它当前占用超过了新算出的份额；重新计算 <code>deserved</code> 不会直接结束 B 中的 Pod。</p>
+<p>Queue 自身的调度优先级（priority）相同时，share 较小的 A 先被检查。B 的 125% 表示它当前占用超过了新算出的份额；重新计算 <code>deserved</code> 不会直接结束 B 中的 Pod。</p>
 <p>A 中有一个等待成员请求 2 核。调度器会计算分配后的占用量是否超过 A 的 <code>deserved</code>：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">futureUsed := attr.allocated.Clone().Add(totalReq)<br>allocatable, _ := futureUsed.LessEqualWithDimensionAndResourcesName(attr.deserved, totalReq)<br></code></pre></td></tr></table></figure>
 <p>A 当前占 2 核，再增加 2 核正好达到 4 核，所以 Queue 额度允许继续。随后还要为这个成员寻找节点。由于集群的 12 核已经全部占用，它此时仍然无法直接绑定。</p>
-<h3 id="同一-Queue-内还有多个作业时"><span id="同一个-Queue-有多个作业时怎样排序" class="series-legacy-anchor" aria-hidden="true"></span><span id="Job-priority-与-DRF-决定-Queue-内先看哪个作业" class="series-legacy-anchor" aria-hidden="true"></span><span id="DRF-与主导资源份额" class="series-legacy-anchor" aria-hidden="true"></span><span id="4-CPU-和-GPU-混用时，怎样衡量份额" class="series-legacy-anchor" aria-hidden="true"></span><a href="#同一-Queue-内还有多个作业时" class="headerlink" title="同一 Queue 内还有多个作业时"></a>同一 Queue 内还有多个作业时</h3><p>选中 Queue 后，如果里面有多个待调度作业，当前配置先比较 PriorityClass；优先级相同时，DRF 再比较各作业对 CPU、GPU 等资源的占用比例。DRF 取各资源比例中的最大值，主导份额较小的作业排在前面。</p>
+<h3 id="同一-Queue-内还有多个作业时"><span id="同一个-Queue-有多个作业时怎样排序" class="series-legacy-anchor" aria-hidden="true"></span><span id="Job-priority-与-DRF-决定-Queue-内先看哪个作业" class="series-legacy-anchor" aria-hidden="true"></span><span id="DRF-与主导资源份额" class="series-legacy-anchor" aria-hidden="true"></span><span id="4-CPU-和-GPU-混用时，怎样衡量份额" class="series-legacy-anchor" aria-hidden="true"></span><a href="#同一-Queue-内还有多个作业时" class="headerlink" title="同一 Queue 内还有多个作业时"></a>同一 Queue 内还有多个作业时</h3><p>选中 Queue 后，如果里面有多个待调度作业，当前配置先比较 PriorityClass 所表达的作业优先级；优先级相同时，DRF（Dominant Resource Fairness，主导资源公平性）再比较各作业对 CPU、GPU 等资源的占用比例。它取各资源比例中的最大值作为主导份额，数值较小的作业排在前面。下图另用同一 Queue 内的两个作业说明这个比较，与前面的跨 Queue 份额计算分开。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-08-volcano-queues/03-drf.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：同一个 Queue 内的两个作业分别计算 CPU 和 GPU 占用比例，DRF 取较大的比例作为主导份额。"><img src="/kuberay-volcano-08-volcano-queues/03-drf.svg" alt="同一个 Queue 内的两个作业分别计算 CPU 和 GPU 占用比例，DRF 取较大的比例作为主导份额。" width="960" height="386" style="--diagram-width:960px"></a></div><figcaption>同一个 Queue 内的两个作业分别计算 CPU 和 GPU 占用比例，DRF 取较大的比例作为主导份额。 <a href="/kuberay-volcano-08-volcano-queues/03-drf.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>这里保留 DRF 只是为了说明 Queue 内还有一层选择。它不负责计算 A、B 两个 Queue 的 4 核和 8 核份额，也不跨 Queue 直接比较作业。</p>
+<p>因此，调度器先通过 Queue 规则选中 A，再在 A 内比较作业。DRF 参与后一层选择，A、B 的 4 核和 8 核份额仍由前面的 proportion 计算。</p>
 <h2 id="资源占满后怎样继续"><span id="资源已经占满时怎样继续" class="series-legacy-anchor" aria-hidden="true"></span><span id="资源抢占与回收" class="series-legacy-anchor" aria-hidden="true"></span><span id="5-preempt-与-reclaim-怎样释放资源" class="series-legacy-anchor" aria-hidden="true"></span><a href="#资源占满后怎样继续" class="headerlink" title="资源占满后怎样继续"></a>资源占满后怎样继续</h2><p>默认的 <code>enqueue, allocate, backfill</code> 不会主动结束运行中的 Pod。需要释放资源时，Volcano 提供两条传统路径：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
@@ -512,9 +512,9 @@
       
         <a href="/tags/Ray/" class="print-no-link">#Ray</a>
       
-        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
-      
         <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/" class="print-no-link">#分布式计算</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
       
         <a href="/tags/Kubernetes/" class="print-no-link">#Kubernetes</a>
       

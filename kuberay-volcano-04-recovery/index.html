@@ -30,8 +30,8 @@
 <meta property="article:modified_time" content="2026-09-21T12:14:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
-<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="分布式计算">
+<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="Kubernetes">
 <meta property="article:tag" content="KubeRay">
 <meta name="twitter:card" content="summary_large_image">
@@ -324,7 +324,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：1 分钟后
+                    本文最后更新于：18 小时前
                   
                 
               </p>
@@ -438,7 +438,7 @@
 <p>因此，继续推进需要两部分配合：监听和重查让对象再次进入协调，保存的身份、阶段及实际资源让下一轮知道该做什么。重启后会重新建立这些检查机会，旧进程的某个定时器或调用栈无须原样恢复。</p>
 <p>图 2 把管理阶段和重试路径连起来。接下来依次看每个阶段如何利用已保存的信息继续工作。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-04-recovery/02-lifecycle.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 2：RayJob 管理状态、执行状态与重试"><img src="/kuberay-volcano-04-recovery/02-lifecycle.svg" alt="图 2：RayJob 管理状态、执行状态与重试" width="960" height="515" style="--diagram-width:960px"></a></div><figcaption>图 2：RayJob 管理状态、执行状态与重试 <a href="/kuberay-volcano-04-recovery/02-lifecycle.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<h2 id="初始化：先保存这一轮的身份"><span id="保存身份与查找资源" class="series-legacy-anchor" aria-hidden="true"></span><span id="同一轮执行的资源识别" class="series-legacy-anchor" aria-hidden="true"></span><span id="3-先保存身份，再创建资源" class="series-legacy-anchor" aria-hidden="true"></span><a href="#初始化：先保存这一轮的身份" class="headerlink" title="初始化：先保存这一轮的身份"></a>初始化：先保存这一轮的身份</h2><p><code>New</code> 分支先为 RayJob 添加删除前处理所用的 finalizer，再选定本轮资源身份。主案例需要两个标识：<code>status.rayClusterName</code> 保存专用集群名，例如 <code>demo-job-abcde</code>；<code>status.jobId</code> 保存 Ray 作业的 submission ID。随机后缀只是生成名称的一部分，不是额外的组件。</p>
+<h2 id="初始化：先保存这一轮的身份"><span id="保存身份与查找资源" class="series-legacy-anchor" aria-hidden="true"></span><span id="同一轮执行的资源识别" class="series-legacy-anchor" aria-hidden="true"></span><span id="3-先保存身份，再创建资源" class="series-legacy-anchor" aria-hidden="true"></span><a href="#初始化：先保存这一轮的身份" class="headerlink" title="初始化：先保存这一轮的身份"></a>初始化：先保存这一轮的身份</h2><p><code>New</code> 分支先为 RayJob 添加 finalizer。这个标记告诉 Kubernetes：删除对象前，还有 Controller 要完成的清理工作；后面的主动删除分支会用到它。接着选定本轮资源身份：<code>status.rayClusterName</code> 保存专用集群名，例如 <code>demo-job-abcde</code>；<code>status.jobId</code> 保存 Ray 作业的 submission ID。</p>
 <p>用户可选填 <code>spec.jobId</code>，Controller 把实际采用的值存入 <code>status.jobId</code>，提交命令再作为 <code>--submission-id</code> 传给 Ray。它们在这条流程中传递的是同一个提交标识，与 driver 的内部 JobID 各有用途。初始化函数 <code>initRayJobStatusIfNeed</code> 只在状态中的 submission ID 为空时选择它：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> rayJob.Spec.SubmissionMode != rayv1.InteractiveMode &amp;&amp; rayJob.Status.JobId == <span class="hljs-string">&quot;&quot;</span> &#123;<br>    <span class="hljs-keyword">if</span> rayJob.Spec.JobId != <span class="hljs-string">&quot;&quot;</span> &#123;<br>        rayJob.Status.JobId = rayJob.Spec.JobId<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        rayJob.Status.JobId = utils.GenerateRayJobId(rayJob.Name)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>同一函数也选定 RayCluster 名称、设置本轮开始时间，并将管理状态改为 <code>Initializing</code>。这些先发生在内存中，随后通过前面的统一状态写回保存。<code>New</code> 分支到这里就结束，本轮不会继续进入创建集群的分支。</p>
@@ -474,7 +474,8 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> utils.HasSubmitter(rayJobInstance) &#123;<br>	isJobTerminal = isJobTerminal &amp;&amp; finishedAt != <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-keyword">if</span> isJobTerminal &#123;<br>	jobDeploymentStatus = rayv1.JobDeploymentStatusComplete<br>	<span class="hljs-keyword">if</span> jobInfo.JobStatus == rayv1.JobStatusFailed &#123;<br>		jobDeploymentStatus = rayv1.JobDeploymentStatusFailed<br>		reason = rayv1.AppFailed<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>当 Ray 和 submitter 还在运行，Controller 写回当前观测，稍后再查；两侧都满足终态条件，就把管理阶段写成 <code>Complete</code> 或 <code>Failed</code>。Ray 的 <code>STOPPED</code> 也可以映射为管理上的 <code>Complete</code>，程序是否成功仍看 <code>jobStatus: SUCCEEDED</code>。submitter 明确失败或期限检查也可以提前结束管理流程，不必始终等到这条正常收尾路径。</p>
 <p>假设程序在 Operator 停机期间已经结束，新进程读到的 RayJob 仍是 <code>Running</code>。它重新查询 Job 和 Ray 记录，得到结束结果，再写回终态。如果进程在查询成功、写回之前再次退出，下次仍从持久化的旧阶段重新查询。结果在 Kubernetes 与 Ray 中仍可读取，就能再次计算出接下来的管理动作。</p>
-<p>运行阶段对不同查询结果有不同处理。submitter Job 读取出错时返回错误，这条路径不会调用初始化阶段的 Job 创建函数。Ray 作业暂时查不到、submitter 尚未结束时，K8sJobMode 继续等待；submitter 已结束而 Ray 中仍查不到作业时，则判为执行失败。它不会改走 HTTP 提交。RayCluster 查询仍调用 <code>getOrCreateRayClusterInstance</code>，因此“是否补建”要区分具体资源，不能把整个运行阶段理解为一律只读。</p>
+<p>查询没有得到预期结果时，下一步取决于缺少的是哪一侧的信息。submitter Job 读取出错就返回错误，不调用初始化阶段的 Job 创建函数。Ray 作业暂时查不到、submitter 尚未结束时，K8sJobMode 继续等待；submitter 已结束而 Ray 中仍查不到作业时，则判为执行失败，不会改走 HTTP 提交。</p>
+<p>RayCluster 的读取仍经过 <code>getOrCreateRayClusterInstance</code>，保留了查询不到专用集群时的创建路径。因此，同处于运行阶段，提交用 Job 的查询失败与专用集群不存在，会走不同的处理分支。</p>
 <p>对于其他持续的 Ray 状态查询错误，Controller 会把首次失败时间保存在 <code>status.jobStatusCheckFailureStartTime</code>，查询恢复后清除。后续协调根据这个时间检查超时，Operator 重启不会把已保存的等待起点变成零。总执行期限使用本轮的 <code>status.startTime</code>；Ray 与 submitter 的终态衔接也有相应期限检查。因而，恢复后的下一步可能是继续观察，也可能是发现保存的期限已经到达，转入失败或收尾流程。</p>
 <h2 id="执行失败：清理旧轮次后重新开始"><a href="#执行失败：清理旧轮次后重新开始" class="headerlink" title="执行失败：清理旧轮次后重新开始"></a>执行失败：清理旧轮次后重新开始</h2><p>Operator 进程重启本身不会计作一次执行失败。前面几个阶段都在接续同一轮；只有管理逻辑判定失败后，才需要决定是否重新执行程序。</p>
 <p><code>checkBackoffLimitAndUpdateStatusIfNeeded</code> 在状态分支之后更新失败次数，并检查 <code>spec.backoffLimit</code>。本例设置为 1，第一次可重试失败转为 <code>Retrying</code>，第二次失败耗尽额度，保留最终 <code>Failed</code>。<code>DeadlineExceeded</code> 和 <code>JobStatusCheckTimeoutExceeded</code> 这两种原因不进入 RayJob 级重试。新的失败次数与选定的管理阶段一起写回，恢复时据此判断应进入清理还是最终收尾。</p>
@@ -492,7 +493,7 @@
 <p>如果进程是在终态写回之前退出，则 Kubernetes 中还没有这次管理结束时间。下一轮需要先重新确认结果、写回终态，再从新写入的管理结束时间计算 TTL。这说明“从保存的时间继续等待”以该时间已经成功持久化为前提。</p>
 <p>本例到期只删除专用 RayCluster，保留 RayJob 和 submitter Job。删除请求尚未发出就退出，下次继续发出；请求已经生效、响应丢失或进程退出，下次查询到 NotFound 就识别为已删除；对象带删除时间戳时，后续回收由 Kubernetes 继续推进。该清理路径在删除请求处理成功后可以结束协调，不要求 Operator 一直等待所有 Pod 退出。</p>
 <p>如果启用了删除 RayJob CR 的环境变量或另外配置删除策略，清理对象和顺序会相应变化。使用已有集群模式时，终态流程保留用户提供的集群。本节按前言中的专用集群与默认清理方式展开。</p>
-<h2 id="用户删除：沿删除标记继续完成清理"><span id="停止请求与资源回收的分工" class="series-legacy-anchor" aria-hidden="true"></span><span id="删除流程与计算恢复" class="series-legacy-anchor" aria-hidden="true"></span><span id="6-删除中断后继续什么，计算又由谁恢复" class="series-legacy-anchor" aria-hidden="true"></span><a href="#用户删除：沿删除标记继续完成清理" class="headerlink" title="用户删除：沿删除标记继续完成清理"></a>用户删除：沿删除标记继续完成清理</h2><p>用户主动删除仍在运行的 RayJob 时，Kubernetes 设置删除时间戳。初始化阶段添加的 finalizer 是“删除前还有工作要处理”的标记，对象会保留到该标记移除。Controller 每轮读取后先看删除时间戳，因此重启后仍能进入这条路径，而不必先恢复普通运行阶段。</p>
+<h2 id="用户删除：沿删除标记继续完成清理"><span id="停止请求与资源回收的分工" class="series-legacy-anchor" aria-hidden="true"></span><span id="删除流程与计算恢复" class="series-legacy-anchor" aria-hidden="true"></span><span id="6-删除中断后继续什么，计算又由谁恢复" class="series-legacy-anchor" aria-hidden="true"></span><a href="#用户删除：沿删除标记继续完成清理" class="headerlink" title="用户删除：沿删除标记继续完成清理"></a>用户删除：沿删除标记继续完成清理</h2><p>用户主动删除仍在运行的 RayJob 时，Kubernetes 设置删除时间戳。初始化阶段添加的 finalizer 此时开始起作用：对象保留到该标记移除，给 Controller 留出删除前处理的机会。Controller 每轮读取后先看删除时间戳，因此重启后仍能进入这条路径，而不必先恢复普通运行阶段。</p>
 <p>owner reference 则记录对象的拥有关系，供 Kubernetes 垃圾回收器处理下级资源。图 4 把 Controller 的停止请求和垃圾回收器的资源回收分开。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-04-recovery/04-deletion.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 4：finalizer 的停止请求与 owner reference 的资源回收"><img src="/kuberay-volcano-04-recovery/04-deletion.svg" alt="图 4：finalizer 的停止请求与 owner reference 的资源回收" width="1000" height="466" style="--diagram-width:1000px"></a></div><figcaption>图 4：finalizer 的停止请求与 owner reference 的资源回收 <a href="/kuberay-volcano-04-recovery/04-deletion.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>RayJob Controller 对尚未终止的 Ray 作业尝试调用 <code>StopJob</code>，随后执行移除 finalizer 的代码：</p>
@@ -553,9 +554,9 @@
       
         <a href="/tags/Ray/" class="print-no-link">#Ray</a>
       
-        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
-      
         <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/" class="print-no-link">#分布式计算</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
       
         <a href="/tags/Kubernetes/" class="print-no-link">#Kubernetes</a>
       

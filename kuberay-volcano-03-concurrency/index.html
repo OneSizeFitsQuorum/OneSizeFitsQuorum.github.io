@@ -30,8 +30,8 @@
 <meta property="article:modified_time" content="2026-09-21T12:13:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
-<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="分布式计算">
+<meta property="article:tag" content="源码阅读">
 <meta property="article:tag" content="Kubernetes">
 <meta property="article:tag" content="KubeRay">
 <meta name="twitter:card" content="summary_large_image">
@@ -324,7 +324,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：几秒后
+                    本文最后更新于：18 小时前
                   
                 
               </p>
@@ -507,7 +507,7 @@
 <p>如果还有等待者，分配协程继续找下一项；没有等待者就停止遍历。若 ready 中没有可交出的对象，例如剩下的键都已锁定，也会结束本次尝试。最后清理 ready、释放锁，回到外层循环等待新通知。它可以一次交出多个不同对象，但不会在本轮处理完后不停扫描空队列。</p>
 <p>此时，待处理的 A 已取走，正在执行的 A 仍记录在 <code>locked</code> 中。若新的 A 到来，便可以重新建立待处理项，同时继续受这把键锁约束。</p>
 <p>协调协程通过 <code>defer c.Queue.Done(obj)</code> 保证本轮退出时通知队列。<code>Done(A)</code> 清除 A 的执行锁定并通知任务分配逻辑。之前留下的 A 只有在时间条件满足、协程可用时，才会再次被交出。这样，待处理索引负责合并请求，执行锁定负责避免同一个对象的两轮协调重叠。</p>
-<p>这三个后台协程通过共享队列记录协作，请求根据条件经过相应的处理路径：立即请求可以直接进入 ready，延时请求要先等待到期；分配路径也会整理输入缓冲。去重也可以放在取任务时统一完成，本文采用的版本则把整理、等待和分配安排为这些协程，理解各自的触发条件就能串起整个过程。</p>
+<p>回到最初的 A 请求：提交方把它追加到输入缓冲，整理后成为一份待处理记录；有延时就先进入 waiting，到期后进入 ready。协调协程发出取任务请求，分配协程才从 ready 中挑选未锁定的对象并交出；分配路径也会顺手整理尚未处理的输入缓冲。A 的这一轮执行结束，由 Done 解除锁定，期间留下的下一份 A 才有机会继续。</p>
 <h3 id="延时和优先级怎样影响顺序"><a href="#延时和优先级怎样影响顺序" class="headerlink" title="延时和优先级怎样影响顺序"></a>延时和优先级怎样影响顺序</h3><p>前面分别说明了立即请求和延时请求的去向。两种请求如果指向同一个对象，又会怎样合并？若 A 已经安排延时重查，期间又收到一次立即检查的请求，队列合并时会采用较早的处理时间；优先级有差异时采用较高值。因此，新事件可以让延时项提前进入 ready，但无法绕过 A 当前轮的执行锁定。</p>
 <p>在可以分配的 ready 项之间，队列先看优先级，同优先级再看次序。延时项到期进入 ready 时重新取得次序；一项被提升优先级后，排在新优先级已有项之后。整个队列不能视为严格的先进先出（FIFO）。</p>
 <p><code>RequeueAfter</code> 表达的是本轮对后续检查的安排。新事件可能使下一轮提前发生，到期后也可能继续等待空闲协程，因此它不保证精准的固定周期。</p>
@@ -668,9 +668,9 @@
       
         <a href="/tags/Ray/" class="print-no-link">#Ray</a>
       
-        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
-      
         <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/" class="print-no-link">#分布式计算</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" class="print-no-link">#源码阅读</a>
       
         <a href="/tags/Kubernetes/" class="print-no-link">#Kubernetes</a>
       
