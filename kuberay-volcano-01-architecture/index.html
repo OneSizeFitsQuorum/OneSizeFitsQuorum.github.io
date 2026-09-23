@@ -324,7 +324,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：1 天前
+                    本文最后更新于：2 天前
                   
                 
               </p>
@@ -332,10 +332,10 @@
             
               <div class="markdown-body">
                 
-                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a></li><li class="is-current"><a href="/kuberay-volcano-01-architecture/" aria-current="page">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜总结：从 KubeRay 与 Volcano 看 Operator 设计</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第零篇解释了 Ray、Kubernetes 和 KubeRay 的基本分工。这一篇把分工放进一次 RayJob 提交：使用者只创建一个 RayJob，集群里随后却出现 RayCluster、head Pod、worker Pod，以及一个运行提交程序的 Kubernetes Job。这些对象分别由谁创建，程序又从哪一步开始交给 Ray？</p>
+                <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜从 Ray 到 Kubernetes：KubeRay 与 Volcano 各自解决什么问题</a></li><li class="is-current"><a href="/kuberay-volcano-01-architecture/" aria-current="page">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜总结：从 KubeRay 与 Volcano 看 Operator 设计</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜从 Ray 到 Kubernetes：KubeRay 与 Volcano 各自解决什么问题</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第零篇解释了 Ray、Kubernetes 和 KubeRay 的基本分工。这一篇把分工放进一次 RayJob 提交：使用者只创建一个 RayJob，集群里随后却出现 RayCluster、head Pod、worker Pod，以及一个运行提交程序的 Kubernetes Job。这些对象分别由谁创建，程序又从哪一步开始交给 Ray？</p>
 <p>本例使用名为 <code>demo-job</code> 的 RayJob 运行 Python 程序。KubeRay 为它准备一套专用集群，其中有一个 head Pod 和两个 worker Pod；集群就绪后再提交程序，成功完成后保留集群 60 秒。程序及依赖已经放进运行镜像，暂不启用自动扩缩容。</p>
 <p>下文把提交用的 Kubernetes Job 称为 submitter Job，把它创建的 Pod 称为 submitter Pod。第一至第五篇沿用这个不启用 Volcano 的基础案例；第六至第八篇单独介绍 Volcano，第九篇再回到 <code>demo-job</code> 说明接入方式。本文先走完资源创建、程序提交和收尾，队列、恢复与多副本接管留到后文。</p>
-<h2 id="KubeRay-的职责与核心资源"><span id="1-谁管理集群，谁执行计算" class="series-legacy-anchor" aria-hidden="true"></span><a href="#KubeRay-的职责与核心资源" class="headerlink" title="KubeRay 的职责与核心资源"></a>KubeRay 的职责与核心资源</h2><h3 id="集群管理与计算执行"><a href="#集群管理与计算执行" class="headerlink" title="集群管理与计算执行"></a>集群管理与计算执行</h3><p>沿用导引中的分工：Kubernetes 将 head 和 worker Pod 部署到节点上；Ray 在容器内安排 task 和 actor；KubeRay Operator 则根据 RayJob 等声明准备资源、跟踪状态。下面把这层分工落到两个具体接口上：Kubernetes API 管理资源对象，Ray Jobs API 接收入口命令并提供作业状态查询。</p>
+<h2 id="KubeRay-的职责与核心资源"><span id="1-谁管理集群，谁执行计算" class="series-legacy-anchor" aria-hidden="true"></span><a href="#KubeRay-的职责与核心资源" class="headerlink" title="KubeRay 的职责与核心资源"></a>KubeRay 的职责与核心资源</h2><h3 id="集群管理与计算执行"><a href="#集群管理与计算执行" class="headerlink" title="集群管理与计算执行"></a>集群管理与计算执行</h3><p>沿用第 0 篇中的分工：Kubernetes 将 head 和 worker Pod 部署到节点上；Ray 在容器内安排 task 和 actor；KubeRay Operator 则根据 RayJob 等声明准备资源、跟踪状态。下面把这层分工落到两个具体接口上：Kubernetes API 管理资源对象，Ray Jobs API 接收入口命令并提供作业状态查询。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-01-architecture/01-system.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 1：KubeRay 的管理路径与 Ray 的计算路径"><img src="/kuberay-volcano-01-architecture/01-system.svg" alt="图 1：KubeRay 的管理路径与 Ray 的计算路径" width="960" height="400" style="--diagram-width:960px"></a></div><figcaption>图 1：KubeRay 的管理路径与 Ray 的计算路径 <a href="/kuberay-volcano-01-architecture/01-system.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>顺着图中的连接看，Operator 一侧通过 Kubernetes API 管理资源，另一侧通过 Ray 管理 API 查询作业或管理 Serve 应用。Ray 节点之间传输对象、执行 task 和 actor，不需要经过 Operator。</p>
 <p>Operator 的主体是 Go 程序。Ray 运行时和提交程序分别运行在其他容器里，后面会展开它们的位置。</p>
@@ -548,7 +548,7 @@
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/ray/blob/3f785c0711b94f93f97fea2a438abcd6a9738655/doc/source/ray-core/key-concepts.md">Ray Core 概念与环境依赖</a></li>
 <li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/">Kubernetes：annotations</a></li>
 </ul>
-<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 11 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav></div>
+<nav class="series-nav" aria-label="篇末系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 11 篇</span></div><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜从 Ray 到 Kubernetes：KubeRay 与 Volcano 各自解决什么问题</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav></div>
                 
               </div>
             
@@ -646,9 +646,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/kuberay-volcano-00-reading-guide/" title="第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano">
+                      <a href="/kuberay-volcano-00-reading-guide/" title="第 0 篇｜从 Ray 到 Kubernetes：KubeRay 与 Volcano 各自解决什么问题">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">第 0 篇｜背景导引：Ray、Kubernetes、KubeRay 与 Volcano</span>
+                        <span class="hidden-mobile">第 0 篇｜从 Ray 到 Kubernetes：KubeRay 与 Volcano 各自解决什么问题</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
