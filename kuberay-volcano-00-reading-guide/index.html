@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          5.5k 字
+          5.3k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          18 分钟
+          17 分钟
         
       </span>
     
@@ -334,13 +334,13 @@
               <div class="markdown-body">
                 
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 0 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li class="is-current"><a href="/kuberay-volcano-00-reading-guide/" aria-current="page">第 0 篇｜从 Ray 到 Kubernetes：KubeRay 与 Volcano 各自解决什么问题</a></li><li><a href="/kuberay-volcano-01-architecture/">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜总结：从 KubeRay 与 Volcano 看 Operator 设计</a></li></ol></details><div class="series-step-links"><span>从这里开始阅读</span><a href="/kuberay-volcano-01-architecture/">下一篇：第 1 篇｜KubeRay 架构：组件分工与协作</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>假设手里有一个 Python 程序，要处理一批数据。在自己的电脑上，装好依赖、执行 <code>python main.py</code> 就能开始跑。后来数据多了，希望用几台机器一起计算。这时会遇到两类问题：程序怎样利用多台机器，以及这些机器上的程序由谁部署和管理。</p>
-<p>这套文章面向希望理解系统原理的 Ray、KubeRay 和 Volcano 使用者，沿集群管理和批调度两条线解释架构与设计。源码用来核对组件如何协作、配置怎样影响行为，以及各项能力成立的条件。本篇先回答两个基础问题：Ray 在运行什么，Kubernetes 又在管理什么。</p>
-<p>本系列选择 Kubernetes 上的 Ray 部署作为研究场景。Ray 可以在单机或多台机器上独立运行；选用 Kubernetes 和 KubeRay 后，可以先使用默认调度器，再按工作负载的需要接入 Volcano。</p>
-<p>本文假设你运行过程序、用过命令行，不要求 Kubernetes、Ray 或 Volcano 使用经验。先解释基础概念，再走一遍从声明到程序运行的过程，最后讨论资源竞争为什么会引出批调度。集群安装和具体运维留给各项目的使用文档。熟悉 Ray、Kubernetes、KubeRay，以及 Pod、Controller 和 CRD 的读者，可以从第一篇开始；第六篇会介绍 Volcano 的资源模型。</p>
-<p>全系列使用同一组源码：KubeRay <code>6bf05eb17a3e</code>、Ray <code>3f785c0711b9</code>、Volcano <code>d8984501e4ad</code>。KubeRay 的依赖按 <code>go.mod</code> 确定，controller-runtime 为 <code>v0.24.1</code>，client-go 为 <code>v0.37.0</code>。各篇参考资料保留对应源码链接。</p>
+<p>Ray 负责程序怎样利用多台机器，Kubernetes 管理程序的部署和运行环境。把 Ray 部署到 Kubernetes 上以后，KubeRay 又补充了哪些管理逻辑，Volcano 在什么情况下参与调度？要理解它们的关系，可以从一个 Python 程序的运行过程说起。</p>
+<p>下面以 Kubernetes 上的 Ray 部署为例。Ray 可以在单机或多台机器上独立运行；选用 Kubernetes 和 KubeRay 后，可以先使用默认调度器，再按工作负载的需要接入 Volcano。</p>
+<p>本文假设你运行过程序、用过命令行，不要求 Kubernetes、Ray 或 Volcano 使用经验。先解释基础概念，再走一遍从声明到程序运行的过程，最后讨论资源竞争为什么会引出批调度。集群安装和具体运维留给各项目的使用文档。</p>
+<p>源码基线为：KubeRay <code>6bf05eb17a3e</code>、Ray <code>3f785c0711b9</code>、Volcano <code>d8984501e4ad</code>。KubeRay 的依赖按 <code>go.mod</code> 确定，controller-runtime 为 <code>v0.24.1</code>，client-go 为 <code>v0.37.0</code>。源码链接见文末参考资料。</p>
 <h2 id="计算与部署的基础"><span id="1-一个-Python-程序，为什么会需要-Ray" class="series-legacy-anchor" aria-hidden="true"></span><a href="#计算与部署的基础" class="headerlink" title="计算与部署的基础"></a>计算与部署的基础</h2><h3 id="从单机程序到-Ray-集群"><a href="#从单机程序到-Ray-集群" class="headerlink" title="从单机程序到 Ray 集群"></a>从单机程序到 Ray 集群</h3><p>先看计算本身。假设程序要处理许多文件，每个文件都可以独立完成计算，最后再汇总结果。单进程逐个处理时，后一个文件需要等前一个完成。如果希望同时利用多台机器，就得把这些工作交给不同进程执行，并把输入和结果传递过去。</p>
 <p>可以自己写进程管理、网络通信和工作分配逻辑，也可以使用分布式计算框架。Ray 是这类框架之一：使用者通过它的编程接口表达可以分开的工作，Ray 运行时负责安排执行，以及计算对象的存储和传递。“运行时”指程序执行期间为这些操作提供支持的一组进程和机制。</p>
-<p>Ray Core 提供两个后文经常出现的概念。task 表示一次可以在其他执行进程中异步运行的函数调用。例如，把“处理一个文件”写成 Ray 远程函数，就可以发起多个 task，再收集它们的结果。actor 则把一个带状态的对象放到执行进程中，通过方法调用使用它。例如，某个对象先加载一份模型，后续多次调用可以继续使用这份已加载的模型。</p>
+<p>Ray Core 提供 task 和 actor 两种计算抽象。task 表示一次可以在其他执行进程中异步运行的函数调用。例如，把“处理一个文件”写成 Ray 远程函数，就可以发起多个 task，再收集它们的结果。actor 则把一个带状态的对象放到执行进程中，通过方法调用使用它。例如，某个对象先加载一份模型，后续多次调用可以继续使用这份已加载的模型。</p>
 <p>这里需要使用者或所用的上层库表达计算如何拆分。把普通 Python 脚本原样交给 Ray，并不会自动把其中的串行循环改成分布式计算。</p>
 <p>这些工作需要一套 Ray 运行环境。Ray 集群由一个 head 节点和与它连接的 worker 节点组成：head 除了普通运行组件，还承载集群管理进程；worker 节点提供执行用户代码的进程，并参与计算调度和对象传递。head 也可以承担用户计算，具体取决于配置。运行入口脚本、发起 task 和 actor 的进程称为 driver；一次 Ray 作业包含由这个入口程序发起的计算。</p>
 <p>Ray 可以先在一台机器上使用，也可以部署到多台机器。学习 task 和 actor 时，不需要先准备 Kubernetes。接下来引入 Kubernetes，是因为我们还希望管理这些运行环境的部署和变化。</p>
@@ -379,10 +379,10 @@
 </tbody>
 </table>
 </div>
-<p>Ray Serve 是 Ray 上用于构建在线服务的库，可以用来提供模型推理等服务。持续服务与执行完就结束的作业有不同管理要求，所以 RayService 和 RayJob 是两种使用方式。本系列以 RayJob 为主线，第五篇再单独分析 RayService 的切换。下面先看没有接入 Volcano 的基础部署，资源竞争的问题放到“资源竞争与 Volcano”一节。</p>
+<p>Ray Serve 是 Ray 上用于构建在线服务的库，可以用来提供模型推理等服务。持续服务与执行完就结束的作业有不同管理要求，所以 RayService 和 RayJob 是两种使用方式。下面以执行一次作业的 RayJob 为例。下面先看没有接入 Volcano 的基础部署，资源竞争的问题放到“资源竞争与 Volcano”一节。</p>
 <p>把三者放在一起，一次作业的管理与计算大致经过图 1 中的交接。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-00-reading-guide/00-background.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 1：从一次 RayJob 提交看三者分工；部署准备与计算提交是不同步骤"><img src="/kuberay-volcano-00-reading-guide/00-background.svg" alt="图 1：从一次 RayJob 提交看三者分工；部署准备与计算提交是不同步骤" width="960" height="440" style="--diagram-width:960px"></a></div><figcaption>图 1：从一次 RayJob 提交看三者分工；部署准备与计算提交是不同步骤 <a href="/kuberay-volcano-00-reading-guide/00-background.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>图中先由 KubeRay 根据 RayJob 准备资源，Kubernetes 把对应容器启动起来。环境就绪后，KubeRay 安排提交程序把入口命令交给 Ray，Ray 再执行用户计算。后续状态检查和收尾仍需要 KubeRay，具体交接将在第一篇展开。</p>
+<p>图中先由 KubeRay 根据 RayJob 准备资源，Kubernetes 把对应容器启动起来。环境就绪后，KubeRay 安排提交程序把入口命令交给 Ray，Ray 再执行用户计算。后续状态检查和收尾仍由 KubeRay 负责。</p>
 <h3 id="从部署声明到容器运行"><span id="4-Kubernetes-怎样把一份声明变成运行中的容器" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从部署声明到容器运行" class="headerlink" title="从部署声明到容器运行"></a>从部署声明到容器运行</h3><p>“Kubernetes 启动容器”还省略了几个参与者。为了看清它们各自做什么，先暂时离开 Ray，用一个普通应用演示副本管理，再回到 KubeRay。</p>
 <h4 id="声明期望的运行环境"><span id="4-1-先声明希望运行什么" class="series-legacy-anchor" aria-hidden="true"></span><a href="#声明期望的运行环境" class="headerlink" title="声明期望的运行环境"></a>声明期望的运行环境</h4><p>如果希望两个相同的应用副本持续运行，可以使用 Deployment。这是 Kubernetes 内置的一种资源类型，使用者在其中声明容器模板和副本数，相关控制器负责持续维护。这里把它命名为 <code>intro-deployment</code>，它与后面的 RayJob 案例无关。</p>
 <p>在 Kubernetes API 中，Deployment 和 Pod 是资源类型，<code>intro-deployment</code> 是某个具体对象的名称。API 是供程序提交和查询这些对象的接口；YAML 则是表达对象内容的一种文本格式。Pod 模板描述要按什么配置创建副本，selector 则用标签条件识别这些副本。例如，给 Pod 标记 <code>app: intro</code>，再用相同条件选中它们。下面只摘出 Deployment 的外层结构，省略了必需的 selector 和 Pod 模板，不能直接作为部署文件使用：</p>
@@ -392,7 +392,7 @@
 <h4 id="请求处理、调度与容器启动"><span id="4-2-请求经过谁，容器又由谁启动" class="series-legacy-anchor" aria-hidden="true"></span><a href="#请求处理、调度与容器启动" class="headerlink" title="请求处理、调度与容器启动"></a>请求处理、调度与容器启动</h4><p>使用者通过 <code>kubectl</code> 提交声明时，请求先到 API Server。它是 Kubernetes API 的服务端，接受资源的创建、查询和更新；资源数据由 etcd 保存。etcd 保存的是这类集群信息，不会自动保存 Python 程序的计算结果。API 接受 Deployment 声明之后，还需要其他组件继续工作。</p>
 <p>Controller，中文通常叫控制器，是持续观察资源并执行管理逻辑的程序。Deployment Controller 读取副本和模板要求，管理名为 ReplicaSet（图中简称 RS）的资源；ReplicaSet 记录一组 Pod 的副本要求，由相应控制器根据缺口创建 Pod 对象。创建了 Pod 对象，只是让集群知道有这些容器需要运行。</p>
 <p>接着由 Scheduler，也就是调度器，为尚未分配节点的 Pod 选择 Node。它需要考虑资源需求和调度约束，再通过 API 确定 Pod 与 Node 的分配关系，这一步称为绑定；如果没有合适的节点，Pod 就需要继续等待。Scheduler 选定机器以后，容器仍要由那台机器上的组件启动。</p>
-<p>这里的资源需求来自配置。例如，容器的 <code>resources.requests</code> 可以声明需要多少 CPU、内存，调度器用这些请求判断节点能否放下它；<code>resources.limits</code> 则约束容器使用相应资源的上限。请求值与程序此刻的实际用量可能不同。后文分析资源分配时，主要讨论这份请求账目。</p>
+<p>这里的资源需求来自配置。例如，容器的 <code>resources.requests</code> 可以声明需要多少 CPU、内存，调度器用这些请求判断节点能否放下它；<code>resources.limits</code> 则约束容器使用相应资源的上限。请求值与程序此刻的实际用量可能不同。</p>
 <p>每台运行 Pod 的节点上都有 kubelet。它持续观察分配给本机的 Pod，按照其中的配置调用容器运行时，并向 API Server 回报 Pod 状态。容器运行时负责实际运行容器。这样，“哪个 Pod 归本机运行”和“本机的容器实际怎样了”就能在节点与管理端之间对应起来。</p>
 <p>Pod 的状态还需要分开看。<code>Pending</code> 表示启动尚未完成，可能在等节点，也可能已经有节点、正在拉取镜像；<code>Running</code> 表示已进入容器运行阶段，不能单独证明应用可以接收工作。Ready 是另一项就绪条件，结合容器就绪状态等因素判断；如果配置了 readiness probe，就绪探针会检查应用是否准备好。后面 KubeRay 对集群是否就绪的判断，还会再组合多个 Pod 的情况。</p>
 <p>API Server、调度器和控制器等承担集群管理工作的组件合称控制面。图 2 把它们与运行应用的 Node 分开画，表示职责分工，并不要求每个框都占一台独立机器。</p>
@@ -405,30 +405,30 @@
 <h3 id="CRD-与-Operator"><span id="5-Kubernetes-怎样认识-RayCluster" class="series-legacy-anchor" aria-hidden="true"></span><a href="#CRD-与-Operator" class="headerlink" title="CRD 与 Operator"></a>CRD 与 Operator</h3><p>回到 Ray。Deployment 能表达按照模板维护副本，Ray 集群却还有 head、worker 组、启动参数和连接关系。KubeRay 需要让 Kubernetes 保存这些额外信息，也需要有人按它们执行管理动作。</p>
 <p>增加资源类型的机制之一叫 CRD，全称 CustomResourceDefinition，即自定义资源定义。它向 Kubernetes 声明一种资源叫什么、有哪些字段、如何校验。KubeRay 仓库里就有 RayCluster 的 CRD 文件，下面摘出名称定义，省略同级的其他字段：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">group:</span> <span class="hljs-string">ray.io</span><br>  <span class="hljs-attr">names:</span><br>    <span class="hljs-attr">kind:</span> <span class="hljs-string">RayCluster</span><br>    <span class="hljs-attr">listKind:</span> <span class="hljs-string">RayClusterList</span><br>    <span class="hljs-attr">plural:</span> <span class="hljs-string">rayclusters</span><br>    <span class="hljs-attr">singular:</span> <span class="hljs-string">raycluster</span><br>  <span class="hljs-attr">scope:</span> <span class="hljs-string">Namespaced</span><br></code></pre></td></tr></table></figure>
-<p>这段内容让 API 知道资源属于 <code>ray.io</code> 这个组，类型名是 <code>RayCluster</code>，并按 namespace 区分命名范围。安装完整 CRD 后，再创建一个名叫 <code>intro-cluster</code> 的 RayCluster，这个具体对象就是自定义资源，常简称 CR。CRD 定义类型，CR 是这种类型的实例。<code>intro-cluster</code> 这里只用于解释概念；第一篇的专用集群会由 RayJob 创建。</p>
+<p>这段内容让 API 知道资源属于 <code>ray.io</code> 这个组，类型名是 <code>RayCluster</code>，并按 namespace 区分命名范围。安装完整 CRD 后，再创建一个名叫 <code>intro-cluster</code> 的 RayCluster，这个具体对象就是自定义资源，常简称 CR。CRD 定义类型，CR 是这种类型的实例。<code>intro-cluster</code> 是这里为说明概念选取的示例名称。</p>
 <p>CRD 让 API 能保存集群声明，具体管理动作由 KubeRay Operator 执行。它读取 RayCluster，根据 head 和 worker 配置创建、维护 Pod 及 Service，并回写集群状态。只有资源定义、没有相应控制器时，API 不会自行推导出这些步骤。</p>
 <p>把应用的管理逻辑写进控制器，通过自定义资源驱动它工作，就是这里使用的 Operator 模式。KubeRay Operator 通常也作为 Pod 部署在集群中，它通过 API 读写资源，不需要成为 API Server 进程的一部分。</p>
-<p>后文会反复出现 Operator、Controller 和 Reconcile：Operator 是部署起来的管理程序，Controller 是其中负责某一类资源的控制逻辑，Reconcile 则是控制器处理一个待协调对象时调用的函数。KubeRay 的一个 Operator 进程可以容纳多个 Controller，三类核心资源并不意味着需要三个独立进程。</p>
+<p>这几个概念可以这样区分：Operator 是部署起来的管理程序，Controller 是其中负责某一类资源的控制逻辑，Reconcile 则是控制器处理一个待协调对象时调用的函数。KubeRay 的一个 Operator 进程可以容纳多个 Controller，三类核心资源并不意味着需要三个独立进程。</p>
 <h2 id="RayJob-提交与批调度"><span id="6-回到-RayJob：资源准备好，程序才开始提交" class="series-legacy-anchor" aria-hidden="true"></span><a href="#RayJob-提交与批调度" class="headerlink" title="RayJob 提交与批调度"></a>RayJob 提交与批调度</h2><h3 id="从集群准备到程序提交"><a href="#从集群准备到程序提交" class="headerlink" title="从集群准备到程序提交"></a>从集群准备到程序提交</h3><p>现在可以把图 1 中“准备 Ray 运行环境”展开到 Pod 和进程。图 4 假设声明需要一个 head Pod 和两个 worker Pod，省略上层 RayJob 和提交程序，先看这套集群怎么运行起来。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-00-reading-guide/03-ray.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 4：KubeRay 管理资源，Kubernetes 启动容器，Ray 在容器内安排计算；下半部分是示例部署位置"><img src="/kuberay-volcano-00-reading-guide/03-ray.svg" alt="图 4：KubeRay 管理资源，Kubernetes 启动容器，Ray 在容器内安排计算；下半部分是示例部署位置" width="960" height="585" style="--diagram-width:960px"></a></div><figcaption>图 4：KubeRay 管理资源，Kubernetes 启动容器，Ray 在容器内安排计算；下半部分是示例部署位置 <a href="/kuberay-volcano-00-reading-guide/03-ray.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>KubeRay 读取 RayCluster 并创建所需资源；Scheduler 给 Pod 选择 Node；节点上的 kubelet 和容器运行时启动 Ray 容器。图中把一个 head Pod 和两个 worker Pod 放在两台机器上，实际位置由资源需求和调度规则决定。Operator 也可以运行在这些 Node 上，为突出职责，图中单独列出它。</p>
-<p>容器里的 Ray 进程组成集群之后，还需要把入口程序交给它运行。本系列的 RayJob 案例会等待集群就绪，再创建一个 Kubernetes Job 来运行提交程序。Kubernetes Job 是管理运行至完成的 Pod 的内置资源；这里的 Pod 运行 Ray CLI，也就是 Ray 的命令行工具，通过 Ray Jobs API 提交入口命令。</p>
+<p>容器里的 Ray 进程组成集群之后，还需要把入口程序交给它运行。这里的 RayJob 使用专用集群，会等待集群就绪，再创建一个 Kubernetes Job 来运行提交程序。Kubernetes Job 是管理运行至完成的 Pod 的内置资源；这里的 Pod 运行 Ray CLI，也就是 Ray 的命令行工具，通过 Ray Jobs API 提交入口命令。</p>
 <p>因此，一条流程里会同时出现 RayJob、Kubernetes Job 和 Ray 作业。RayJob 描述这次作业的管理要求；提交用的 Kubernetes Job 管理提交程序的 Pod；Ray 接收入口命令后运行用户程序，安排它发起的 task 和 actor。资源创建成功、提交程序启动、用户计算完成，是三个不同的进展。</p>
-<p>计算开始以后，Ray 节点之间的计算数据不经过 Operator。KubeRay 继续检查作业状态，并按声明决定怎样收尾。Pod 是否存在、容器是否就绪、程序是否成功，各有对应的观察依据，第一篇会把这些状态放在同一条提交过程中说明。</p>
-<p>程序及依赖怎样到达容器，也需要提前确定。后续案例统一假设它们已经包含在运行镜像中。声明一个 RayJob 本身不会把客户端电脑上的任意目录上传到集群；本地打包、上传和持久保存，需要对应的提交或制品管理流程。</p>
+<p>计算开始以后，Ray 节点之间的计算数据不经过 Operator。KubeRay 继续检查作业状态，并按声明决定怎样收尾。Pod 是否存在、容器是否就绪、程序是否成功，各有对应的观察依据。</p>
+<p>程序及依赖怎样到达容器，也需要提前确定。这里假设它们已经包含在运行镜像中。声明一个 RayJob 本身不会把客户端电脑上的任意目录上传到集群；本地打包、上传和持久保存，需要对应的提交或制品管理流程。</p>
 <h3 id="资源竞争与-Volcano"><span id="7-多个作业争用资源时，为什么会考虑-Volcano" class="series-legacy-anchor" aria-hidden="true"></span><a href="#资源竞争与-Volcano" class="headerlink" title="资源竞争与 Volcano"></a>资源竞争与 Volcano</h3><p>前面的步骤解决了怎样创建和维护 Ray 集群。若同时提交几套作业，机器资源只能满足其中一部分，接下来还要决定谁先运行，以及怎样在作业之间分配资源。</p>
 <p>例如，两个作业都至少需要三个成员才能有效计算，机器却只能容纳四个等大的成员。如果各自启动两个，双方都可能占着资源等剩下的成员。默认的 Pod 调度路径不会自动从业务代码推导出这种组内依赖，需要另外表达“这一组至少满足什么条件，启动才有意义”。这只适用于有相应要求的程序；有些 Ray 程序能够利用现有 worker 逐步计算，不必等待全部成员到齐。</p>
 <p>Volcano 是建立在 Kubernetes 上的批处理与调度系统。这里的批处理主要指一批提交后需要安排资源执行的计算工作负载。它提供成组调度、队列和资源共享策略：成组调度通常称为 Gang，检查一组成员是否满足最低运行要求；队列把采用同一资源策略的工作负载组织起来，用于决定它们怎样共享资源。</p>
 <p>接入时，KubeRay 继续负责 Ray 集群和作业生命周期，把组的调度要求交给 Volcano。Volcano 为相关 Pod 选择节点，kubelet 仍在节点上启动容器，Ray 继续在运行环境中安排 task 和 actor。安装 Volcano 不会让计算结果自动持久化，也不会代替 KubeRay 管理作业提交和收尾。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-00-reading-guide/04-options.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 5：Ray 可以直接部署，也可以选择 Kubernetes 场景。图中只列出默认调度器与 Volcano 两种选择；箭头概括职责交接，省略绑定结果经 API 传递等步骤。"><img src="/kuberay-volcano-00-reading-guide/04-options.svg" alt="图 5：Ray 可以直接部署，也可以选择 Kubernetes 场景。图中只列出默认调度器与 Volcano 两种选择；箭头概括职责交接，省略绑定结果经 API 传递等步骤。" width="960" height="655" style="--diagram-width:960px"></a></div><figcaption>图 5：Ray 可以直接部署，也可以选择 Kubernetes 场景。图中只列出默认调度器与 Volcano 两种选择；箭头概括职责交接，省略绑定结果经 API 传递等步骤。 <a href="/kuberay-volcano-00-reading-guide/04-options.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>是否接入 Volcano，要看业务有没有最低成员要求、队列间共享或优先级等调度需求，以及现有调度方式能否满足。第一至第五篇先分析 KubeRay 的基础流程，第六至第八篇介绍 Volcano，第九篇再把两者接起来。</p>
+<p>是否接入 Volcano，要看业务有没有最低成员要求、队列间共享或优先级等调度需求，以及现有调度方式能否满足。</p>
 <h2 id="小结：计算、部署与调度的分工"><span id="小结：职责边界与阅读路线" class="series-legacy-anchor" aria-hidden="true"></span><span id="系列阅读路线" class="series-legacy-anchor" aria-hidden="true"></span><span id="8-后续文章怎样展开架构与设计" class="series-legacy-anchor" aria-hidden="true"></span><a href="#小结：计算、部署与调度的分工" class="headerlink" title="小结：计算、部署与调度的分工"></a>小结：计算、部署与调度的分工</h2><p>到这里，四个项目可以按各自处理的对象区分：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>
 <tr>
 <th>项目</th>
-<th>在本系列场景中负责什么</th>
+<th>在上述部署中负责什么</th>
 <th>采用条件</th>
 </tr>
 </thead>
@@ -436,12 +436,12 @@
 <tr>
 <td>Ray</td>
 <td>执行用户程序，安排 task 和 actor，管理计算对象</td>
-<td>本系列研究的计算框架，可以独立部署</td>
+<td>需要分布式计算，可以独立部署</td>
 </tr>
 <tr>
 <td>Kubernetes</td>
 <td>保存部署声明，安排 Pod 到节点，管理容器运行</td>
-<td>本系列选择的部署环境</td>
+<td>选择用 Kubernetes 管理容器部署</td>
 </tr>
 <tr>
 <td>KubeRay</td>
@@ -451,12 +451,11 @@
 <tr>
 <td>Volcano</td>
 <td>根据组需求和队列策略，为相应 Pod 分配资源与选择节点</td>
-<td>按调度需求接入，第六至第九篇展开分析</td>
+<td>按调度需求接入</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>下一篇从提交 <code>demo-job</code> 开始，追踪 RayJob、RayCluster、Pod 和提交程序之间的交接：<a href="/kuberay-volcano-01-architecture/">KubeRay 架构：组件分工与协作</a>。全部篇目见<a href="/kuberay-volcano/">系列目录</a>。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/ray-project/kuberay/tree/6bf05eb17a3e2e06fb454471265b2afa34d66e90">KubeRay 源码</a></li>
 <li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/overview/">Kubernetes 概述</a></li>
