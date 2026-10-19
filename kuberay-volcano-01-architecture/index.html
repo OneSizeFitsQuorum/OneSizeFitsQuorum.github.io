@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-01.svg?v=ray-20260916">
 <meta property="article:published_time" content="2026-09-15T15:40:00.000Z">
-<meta property="article:modified_time" content="2026-09-21T12:11:00.000Z">
+<meta property="article:modified_time" content="2026-10-19T10:30:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
 <meta property="article:tag" content="分布式计算">
@@ -324,7 +324,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：2 天前
+                    本文最后更新于：39 分钟前
                   
                 
               </p>
@@ -334,7 +334,7 @@
                 
                 <div class="series-article"><nav class="series-nav" aria-label="篇首系列导航"><div class="series-nav-title"><a href="/kuberay-volcano/">从源码理解 KubeRay 与 Volcano</a><span>第 1 篇 / 共 11 篇</span></div><p class="series-subtitle">Ray 集群管理与批调度</p><details><summary>展开完整阅读顺序</summary><ol start="0"><li><a href="/kuberay-volcano-00-reading-guide/">第 0 篇｜从 Ray 到 Kubernetes：KubeRay 与 Volcano 各自解决什么问题</a></li><li class="is-current"><a href="/kuberay-volcano-01-architecture/" aria-current="page">第 1 篇｜KubeRay 架构：组件分工与协作</a></li><li><a href="/kuberay-volcano-02-reconcile/">第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></li><li><a href="/kuberay-volcano-03-concurrency/">第 3 篇｜KubeRay 并发：一个 Operator 如何管理 100 个 RayCluster</a></li><li><a href="/kuberay-volcano-04-recovery/">第 4 篇｜KubeRay 恢复：Operator 重启后如何继续工作</a></li><li><a href="/kuberay-volcano-05-high-availability/">第 5 篇｜KubeRay 高可用：从主备切换到 Ray 服务恢复</a></li><li><a href="/kuberay-volcano-06-volcano-architecture/">第 6 篇｜Volcano 架构：从 Pod 到作业</a></li><li><a href="/kuberay-volcano-07-volcano-gang/">第 7 篇｜Volcano Gang 调度：成组分配与绑定</a></li><li><a href="/kuberay-volcano-08-volcano-queues/">第 8 篇｜Volcano 资源竞争：队列份额与作业调度</a></li><li><a href="/kuberay-volcano-09-kuberay-volcano/">第 9 篇｜KubeRay 与 Volcano：接入与生命周期协作</a></li><li><a href="/kuberay-volcano-10-source-reading-report/">第 10 篇｜总结：从 KubeRay 与 Volcano 看 Operator 设计</a></li></ol></details><div class="series-step-links"><a href="/kuberay-volcano-00-reading-guide/">上一篇：第 0 篇｜从 Ray 到 Kubernetes：KubeRay 与 Volcano 各自解决什么问题</a><a href="/kuberay-volcano-02-reconcile/">下一篇：第 2 篇｜KubeRay 协调：从 Pod 变化到 Reconcile</a></div></nav><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第零篇解释了 Ray、Kubernetes 和 KubeRay 的基本分工。这一篇把分工放进一次 RayJob 提交：使用者只创建一个 RayJob，集群里随后却出现 RayCluster、head Pod、worker Pod，以及一个运行提交程序的 Kubernetes Job。这些对象分别由谁创建，程序又从哪一步开始交给 Ray？</p>
 <p>本例使用名为 <code>demo-job</code> 的 RayJob 运行 Python 程序。KubeRay 为它准备一套专用集群，其中有一个 head Pod 和两个 worker Pod；集群就绪后再提交程序，成功完成后保留集群 60 秒。程序及依赖已经放进运行镜像，暂不启用自动扩缩容。</p>
-<p>下文把提交用的 Kubernetes Job 称为 submitter Job，把它创建的 Pod 称为 submitter Pod。第一至第五篇沿用这个不启用 Volcano 的基础案例；第六至第八篇单独介绍 Volcano，第九篇再回到 <code>demo-job</code> 说明接入方式。本文先走完资源创建、程序提交和收尾，队列、恢复与多副本接管留到后文。</p>
+<p>提交程序也需要一个运行位置：Kubernetes Job 创建的 submitter Pod 负责向 Ray 提交程序。下文把这个 Job 简称为 submitter Job。第一至第五篇沿用这套基础部署；第六至第八篇介绍 Volcano，第九篇再将它接入同一个案例。</p>
 <h2 id="KubeRay-的职责与核心资源"><span id="1-谁管理集群，谁执行计算" class="series-legacy-anchor" aria-hidden="true"></span><a href="#KubeRay-的职责与核心资源" class="headerlink" title="KubeRay 的职责与核心资源"></a>KubeRay 的职责与核心资源</h2><h3 id="集群管理与计算执行"><a href="#集群管理与计算执行" class="headerlink" title="集群管理与计算执行"></a>集群管理与计算执行</h3><p>沿用第 0 篇中的分工：Kubernetes 将 head 和 worker Pod 部署到节点上；Ray 在容器内安排 task 和 actor；KubeRay Operator 则根据 RayJob 等声明准备资源、跟踪状态。下面把这层分工落到两个具体接口上：Kubernetes API 管理资源对象，Ray Jobs API 接收入口命令并提供作业状态查询。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-01-architecture/01-system.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 1：KubeRay 的管理路径与 Ray 的计算路径"><img src="/kuberay-volcano-01-architecture/01-system.svg" alt="图 1：KubeRay 的管理路径与 Ray 的计算路径" width="960" height="400" style="--diagram-width:960px"></a></div><figcaption>图 1：KubeRay 的管理路径与 Ray 的计算路径 <a href="/kuberay-volcano-01-architecture/01-system.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <p>顺着图中的连接看，Operator 一侧通过 Kubernetes API 管理资源，另一侧通过 Ray 管理 API 查询作业或管理 Serve 应用。Ray 节点之间传输对象、执行 task 和 actor，不需要经过 Operator。</p>
@@ -375,7 +375,7 @@
 <p>图中的三列是独立的使用方式，分别对应不同的 RayCluster；连线表示资源的创建和管理关系，辅助资源有所省略。下文沿中间一列的新建专用集群路径阅读。</p>
 <p>以 RayJob 新建专用集群为例，它的 <code>spec.rayClusterSpec</code> 中包含集群配置。RayJob Controller 会根据这份配置构造一个独立的 RayCluster 对象。下面是 <code>constructRayClusterForRayJob</code> 中的连续节选：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs go">rayCluster := &amp;rayv1.RayCluster&#123;<br>    ObjectMeta: metav1.ObjectMeta&#123;<br>        Labels:      labels,<br>        Annotations: annotations,<br>        Name:        rayClusterName,<br>        Namespace:   rayJobInstance.Namespace,<br>    &#125;,<br>    Spec: *rayJobInstance.Spec.RayClusterSpec.DeepCopy(),<br>&#125;<br><br><span class="hljs-comment">// Set the ownership in order to do the garbage collection by k8s.</span><br><span class="hljs-keyword">if</span> err := ctrl.SetControllerReference(rayJobInstance, rayCluster, r.Scheme); err != <span class="hljs-literal">nil</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>&#125;<br></code></pre></td></tr></table></figure>
-<p><code>DeepCopy()</code> 把 RayJob 内嵌的集群配置复制给新对象。<code>Labels</code> 和 <code>Annotations</code> 都是对象上的键值元数据：label 常用于筛选资源，annotation 常用于附加说明或组件约定的配置，具体含义由读取它的程序解释。随后设置的 owner reference 记录 RayCluster 属于这个 RayJob，供 Kubernetes 垃圾回收等机制使用；这里的垃圾回收指依据资源拥有关系清理下级对象。新对象提交到 API 后，具体的集群创建工作就由 RayCluster Controller 接手。</p>
+<p>这段代码构造的仍是内存中的 RayCluster：<code>DeepCopy()</code> 复制集群配置，<code>Labels</code> 与 <code>Annotations</code> 携带筛选或配置所用的键值元数据，owner reference 记录它属于当前 RayJob。调用方把新对象写入 API 后，RayCluster Controller 才能观察到它并创建 Pod。拥有关系还让 Kubernetes 能在上层对象删除时回收下级资源。</p>
 <p>RayJob 也支持通过 <code>clusterSelector</code> 使用已有集群，此时不创建新的专用集群，收尾时也要遵循已有集群的生命周期约束。</p>
 <h2 id="组件部署与协作方式"><span id="3-Controller-和-Ray-进程分别运行在哪里" class="series-legacy-anchor" aria-hidden="true"></span><a href="#组件部署与协作方式" class="headerlink" title="组件部署与协作方式"></a>组件部署与协作方式</h2><h3 id="Controller-与-Ray-进程"><a href="#Controller-与-Ray-进程" class="headerlink" title="Controller 与 Ray 进程"></a>Controller 与 Ray 进程</h3><p>KubeRay 核心 Operator 的一个实例运行一个 Go 主进程。<code>controller-runtime</code> 是用于编写 Kubernetes 控制器的 Go 库，其中的 Manager 对象负责组织 Controller 的运行，共享客户端、缓存等基础设施。RayCluster、RayJob 和 RayService 各有自己的 Controller，但它们注册在同一个 Manager 上。</p>
 <p><code>main.go</code> 中的三处注册如下。这里拼接了三段原始调用，省略中间的选项构造和其他可选组件注册。</p>
@@ -453,7 +453,7 @@
 <p>集群尚未就绪时，<code>break</code> 退出当前状态分支，后续代码更新状态并安排再次检查。等到观察到集群就绪，Controller 才会获取 Dashboard 地址并推进提交。这里的 Go 常量 <code>rayv1.Ready</code> 对应 RayCluster 的 <code>status.state: ready</code>，与 Pod 的 Ready 条件、RayJob 的 <code>Running</code> 阶段分别属于不同资源和字段。到这一步，准备好的是运行环境，入口程序还要通过 Jobs API 提交。</p>
 <h3 id="提交程序与跟踪执行"><span id="5-2-提交程序并跟踪执行" class="series-legacy-anchor" aria-hidden="true"></span><a href="#提交程序与跟踪执行" class="headerlink" title="提交程序与跟踪执行"></a>提交程序与跟踪执行</h3><p>下面接着看提交、执行和清理。图中的 TTL 指完成后保留资源的等待期限，本例设为 60 秒。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-01-architecture/05-submit.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：图 5：提交 Ray 作业、回写状态与清理集群"><img src="/kuberay-volcano-01-architecture/05-submit.svg" alt="图 5：提交 Ray 作业、回写状态与清理集群" width="1000" height="660" style="--diagram-width:1000px"></a></div><figcaption>图 5：提交 Ray 作业、回写状态与清理集群 <a href="/kuberay-volcano-01-architecture/05-submit.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
-<p>集群准备好后，沿图 5 继续看一次成功的提交和收尾。图中的 Kubernetes 一列合并了 Job 控制器、调度和节点执行环节。</p>
+<p>图中的 Kubernetes 一列合并了 Job 控制器、调度器和节点执行环节。下面重点看提交程序如何把入口命令交给 Ray。</p>
 <p>RayJob Controller 在 <code>K8sJobMode</code> 分支中创建提交用的 Kubernetes Job。下面是对应代码的连续节选：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> rayJobInstance.Spec.SubmissionMode == rayv1.K8sJobMode &#123;<br>    <span class="hljs-keyword">if</span> err := r.createK8sJobIfNeed(ctx, rayJobInstance, rayClusterInstance); err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> ctrl.Result&#123;RequeueAfter: RayJobDefaultRequeueDuration&#125;, err<br>    &#125;<br>&#125;<br><br>rayJobInstance.Status.JobDeploymentStatus = rayv1.JobDeploymentStatusRunning<br></code></pre></td></tr></table></figure>
 <p>Kubernetes 自己的 Job 控制器根据这个 Job 创建 submitter Pod。submitter 运行 Ray CLI，通过 head Service 访问 Dashboard 的 Jobs API。</p>
@@ -497,7 +497,7 @@
 <p><code>handleShutdownAfterJobFinishes</code> 在这条路径中保留 RayJob CR 和提交用的 Kubernetes Job。这样还能查询 RayJob 的状态，并在相关 Pod、日志仍可访问时查看提交日志。</p>
 <p>结果文件、日志和程序版本仍需另外归档。保留下来的 RayJob 对象主要记录这次执行的声明与状态。</p>
 <h2 id="小结：KubeRay-的分层设计"><span id="6-从这次提交理解-KubeRay-的分层设计" class="series-legacy-anchor" aria-hidden="true"></span><a href="#小结：KubeRay-的分层设计" class="headerlink" title="小结：KubeRay 的分层设计"></a>小结：KubeRay 的分层设计</h2><p>一次 RayJob 提交把几层管理工作接了起来：RayJob Controller 安排集群准备、程序提交与收尾；RayCluster Controller 维护运行环境；Kubernetes 调度 Pod、启动容器；Ray 接手入口程序并安排计算。各层通过资源声明、状态和管理 API 交接，运行中的 task 和 actor 不需要经过 Operator。</p>
-<p>RayCluster 被单独设计成一种资源，是因为集群的创建与维护可以服务于不同的使用方式。上层入口改变时，底层维护 head、worker 的逻辑仍可复用。</p>
+<p>将 RayCluster 独立为一种资源后，集群的创建与维护可以服务于不同的使用方式。上层入口改变时，底层维护 head、worker 的逻辑仍可复用。</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
 <table>
 <thead>

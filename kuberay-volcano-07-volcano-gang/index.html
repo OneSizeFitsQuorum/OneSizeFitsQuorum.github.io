@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tanxinyu.work/img/kuberay-volcano/cover-07.svg?v=ray-20260916">
 <meta property="article:published_time" content="2026-09-15T15:10:00.000Z">
-<meta property="article:modified_time" content="2026-09-21T12:17:00.000Z">
+<meta property="article:modified_time" content="2026-10-19T10:30:00.000Z">
 <meta property="article:author" content="谭新宇">
 <meta property="article:tag" content="Ray">
 <meta property="article:tag" content="分布式计算">
@@ -262,7 +262,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          3.4k 字
+          3.1k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
           <!-- compatible with older versions-->
-          11 分钟
+          10 分钟
         
       </span>
     
@@ -325,7 +325,7 @@
                 
                   
                     <!-- compatible with older versions-->
-                    本文最后更新于：2 天前
+                    本文最后更新于：39 分钟前
                   
                 
               </p>
@@ -342,61 +342,31 @@
 <table>
 <thead>
 <tr>
-<th>在调度循环中的角色</th>
-<th>源码名称与作用</th>
-<th>在本例中对应什么</th>
+<th>本篇先用到的对象</th>
+<th>作用</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>长期缓存</td>
-<td><code>SchedulerCache</code> 持续接收 informer 更新，保存调度器长期观察到的 Node、Queue、PodGroup 和 Pod 状态</td>
-<td>调度循环开始前的最新集群视图</td>
+<td><code>JobInfo</code></td>
+<td>一个 PodGroup 及其成员；本例是三个 Pod 组成的作业</td>
 </tr>
 <tr>
-<td>本轮视图</td>
-<td><code>Session</code> 从缓存取得一轮快照，并保存本轮排序、资源账目和插件状态</td>
-<td>一次 <code>runOnce</code> 使用的工作空间</td>
+<td><code>TaskInfo</code></td>
+<td>一个成员 Pod，保存资源请求和目标节点等信息</td>
 </tr>
 <tr>
-<td>作业</td>
-<td><code>JobInfo</code> 表示一个 PodGroup 及其成员，包括最低成员数和成员状态</td>
-<td><code>ray-demo-job-pg</code> 与三个成员的集合</td>
+<td><code>Session</code></td>
+<td>本轮调度的工作视图，保存节点、队列和作业状态</td>
 </tr>
 <tr>
-<td>成员</td>
-<td><code>TaskInfo</code> 表示一个成员 Pod，包括资源请求、当前状态和目标节点</td>
-<td>三个成员中的任意一个</td>
-</tr>
-<tr>
-<td>队列</td>
-<td><code>QueueInfo</code> 保存一个 Queue 的需求、已分配量和本轮份额</td>
-<td><code>ray-batch</code> 的资源账目</td>
-</tr>
-<tr>
-<td>节点</td>
-<td><code>NodeInfo</code> 保存一个 Node 的空闲、已用、正在释放的资源和成员列表</td>
-<td>每个候选节点能否再容纳一个成员</td>
-</tr>
-<tr>
-<td>执行阶段</td>
-<td><code>Action</code> 推进一轮调度中的一个阶段</td>
-<td>enqueue、allocate、backfill</td>
-</tr>
-<tr>
-<td>判断规则</td>
-<td><code>Plugin</code> 在判断点注册排序、过滤和就绪函数</td>
-<td>gang、predicates、proportion 等</td>
-</tr>
-<tr>
-<td>尝试记录</td>
-<td><code>Statement</code> 记录本次尝试产生的分配或驱逐操作，以便整批提交或撤销</td>
-<td>三个成员的试分配记录</td>
+<td><code>Statement</code></td>
+<td>本次尝试的操作记录，决定提交哪些分配，或撤销哪些尝试</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><code>JobInfo</code> 和其中的 <code>TaskInfo</code> 描述要调度的作业与成员。Action 推进流程，在需要判断时调用 Plugin 注册的函数。Session 保存它们使用的本轮数据，Statement 记录尚未正式绑定的尝试。</p>
+<p>成员试放在哪个节点，记录在 Session 中；这批试放是否提交，由 Statement 收尾。后文遇到 Action 和 Plugin 时，再区分推进流程的阶段与参与判断的规则。</p>
 <figure class="series-figure"><div class="series-figure-scroll" tabindex="0" role="region" aria-label="配图，可横向滚动"><a href="/kuberay-volcano-07-volcano-gang/01-session.svg" target="_blank" rel="noopener" aria-label="打开原始 SVG：长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。"><img src="/kuberay-volcano-07-volcano-gang/01-session.svg" alt="长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。" width="960" height="440" style="--diagram-width:960px"></a></div><figcaption>长期缓存提供本轮快照。Action 在同一个 Session 中依次执行，Plugin 通过回调参与判断；提交后进入缓存与绑定路径。 <a href="/kuberay-volcano-07-volcano-gang/01-session.svg" target="_blank" rel="noopener">查看原图</a></figcaption></figure>
 <h2 id="先走完一次成组调度"><a href="#先走完一次成组调度" class="headerlink" title="先走完一次成组调度"></a>先走完一次成组调度</h2><p>把这些术语放进同一轮执行，<code>ray-demo-job-pg</code> 会经历下面几步：</p>
 <div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
@@ -472,50 +442,7 @@
 </ul>
 <p>主案例的三个成员都有资源请求，因此下面主要跟踪 enqueue 和 allocate。第八篇使用的 preempt、reclaim 是另外两个 Action，需要显式加入配置。</p>
 <p>Plugin 不负责推进整段流程。Session 打开时，Plugin 把函数注册到不同判断点；Action 运行到相应位置时再调用它们。<code>tiers</code> 规定插件层级和调用顺序，同一个插件可以参与多个判断点，同一个判断点也可以组合多个插件的结果。</p>
-<div class="table-container series-table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动">
-<table>
-<thead>
-<tr>
-<th>插件</th>
-<th>在本篇调用链中的作用</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>priority</code></td>
-<td>比较 JobInfo 或 TaskInfo 的优先级</td>
-</tr>
-<tr>
-<td><code>gang</code></td>
-<td>根据最低成员要求判断作业能否提交本轮分配</td>
-</tr>
-<tr>
-<td><code>conformance</code></td>
-<td>在驱逐路径中保护系统关键 Pod；本篇配置未启用驱逐 Action</td>
-</tr>
-<tr>
-<td><code>overcommit</code></td>
-<td>根据集群总量、系数和已准入需求计算还能否接纳作业</td>
-</tr>
-<tr>
-<td><code>drf</code></td>
-<td>比较作业的主导资源份额，第八篇用数字展开</td>
-</tr>
-<tr>
-<td><code>predicates</code></td>
-<td>检查某个 TaskInfo 能否放到候选 Node</td>
-</tr>
-<tr>
-<td><code>proportion</code></td>
-<td>计算 Queue 的资源份额，并检查队列还能否继续分配</td>
-</tr>
-<tr>
-<td><code>nodeorder</code></td>
-<td>为通过过滤的候选 Node 排序</td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>本例重点看三个判断：<code>predicates</code> 检查成员能否放到节点，<code>proportion</code> 检查 Queue 是否还能分配资源，<code>gang</code> 检查整组是否达到提交门槛。<code>priority</code>、<code>drf</code> 和 <code>nodeorder</code> 参与先后顺序的比较；Queue 与作业的资源竞争放在下一篇解释。</p>
 <p>例如，<code>Session.JobOrderFn</code> 是比较 JobInfo 先后的判断点，<code>JobEnqueueable</code> 是资源准入判断点，<code>JobReady</code> 是 Gang 门槛判断点。这些名字表示 Action 向 Session 发起的问题，具体答案由已经注册的 Plugin 函数组合得出。</p>
 <h2 id="从资源准入到成员试分配"><span id="资源准入与-Gang-门槛" class="series-legacy-anchor" aria-hidden="true"></span><span id="从资源准入到成组分配" class="series-legacy-anchor" aria-hidden="true"></span><span id="3-进入调度与满足-Gang-是两个判断" class="series-legacy-anchor" aria-hidden="true"></span><a href="#从资源准入到成员试分配" class="headerlink" title="从资源准入到成员试分配"></a>从资源准入到成员试分配</h2><h3 id="enqueue：让作业进入可调度状态"><a href="#enqueue：让作业进入可调度状态" class="headerlink" title="enqueue：让作业进入可调度状态"></a>enqueue：让作业进入可调度状态</h3><p>先确认作业怎样取得后续分配的资格。<code>actions/enqueue/enqueue.go</code> 根据组的最低资源需求进行下面的判断：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> job.PodGroup.Spec.MinResources == <span class="hljs-literal">nil</span> || ssn.JobEnqueueable(job) &#123;<br>	ssn.JobEnqueued(job)<br>	job.PodGroup.Status.Phase = scheduling.PodGroupInqueue<br>	ssn.Jobs[job.UID] = job<br>&#125;<br></code></pre></td></tr></table></figure>
